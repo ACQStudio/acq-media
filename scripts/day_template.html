@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+@@HEAD@@
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000;color:rgba(255,255,255,.85);font:16px/1.65 -apple-system,BlinkMacSystemFont,'SF Pro Display',Inter,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:720px;margin:0 auto;padding:28px 20px 80px}
+a{color:inherit}nav a{color:rgba(255,255,255,.55);text-decoration:none;font-size:14px}
+h1{font-size:clamp(1.8rem,5vw,2.6rem);letter-spacing:-.03em;line-height:1.1;margin:18px 0 22px;color:#fff}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{font:inherit;font-size:14px;color:rgba(255,255,255,.7);background:#1c1c1e;border:0;border-radius:99px;padding:8px 16px;cursor:pointer}
+.chips button[aria-pressed=true]{background:var(--c);color:#000;font-weight:600}
+h2{font-size:15px;font-weight:600;margin:36px 0 4px;display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.6)}
+h2 i{width:11px;height:11px;border-radius:3px;background:var(--c)}
+article{padding:20px 0;border-bottom:1px solid #1c1c1e}
+h3{font-size:1.2rem;line-height:1.3;letter-spacing:-.015em;color:#fff;margin:0 0 8px}
+p{margin:0 0 10px;color:rgba(255,255,255,.7)}summary{cursor:pointer;color:rgba(255,255,255,.55);font-size:14px;margin-bottom:8px}
+.src{font-size:14px;color:rgba(255,255,255,.5);margin:8px 0 0}
+</style></head><body><main>
+<nav><a href="../arhiva.html">← Arhivă</a> &nbsp;/&nbsp; <a href="../index.html">ACQ Media</a></nav>
+<h1>Știrile din @@DATE@@</h1>
+<div class="chips" role="group" aria-label="Filtrează secțiunile">@@CHIPS@@</div>
+@@BODY@@
+</main>
+<script>document.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>{b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');const on=[...document.querySelectorAll('.chips [aria-pressed=true]')].map(x=>x.dataset.c);document.querySelectorAll('section[data-c]').forEach(s=>s.hidden=!on.includes(s.dataset.c))})</script>
+</body></html>
