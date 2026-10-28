@@ -116,5 +116,58 @@ $$('.f').forEach(card=>{
 });
 apply();
 </script>
-</body>
+<style>
+header{margin-bottom:38px!important}
+h1{font-size:clamp(2.7rem,5.8vw,4rem)!important;font-weight:680!important;letter-spacing:-.065em!important;line-height:1!important}
+.date{margin:12px 0 28px!important}
+.grid{--card-h:352px;--offset:24px;position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important;padding-top:var(--deck-space,424px)!important}
+.f[data-c]{position:absolute!important;top:0;left:0;right:0;height:var(--card-h);padding:0!important;color:#121317;text-decoration:none;z-index:1;transform:translate3d(0,var(--offset-y,0px),0)!important;transition:transform .58s cubic-bezier(.18,.86,.24,1.12),filter .25s ease!important;animation:acq-card-in .55s ease both!important}
+.f[data-c][hidden]{display:none!important}.f[data-c]:active{filter:brightness(.97)}
+.f[data-c]:focus-visible{outline:3px solid #fff;outline-offset:5px;border-radius:24px;z-index:8!important}
+.tab{display:none!important}
+.bk{position:absolute!important;z-index:0;inset:5px 0 -5px!important;background:#cfd1d5!important;border:0!important;border-radius:24px!important;transition:transform .58s cubic-bezier(.18,.86,.24,1.12)!important}
+.fr{position:relative!important;z-index:1;display:flex!important;flex-flow:row wrap!important;align-content:flex-start;align-items:baseline;min-height:0!important;height:100%;padding:19px 24px 24px!important;background:#eceef1!important;border:1px solid rgba(18,20,25,.09)!important;border-radius:24px!important;overflow:hidden;transform:none!important;transform-style:flat!important;transition:filter .25s ease!important}
+.n,.k,.h{position:relative;transform:none!important;transition:none!important}
+.n{font-size:15px!important;font-weight:740!important;letter-spacing:.015em!important;line-height:1.2}
+.f[data-c="sport"] .n{color:#147747!important}.f[data-c="hot"] .n{color:#b32635!important}.f[data-c="news"] .n{color:#626775!important}.f[data-c="music"] .n{color:#3165c5!important}
+.k{display:inline-flex!important;margin:0 0 0 auto!important;padding:0!important;background:none!important;border:0;border-radius:0;font-size:12px!important;font-weight:540!important;letter-spacing:0!important;text-transform:none!important;opacity:.62}
+.h{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;flex-basis:100%;margin-top:16px!important;padding:0!important;border:0!important;font-size:clamp(17px,2.2vw,21px)!important;line-height:1.34!important;font-weight:590!important;letter-spacing:-.025em!important}
+.h+.h{margin-top:12px!important;padding-top:12px!important;border-top:1px solid rgba(0,0,0,.14)!important}
+.fr::after{content:"Deschide secțiunea  ↗"!important;position:absolute!important;right:24px;bottom:20px;margin:0!important;padding:0!important;font-size:11px!important;line-height:1;font-weight:620;letter-spacing:.015em;opacity:.58}
+@keyframes acq-card-in{from{opacity:0}to{opacity:1}}
+@media(hover:hover) and (pointer:fine){.f[data-c]:hover .fr{filter:brightness(1.035)}.f[data-c]:hover .bk{transform:translateY(3px)}.f[data-c]:focus-visible .fr{filter:brightness(1.02)}}
+.f.opening{z-index:9!important;transform:translateY(-7px) scale(1.012)!important;transition-duration:.22s!important}.f.opening .bk{transform:translateY(4px)!important}
+.arch{grid-column:1!important;margin-top:26px!important;padding:0!important;position:relative!important;display:block!important}
+.arch .tab{display:none!important}.arch .bk{inset:4px 0 -4px!important;background:#141518!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:20px!important}
+.arch .fr{min-height:82px!important;height:auto!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;padding:19px 22px!important;background:#141518!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:20px!important;color:#f5f5f7!important}
+.arch .n{font-size:20px!important;letter-spacing:-.04em!important;color:#f5f5f7!important}.arch .k{margin:0!important;padding:0!important;background:none!important;font-size:12px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important;opacity:.66}.arch .fr::after{content:"↗"!important;position:static!important;margin:0!important;padding:0!important;font-size:18px!important;letter-spacing:0;opacity:.8}
+.acq-deck-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;width:min(100%,560px);margin:17px auto 0;color:rgba(238,239,244,.58);font-size:12px;font-weight:560}
+.acq-deck-nav button{display:grid;place-items:center;width:42px;height:38px;color:#f5f5f7;background:#151619;border:1px solid rgba(255,255,255,.1);border-radius:13px;font:inherit;font-size:18px;cursor:pointer;transition:background .2s ease,transform .2s ease}
+.acq-deck-nav button:hover:not(:disabled){background:#232428;transform:translateY(-1px)}.acq-deck-nav button:active:not(:disabled){transform:scale(.96)}.acq-deck-nav button:disabled{opacity:.35;cursor:default}
+.acq-deck-nav span{min-width:0;flex:1;text-align:center;text-transform:capitalize;letter-spacing:.035em}
+@media(max-width:520px){.grid{--card-h:326px;--offset:21px}.fr{padding:18px 19px 22px!important}.h{font-size:17px!important}.h+.h{margin-top:10px!important;padding-top:10px!important}.fr::after{right:19px;bottom:18px}.arch .fr{min-height:74px!important;padding:16px 18px!important}.arch .n{font-size:18px!important}}
+@media(min-width:900px){.grid{--card-h:364px;--offset:25px}.wrap{width:min(100%,850px)}.h{font-size:21px!important}}
+@media(prefers-reduced-motion:reduce){.f[data-c],.f[data-c] .fr,.f[data-c] .bk,.acq-deck-nav button{animation:none!important;transition:none!important}}
+</style>
+<script>(()=>{const eyebrow=document.querySelector('.eyebrow');if(eyebrow)eyebrow.remove();document.querySelector('h1').textContent='Știrile zilei.';
+ const stack=document.querySelector('#stack'),cards=[...document.querySelectorAll('#stack .f[data-c]')],boxes=[...document.querySelectorAll('#sheet input')];
+ const nav=document.createElement('nav');nav.className='acq-deck-nav';nav.setAttribute('aria-label','Navighează între secțiuni');nav.innerHTML='<button type="button" aria-label="Secțiunea anterioară">←</button><span aria-live="polite"></span><button type="button" aria-label="Secțiunea următoare">→</button>';const archive=stack.querySelector('.arch');if(archive)stack.insertBefore(nav,archive);else stack.after(nav);
+ const buttons=nav.querySelectorAll('button'),label=nav.querySelector('span');let active=cards[0]?.dataset.c,startX=null,swiped=false;
+ function paint(){
+  const visible=cards.filter(card=>!card.hidden),style=getComputedStyle(stack),offset=parseFloat(style.getPropertyValue('--offset'))||24,cardH=parseFloat(style.getPropertyValue('--card-h'))||352;
+  if(!visible.some(card=>card.dataset.c===active))active=visible[0]?.dataset.c;
+  const current=visible.findIndex(card=>card.dataset.c===active),total=visible.length;
+  visible.forEach((card,index)=>{const depth=(current-index+total)%total;card.style.setProperty('--offset-y',((total-1-depth)*offset)+'px');card.style.zIndex=String(total-depth)});
+  stack.style.setProperty('--deck-space',(cardH+Math.max(0,total-1)*offset)+'px');
+  label.textContent=total?visible[current].querySelector('.n').textContent+' · '+(current+1)+' / '+total:'Nu există secțiuni selectate';buttons.forEach(button=>button.disabled=total<2);
+ }
+ function move(direction){const visible=cards.filter(card=>!card.hidden);if(visible.length<2)return;const i=visible.findIndex(card=>card.dataset.c===active);active=visible[(i+direction+visible.length)%visible.length].dataset.c;paint()}
+ buttons[0].addEventListener('click',()=>move(-1));buttons[1].addEventListener('click',()=>move(1));
+ document.addEventListener('keydown',event=>{if(document.querySelector('#sheet.on'))return;if(event.key==='ArrowLeft')move(-1);if(event.key==='ArrowRight')move(1)});
+ stack.addEventListener('pointerdown',event=>{startX=event.clientX},{passive:true});
+ stack.addEventListener('pointerup',event=>{if(startX===null)return;const dx=event.clientX-startX;startX=null;if(Math.abs(dx)>48){swiped=true;move(dx<0?1:-1);setTimeout(()=>swiped=false,350)}},{passive:true});
+ stack.addEventListener('click',event=>{if(swiped){event.preventDefault();event.stopImmediatePropagation()}},true);
+ boxes.forEach(box=>box.addEventListener('change',()=>setTimeout(paint,0)));window.addEventListener('resize',paint);paint();
+})();
+</script></body>
 </html>
