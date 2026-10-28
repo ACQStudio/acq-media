@@ -1,0 +1,85 @@
+{
+ "model": "gemini-3.8-flash",
+ "use_source_images": true,
+ "categories": {
+  "sport": {
+   "file": "sport.html",
+   "meta_key": "src",
+   "brief": "Sport: cele mai importante știri ale zilei din fotbal (inclusiv România și cupele europene), tenis, Formula 1 și alte evenimente majore. Evită zvonurile de transfer neconfirmate.",
+   "feeds": [
+    "https://feeds.bbci.co.uk/sport/rss.xml",
+    "https://www.theguardian.com/football/rss",
+    "https://www.espn.com/espn/rss/news",
+    "https://www.skysports.com/rss/12040",
+    "https://www.digi24.ro/rss"
+   ],
+   "fallback_images": [
+    "https://images.unsplash.com/photo-1551958219-acbc630e2914?w=1600&q=85&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1542820242-a31cb85f8def?w=1600&q=85&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1552667466-07770ae110d0?w=1600&q=85&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1600&q=85&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1600&q=85&auto=format&fit=crop"
+   ]
+  },
+  "hot": {
+   "file": "hot.html",
+   "meta_key": "meta",
+   "brief": "Cancan / showbiz: scandaluri, nunți, divorțuri, doliu, vedete din România și din lume. Prezintă DOAR fapte confirmate de sursă; acuzațiile și zvonurile despre persoane reale se atribuie explicit sursei.",
+   "feeds": [
+    "https://www.cancan.ro/rss",
+    "https://www.libertatea.ro/feed",
+    "https://people.com/feed/",
+    "https://www.eonline.com/syndication/feeds/rssfeeds/topstories.xml",
+    "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml"
+   ],
+   "fallback_images": [
+    "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1600&q=88&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&q=88&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1529636798458-92182e662485?w=1600&q=88&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1600&q=88&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=1600&q=88&auto=format&fit=crop"
+   ]
+  },
+  "news": {
+   "file": "news.html",
+   "meta_key": "meta",
+   "brief": "Geopolitică, politică externă, economie, bănci, energie, piețe și afaceri — știrile cu cel mai mare impact.",
+   "feeds": [
+    "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "https://feeds.bbci.co.uk/news/business/rss.xml",
+    "https://www.theguardian.com/world/rss",
+    "https://www.theguardian.com/business/rss",
+    "https://ro.euronews.com/rss",
+    "https://www.digi24.ro/rss",
+    "https://www.zf.ro/rss"
+   ],
+   "fallback_images": [
+    "https://images.unsplash.com/photo-1571867424488-4565932edb41?w=1600&q=88&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=88&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1600&q=88&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1600&q=88&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1600&q=88&auto=format&fit=crop"
+   ]
+  },
+  "music": {
+   "file": "music.html",
+   "meta_key": "meta",
+   "brief": "Muzică și entertainment: lansări, turnee, concerte, festivaluri, premii, industria muzicală, inclusiv România.",
+   "feeds": [
+    "https://www.theguardian.com/music/rss",
+    "https://www.nme.com/feed",
+    "https://pitchfork.com/feed/feed-news/rss",
+    "https://www.billboard.com/feed/",
+    "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml"
+   ],
+   "fallback_images": [
+    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1600&q=88&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1600&q=88&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1600&q=88&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1584679109597-c656b19974c9?w=1600&q=88&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=1600&q=88&auto=format&fit=crop"
+   ]
+  }
+ },
+ "site_url": "https://media.acq.ro"
+}
