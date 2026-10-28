@@ -169,5 +169,63 @@ h1{font-size:clamp(2.7rem,5.8vw,4rem)!important;font-weight:680!important;letter
  stack.addEventListener('click',event=>{if(swiped){event.preventDefault();event.stopImmediatePropagation()}},true);
  boxes.forEach(box=>box.addEventListener('change',()=>setTimeout(paint,0)));window.addEventListener('resize',paint);paint();
 })();
-</script></body>
+</script><style>
+/* ACQ Media home: compact editorial Wallet deck */
+html,body{background:#090a0c!important}
+body{padding:28px max(22px,env(safe-area-inset-left)) 40px!important}
+.wrap{width:min(100%,960px)!important}
+header{margin:0 0 clamp(42px,7vh,68px)!important;padding:0 0 16px;border-bottom:1px solid #25262a}
+.brand{font-size:15px!important;font-weight:680!important;letter-spacing:-.025em!important;gap:9px!important}
+.brand small{font-size:9px!important;letter-spacing:.14em!important;color:#85878e!important}
+.pill{padding:9px 14px!important;background:#151619!important;border-color:#292a2e!important;font-size:12px!important}
+.pill:hover{background:#1c1d21!important;border-color:#42434a!important}
+.eyebrow{display:none!important}
+h1{font-size:clamp(2.8rem,6vw,4.15rem)!important;font-weight:660!important;letter-spacing:-.072em!important;line-height:.98!important}
+.date{margin:11px 0 28px!important;color:#8c8e95!important;font-size:13px!important;letter-spacing:.01em!important}
+.date::before{content:"EDIȚIA · ";font-size:9px;font-weight:720;letter-spacing:.12em;color:#a9abb0}
+.grid{--card-h:258px;--offset:15px;position:relative!important;display:block!important;width:min(100%,780px)!important;margin:0 auto!important;gap:0!important;padding-top:var(--deck-space,303px)!important}
+.f[data-c]{position:absolute!important;top:0!important;left:0!important;right:0!important;height:var(--card-h)!important;padding:0!important;color:#18191b!important;z-index:1;opacity:1!important;transform:translate3d(0,var(--offset-y,0px),0) scale(var(--stack-scale,1)) rotate(var(--stack-rotate,0deg))!important;transform-origin:50% 50%;transition:transform .62s cubic-bezier(.2,.82,.23,1),opacity .25s ease!important;animation:acq-deal .65s cubic-bezier(.2,.82,.23,1) both!important}
+.f[data-c][hidden]{display:none!important}
+.f[data-c]:focus-visible{outline:2px solid #fff!important;outline-offset:5px!important;border-radius:20px;z-index:10!important}
+.f[data-c]:active{filter:brightness(.97)}
+.f[data-c] .tab{display:block!important;top:0!important;left:24px!important;width:124px!important;height:34px!important;background:#eeefec!important;border:1px solid #d7d9d4!important;border-bottom:0!important;border-radius:13px 13px 0 0!important;transform:none!important}
+.f[data-c] .bk{inset:18px 0 0!important;background:#eeefec!important;border:1px solid #d7d9d4!important;border-radius:18px!important;transform:none!important}
+.f[data-c] .fr{position:absolute!important;inset:18px 0 0!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto minmax(0,1fr) minmax(0,1fr) auto!important;align-items:start!important;align-content:stretch!important;height:calc(100% - 18px)!important;min-height:0!important;padding:22px 26px 18px!important;background:#eeefec!important;border:1px solid #d7d9d4!important;border-radius:18px!important;overflow:hidden!important;transform:none!important;transform-style:flat!important;box-shadow:none!important;transition:background .22s ease!important}
+.f[data-c] .n,.f[data-c] .k,.f[data-c] .h{position:relative!important;transform:none!important;transition:none!important}
+.f[data-c] .n{grid-area:1/1!important;font-size:18px!important;font-weight:700!important;letter-spacing:-.025em!important;line-height:1.1!important}
+.f[data-c="sport"] .n{color:#28774e!important}.f[data-c="hot"] .n{color:#a94349!important}.f[data-c="news"] .n{color:#565b61!important}.f[data-c="music"] .n{color:#426b9f!important}
+.f[data-c] .k{grid-area:1/2!important;align-self:center!important;display:inline-flex!important;margin:0!important;padding:0!important;background:none!important;border:0!important;border-radius:0!important;font-size:11px!important;font-weight:540!important;letter-spacing:0!important;text-transform:none!important;color:#73767b!important;opacity:1!important;white-space:nowrap}
+.f[data-c] .h{grid-column:1/-1!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;align-self:stretch!important;min-width:0!important;margin:0!important;padding:13px 0 0!important;border:0!important;border-top:1px solid #d6d8d3!important;font-size:clamp(16px,2vw,19px)!important;font-weight:570!important;line-height:1.36!important;letter-spacing:-.025em!important;color:#202124!important;overflow:hidden!important}
+.f[data-c] .h+.h{grid-row:3!important;align-self:start!important;margin-top:12px!important;padding-top:12px!important;border-top:1px solid #d6d8d3!important}
+.f[data-c] .fr::after{grid-area:4/1/5/3!important;align-self:end!important;justify-self:end!important;position:static!important;margin:0!important;padding:0!important;content:"Deschide secțiunea  ↗"!important;font-size:10px!important;font-weight:620!important;letter-spacing:.015em!important;color:#66696e!important;opacity:1!important}
+.f[data-c].no-news .h{align-self:center!important;max-width:520px!important;padding:0!important;border:0!important;font-size:16px!important;font-weight:500!important;line-height:1.5!important;color:#55585d!important}
+.f[data-c].no-news .h::before{display:block!important;margin-bottom:8px!important;content:"EDIȚIA DE AZI"!important;font-size:9px!important;font-weight:720!important;letter-spacing:.12em!important;color:#898c90!important}
+.f[data-c].opening{z-index:10!important;transform:translateY(-5px) scale(1.012)!important;transition-duration:.22s!important}
+.f[data-c].opening .fr{background:#f4f5f2!important}
+.acq-deck-nav{width:min(100%,340px)!important;margin:15px auto 0!important;gap:14px!important;color:#85878e!important;font-size:11px!important}
+.acq-deck-nav button{width:36px!important;height:34px!important;background:#141518!important;border:1px solid #2a2b30!important;border-radius:11px!important;color:#e8e9eb!important;font-size:16px!important;transition:transform .25s ease,background .25s ease!important}
+.acq-deck-nav button:hover:not(:disabled){background:#1b1c20!important;transform:translateY(-2px)!important}
+.acq-deck-nav span{font-size:10px!important;font-weight:650!important;letter-spacing:.11em!important;text-transform:uppercase!important;color:#c1c2c6!important}
+.arch{position:relative!important;display:block!important;width:min(100%,780px)!important;margin:20px auto 0!important;padding:0!important;color:#f3f3f4!important}
+.arch .tab{display:none!important}.arch .bk{inset:3px 0 -3px!important;background:#151619!important;border:1px solid #292a2e!important;border-radius:14px!important}
+.arch .fr{display:flex!important;min-height:58px!important;height:auto!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;padding:14px 18px!important;background:#151619!important;border:1px solid #292a2e!important;border-radius:14px!important;color:#f3f3f4!important}
+.arch .n{font-size:14px!important;font-weight:620!important;letter-spacing:-.015em!important;color:#e5e5e7!important}
+.arch .k{margin:0!important;padding:0!important;background:none!important;font-size:11px!important;font-weight:480!important;letter-spacing:0!important;color:#92949a!important;opacity:1!important}
+.arch .fr::after{position:static!important;margin:0!important;padding:0!important;content:"↗"!important;font-size:15px!important;letter-spacing:0!important;color:#aeb0b5!important;opacity:1!important}
+#sheet{backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
+.sheet{border-radius:20px!important}
+@keyframes acq-deal{from{opacity:0;transform:translate3d(0,24px,0) scale(.98)}to{opacity:1;transform:translate3d(0,var(--offset-y,0px),0) scale(var(--stack-scale,1)) rotate(var(--stack-rotate,0deg))}}
+@media(max-width:600px){body{padding:20px max(18px,env(safe-area-inset-left)) 28px!important}.wrap{width:100%!important}header{margin-bottom:40px!important;padding-bottom:13px}.brand{font-size:14px!important}.brand small{font-size:8px!important}.pill{padding:8px 11px!important;font-size:11px!important}h1{font-size:clamp(2.55rem,12vw,3.4rem)!important}.date{margin:9px 0 24px!important;font-size:12px!important}.grid{--card-h:236px;--offset:13px;width:100%!important}.f[data-c] .tab{left:18px!important;width:104px!important;height:30px!important}.f[data-c] .bk{top:16px!important}.f[data-c] .fr{inset:16px 0 0!important;height:calc(100% - 16px)!important;padding:19px 18px 16px!important;border-radius:16px!important}.f[data-c] .n{font-size:16px!important}.f[data-c] .k{font-size:10px!important}.f[data-c] .h{font-size:15px!important;line-height:1.38!important}.f[data-c].no-news .h{font-size:14px!important}.f[data-c] .fr::after{font-size:9px!important}.acq-deck-nav{margin-top:12px!important}.arch{margin-top:17px!important}.arch .fr{min-height:54px!important;padding:12px 15px!important}.arch .k{font-size:10px!important}}
+@media(prefers-reduced-motion:reduce){.f[data-c],.f[data-c] .fr,.f[data-c] .bk,.acq-deck-nav button{animation:none!important;transition:none!important}}
+</style>
+<script>
+(() => {
+const stack=document.querySelector('#stack');if(!stack)return;
+const cards=[...stack.querySelectorAll('.f[data-c]')];
+cards.forEach(card=>{const h=card.querySelector('.h');if(h&&/nu este încă disponibilă/i.test(h.textContent)){card.classList.add('no-news');h.textContent='Știrile acestei secțiuni nu au fost publicate încă.';}});
+const sync=()=>{const visible=cards.filter(card=>!card.hidden);const count=String(visible.length);if(stack.style.getPropertyValue('--visible-cards')!==count)stack.style.setProperty('--visible-cards',count);const highest=Math.max(0,...visible.map(card=>Number.parseInt(getComputedStyle(card).zIndex,10)||0));visible.forEach(card=>{const depth=Math.max(0,highest-(Number.parseInt(getComputedStyle(card).zIndex,10)||0));const scale=(1-depth*.012).toFixed(3);const angle=depth?((depth%2?-1:1)*Math.min(depth*.09,.27))+'deg':'0deg';if(card.style.getPropertyValue('--stack-scale')!==scale)card.style.setProperty('--stack-scale',scale);if(card.style.getPropertyValue('--stack-rotate')!==angle)card.style.setProperty('--stack-rotate',angle);});};
+new MutationObserver(()=>requestAnimationFrame(sync)).observe(stack,{subtree:true,attributes:true,attributeFilter:['style','hidden']});sync();
+})();
+</script>
+<style>#stack{padding-top:var(--deck-space,303px)!important}</style></body>
 </html>
