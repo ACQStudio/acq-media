@@ -17,26 +17,23 @@ concurrency:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment:
       name: github-pages
     steps:
       - name: Descarcă repository-ul
         uses: actions/checkout@v4
-
       - name: Configurează Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Instalează dependențele
         run: pip install -r scripts/requirements.txt
-
       - name: Generează ediția zilei
-        run: python scripts/generate.py
+        run: python -u scripts/generate.py
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-
       - name: Salvează arhiva în repository
         run: |
           git config user.name "acq-bot"
@@ -48,12 +45,10 @@ jobs:
             git commit -m "Ediția $(date -u +%F)"
             git push
           fi
-
       - name: Pregătește site-ul pentru GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
-
       - name: Publică site-ul
         id: deployment
         uses: actions/deploy-pages@v4
