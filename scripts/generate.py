@@ -105,8 +105,8 @@ def candidates(cat):
             link, title = e.get("link"), re.sub(r"\s+", " ", e.get("title", "")).strip()
             if not link or not title: continue
             found.append({"title": title, "link": link, "rss_img": rss_img(e),
-                          "source": (d.feed.get("title", "") or url.split("/")[2]).split(" - ")[0].split(" | ")[0].strip(),
-                          "snippet": re.sub(r"<[^>]+>", "", html.unescape(e.get("summary", "")))[:600]})
+                        "source": (d.feed.get("title", "") or url.split("/")[2]).split(" - ")[0].split(" | ")[0].strip(),
+                        "snippet": re.sub(r"<[^>]+>", "", html.unescape(e.get("summary", "")))[:600]})
         return url, found, None
     feeds = cat["feeds"]
     with ThreadPoolExecutor(max_workers=min(6, len(feeds) or 1)) as pool:
@@ -126,15 +126,21 @@ def candidates(cat):
         print(f"  {count:2d} articole noi  <- {url}", flush=True)
     return out
 
-def pick(cat, cands):
-    if not cands: return []
-    cands = cands[:45]
-    lst = "\n".join(f"{i}. [{c['source']}] {c['title']} — {c['snippet'][:160]}" for i, c in enumerate(cands))
-    r = gemini(f"Ești redactor-șef la un site de știri minimalist în limba română. Secțiunea: {cat['brief']}\n"
-               f"Din lista de mai jos alege cele {N+3} cele mai importante și mai diverse știri (fără două despre același eveniment), "
-               f"în ordinea importanței. Returnează doar indicii.\n\n{lst}",
-               {"type": "OBJECT", "properties": {"ids": {"type": "ARRAY", "items": {"type": "INTEGER"}}}, "required": ["ids"]})
-    return [cands[i] for i in dict.fromkeys(r["ids"]) if isinstance(i, int) and 0 <= i < len(cands)]
+def shortlist(items, limit=6):
+    """Păstrează surse diverse fără un apel Gemini separat de selecție."""
+    by_source = {}
+    for item in items:
+        by_source.setdefault(item["source"], []).append(item)
+    selected = []
+    while len(selected) < limit:
+        added = False
+        for group in by_source.values():
+            if group and len(selected) < limit:
+                selected.append(group.pop(0))
+                added = True
+        if not added:
+            break
+    return selected
 
 def prepare(c):
     import requests, trafilatura
@@ -150,41 +156,46 @@ def prepare(c):
         print(f"  ! articol indisponibil {c['link']}: {ex}", flush=True)
     if len(text) < 600: text = c["snippet"]
     if len(text) < 200: return None
-    return {**c, "img": img, "article_text": text[:7000]}
+    return {**c, "img": img, "article_text": text[:3500]}
 
 def prepare_many(items):
     if not items: return []
-    with ThreadPoolExecutor(max_workers=min(6, len(items))) as pool:
+    with ThreadPoolExecutor(max_workers=min(12, len(items))) as pool:
         prepared = list(pool.map(prepare, items))
     return [item for item in prepared if item]
 
 def write_batch(items):
     if not items: return []
-    entries = [f"ID: {i}\nSURSĂ: {c['source']}\nTITLU ORIGINAL: {c['title']}\nTEXT: {c['article_text']}" for i, c in enumerate(items)]
+    entries = []
+    for i, c in enumerate(items):
+        entries.append(f"ID: {i}\nSECȚIUNE: {c['_section']} — {c['_brief']}\nSURSĂ: {c['source']}\nTITLU ORIGINAL: {c['title']}\nTEXT: {c['article_text']}")
     schema = {"type": "OBJECT", "properties": {"articles": {"type": "ARRAY", "items": {
         "type": "OBJECT", "properties": {"id": {"type": "INTEGER"}, "skip": {"type": "BOOLEAN"},
         "cat": {"type": "STRING"}, "hed": {"type": "STRING"}, "sum": {"type": "STRING"},
         "body": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["id", "skip"]}}},
         "required": ["articles"]}
     prompt = (
-        "Ești redactor la un site de știri în limba română. Primești mai multe texte numerotate. "
-        "Alege cel mult 5 știri distincte, importante și susținute clar de text. Pentru fiecare ID întoarce un obiect cu acel id și skip. "
+        "Ești redactor la un site de știri în limba română. Primești texte numerotate din mai multe secțiuni. "
+        "Alege cel mult 5 știri distincte, importante și susținute clar pentru fiecare secțiune. Nu amesteca secțiunile și nu combina articole. "
+        "Returnează articolele în ordinea importanței din fiecare secțiune. Pentru fiecare ID întoarce un obiect cu acel id și skip. "
         "Pentru o știre publicabilă, skip=false și completează toate câmpurile; pentru una insuficient documentată, skip=true. "
         "Scrie original, cu propriile cuvinte; nu copia și nu traduce fraze. Folosește EXCLUSIV faptele din text. Nu inventa nume, cifre, date sau citate. "
         "Atribuie explicit sursei acuzațiile și declarațiile controversate. Ton neutru. "
         "Câmpuri pentru știrile publicabile: cat = etichetă de 1-3 cuvinte; hed = titlu de maximum 110 caractere; "
-        "sum = rezumat de 2-3 propoziții, 35-55 de cuvinte; body = 3-4 paragrafe, fiecare de 2-4 propoziții. "
+        "sum = rezumat de 1-2 propoziții, 25-40 de cuvinte; body = 2-3 paragrafe scurte, fiecare de 1-2 propoziții. "
         "Păstrează ID-ul fiecărui text și nu combina informații din articole diferite.\n\n" + "\n\n---\n\n".join(entries)
     )
     result = gemini(prompt, schema)
     by_id = {}
     for article in result.get("articles", []):
         i = article.get("id")
-        if not isinstance(i, int) or i < 0 or i >= len(items) or article.get("skip"): continue
-        if not (article.get("hed") and article.get("sum") and article.get("body")): continue
+        if not isinstance(i, int) or i < 0 or i >= len(items) or article.get("skip"):
+            continue
+        if not (article.get("hed") and article.get("sum") and article.get("body")):
+            continue
         c = items[i]
-        by_id[i] = {**article, "source": c["source"], "link": c["link"], "img": c["img"]}
-    return [by_id[i] for i in range(len(items)) if i in by_id][:N]
+        by_id[i] = {**article, "source": c["source"], "link": c["link"], "img": c["img"], "_section": c["_section"]}
+    return [by_id[i] for i in range(len(items)) if i in by_id]
 
 def render(name, cat, items):
     e, n, slides, art = html.escape, len(items), [], []
@@ -211,26 +222,36 @@ def main():
         return
     if not os.getenv("GEMINI_API_KEY"):
         raise SystemExit("Lipsește GEMINI_API_KEY. Adaugă cheia în GitHub Actions Secrets înainte de rulare.")
-    ok_any, done = False, {}
+    ok_any, done, all_candidates = False, {}, []
     for name, cat in CFG["categories"].items():
         print(f"\n== {name}", flush=True)
         try:
             available = candidates(cat)
-            print(f"  {len(available)} candidați RSS", flush=True)
-            ranked = pick(cat, available)
-            print(f"  Gemini a selectat {len(ranked)} candidați; descarc textele în paralel", flush=True)
-            prepared = prepare_many(ranked)
-            print(f"  {len(prepared)} texte disponibile; redactez într-un singur apel", flush=True)
-            items = write_batch(prepared)
-            for it in items: print(f"  + {it['hed'][:80]}", flush=True)
-        except GeminiQuotaError as ex:
-            print(f"\n! {ex}\n! Oprire fără alte apeluri Gemini.", flush=True)
-            raise SystemExit(1)
+            selected = shortlist(available, 6)
+            print(f"  {len(available)} candidați RSS; descarc maximum {len(selected)} articole", flush=True)
+            for item in selected:
+                all_candidates.append({**item, "_section": name, "_brief": cat["brief"]})
         except Exception as ex:
-            print(f"  ! eroare secțiune: {ex}", flush=True); items = []
+            print(f"  ! eroare la colectarea știrilor: {ex}", flush=True)
+    prepared = prepare_many(all_candidates)
+    print(f"\n{len(prepared)} texte disponibile; redactez toate secțiunile într-un singur apel Gemini", flush=True)
+    try:
+        generated = write_batch(prepared)
+        print(f"Gemini: {1 if prepared else 0} cereri pentru toate secțiunile", flush=True)
+    except GeminiQuotaError as ex:
+        print(f"\n! {ex}\n! Oprire fără alte apeluri Gemini.", flush=True)
+        raise SystemExit(1)
+    except Exception as ex:
+        print(f"  ! eroare la redactarea în lot: {ex}", flush=True)
+        generated = []
+    for name, cat in CFG["categories"].items():
+        items = [item for item in generated if item["_section"] == name][:N]
+        for item in items:
+            item.pop("_section", None)
         if len(items) < MIN_OK:
-            print(f"  ! doar {len(items)} știri bune -> afișez mesajul de ediție indisponibilă", flush=True)
+            print(f"  ! {name}: doar {len(items)} știri bune -> afișez mesajul de ediție indisponibilă", flush=True)
             render(name, cat, []); continue
+        for it in items: print(f"  + {it['hed'][:80]}", flush=True)
         render(name, cat, items); ok_any = True; done[name] = items
         for it in items: HIST[it["link"]] = now.strftime("%Y-%m-%d")
     HIST_F.parent.mkdir(exist_ok=True); HIST_F.write_text(json.dumps(HIST, indent=0))
