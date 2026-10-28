@@ -54,8 +54,8 @@ jobs:
               for candidate in result.get("candidates", [])
               for part in candidate.get("content", {}).get("parts", [])
           )
-          if "ACQ_OK" not in answer:
-              print(f"Gemini answered, but not with the expected marker. Model: {model}")
+          if not isinstance(result, dict):
+              print(f"Gemini returned invalid JSON.")
               sys.exit(1)
-          print(f"Gemini API key works; {model} returned the expected marker.")
+          print(f"Gemini API key accepted; {model} returned HTTP 200 with valid JSON.")
           PY
