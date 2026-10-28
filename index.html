@@ -227,5 +227,5 @@ const sync=()=>{const visible=cards.filter(card=>!card.hidden);const count=Strin
 new MutationObserver(()=>requestAnimationFrame(sync)).observe(stack,{subtree:true,attributes:true,attributeFilter:['style','hidden']});sync();
 })();
 </script>
-<style>#stack{padding-top:var(--deck-space,303px)!important}</style></body>
+<style>#stack{padding-top:var(--deck-space,303px)!important}</style><style>.grid:has(.f[data-c].no-news){--card-h:196px!important;--offset:18px!important}</style></body>
 </html>
