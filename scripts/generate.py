@@ -3,6 +3,7 @@
 Rulare:  GEMINI_API_KEY=... python scripts/generate.py (opțiunea --dry-run nu schimbă fișierele)"""
 import os, re, sys, json, time, html, calendar, datetime as dt
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 from zoneinfo import ZoneInfo
 sys.path.insert(0, str(Path(__file__).parent))
 import statics
@@ -13,6 +14,7 @@ CFG = json.loads((ROOT / "feeds.json").read_text("utf-8"))
 MODEL = os.getenv("GEMINI_MODEL", CFG["model"])
 N, MIN_OK, MAX_AGE_H = 5, 3, 40
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ACQMediaBot/1.0)"}
+FEED_TIMEOUT, ARTICLE_TIMEOUT, GEMINI_TIMEOUT = (5, 12), (5, 15), 90
 LUNI = "ianuarie februarie martie aprilie mai iunie iulie august septembrie octombrie noiembrie decembrie".split()
 HIST_F = ROOT / "data" / "history.json"
 now = dt.datetime.now(ZoneInfo("Europe/Bucharest"))
@@ -44,15 +46,37 @@ EMPTY_SLIDE = """  <div class="slide sdk" data-theme="dark">
     </div>
   </div>"""
 
+class GeminiQuotaError(RuntimeError):
+    pass
+
 def gemini(prompt, schema):
     import requests
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
     body = {"contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json", "responseSchema": schema}}
-    for a in range(5):
-        r = requests.post(url, json=body, headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]}, timeout=120)
+            "generationConfig": {"maxOutputTokens": 8192, "responseMimeType": "application/json", "responseSchema": schema}}
+    for a in range(3):
+        try:
+            r = requests.post(url, json=body, headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]}, timeout=GEMINI_TIMEOUT)
+        except requests.RequestException as ex:
+            if a == 2: raise
+            wait = 5 * (a + 1)
+            print(f"  ! Gemini nu răspunde; reiau peste {wait}s: {ex}", flush=True)
+            time.sleep(wait)
+            continue
+        if r.status_code == 429:
+            try:
+                detail = r.json().get("error", {}).get("message", "")
+            except Exception:
+                detail = r.text
+            low = detail.lower()
+            if any(term in low for term in ("perday", "per day", "requests per day", "quota exceeded")):
+                raise GeminiQuotaError(f"Limita zilnică Gemini a fost atinsă: {detail}")
         if r.status_code in (429, 500, 503):
-            time.sleep(20 * (a + 1)); continue
+            if a == 2: r.raise_for_status()
+            wait = 5 * (a + 1)
+            print(f"  ! Gemini a răspuns cu {r.status_code}; reiau peste {wait}s", flush=True)
+            time.sleep(wait)
+            continue
         r.raise_for_status()
         return json.loads(r.json()["candidates"][0]["content"]["parts"][0]["text"])
     raise RuntimeError("Gemini indisponibil")
@@ -66,27 +90,44 @@ def rss_img(e):
 
 def candidates(cat):
     import requests, feedparser
-    out, seen, cut = [], set(), time.time() - MAX_AGE_H * 3600
-    for url in cat["feeds"]:
+    cut = time.time() - MAX_AGE_H * 3600
+    def read_feed(url):
         try:
-            d = feedparser.parse(requests.get(url, headers=UA, timeout=20).content)
+            response = requests.get(url, headers=UA, timeout=FEED_TIMEOUT)
+            response.raise_for_status()
+            d = feedparser.parse(response.content)
         except Exception as ex:
-            print(f"  ! feed indisponibil {url}: {ex}"); continue
-        n = 0
+            return url, [], str(ex)
+        found = []
         for e in d.entries[:15]:
             t = e.get("published_parsed") or e.get("updated_parsed")
             if t and calendar.timegm(t) < cut: continue
             link, title = e.get("link"), re.sub(r"\s+", " ", e.get("title", "")).strip()
-            key = re.sub(r"\W+", "", title.lower())[:60]
-            if not link or not title or key in seen or link in HIST: continue
-            seen.add(key); n += 1
-            out.append({"title": title, "link": link, "rss_img": rss_img(e),
-                        "source": (d.feed.get("title", "") or url.split("/")[2]).split(" - ")[0].split(" | ")[0].strip(),
-                        "snippet": re.sub(r"<[^>]+>", "", html.unescape(e.get("summary", "")))[:600]})
-        print(f"  {n:2d} articole noi  <- {url}")
+            if not link or not title: continue
+            found.append({"title": title, "link": link, "rss_img": rss_img(e),
+                          "source": (d.feed.get("title", "") or url.split("/")[2]).split(" - ")[0].split(" | ")[0].strip(),
+                          "snippet": re.sub(r"<[^>]+>", "", html.unescape(e.get("summary", "")))[:600]})
+        return url, found, None
+    feeds = cat["feeds"]
+    with ThreadPoolExecutor(max_workers=min(6, len(feeds) or 1)) as pool:
+        feed_results = list(pool.map(read_feed, feeds))
+    out, seen = [], set()
+    for url, found, error in feed_results:
+        if error:
+            print(f"  ! feed indisponibil {url}: {error}", flush=True)
+            continue
+        count = 0
+        for item in found:
+            key = re.sub(r"\W+", "", item["title"].lower())[:60]
+            if key in seen or item["link"] in HIST: continue
+            seen.add(key)
+            out.append(item)
+            count += 1
+        print(f"  {count:2d} articole noi  <- {url}", flush=True)
     return out
 
 def pick(cat, cands):
+    if not cands: return []
     cands = cands[:45]
     lst = "\n".join(f"{i}. [{c['source']}] {c['title']} — {c['snippet'][:160]}" for i, c in enumerate(cands))
     r = gemini(f"Ești redactor-șef la un site de știri minimalist în limba română. Secțiunea: {cat['brief']}\n"
@@ -95,26 +136,55 @@ def pick(cat, cands):
                {"type": "OBJECT", "properties": {"ids": {"type": "ARRAY", "items": {"type": "INTEGER"}}}, "required": ["ids"]})
     return [cands[i] for i in dict.fromkeys(r["ids"]) if isinstance(i, int) and 0 <= i < len(cands)]
 
-def write(c):
+def prepare(c):
     import requests, trafilatura
-    page = requests.get(c["link"], headers=UA, timeout=25).text
-    text = trafilatura.extract(page, include_comments=False) or ""
-    m = trafilatura.extract_metadata(page)
-    c["img"] = (m.image if m and m.image else None) or c.get("rss_img")
-    text = text[:7000] if len(text) > 600 else c["snippet"]
+    text, img = "", c.get("rss_img")
+    try:
+        response = requests.get(c["link"], headers=UA, timeout=ARTICLE_TIMEOUT)
+        response.raise_for_status()
+        page = response.text
+        text = trafilatura.extract(page, include_comments=False) or ""
+        meta = trafilatura.extract_metadata(page)
+        img = (meta.image if meta and meta.image else None) or img
+    except Exception as ex:
+        print(f"  ! articol indisponibil {c['link']}: {ex}", flush=True)
+    if len(text) < 600: text = c["snippet"]
     if len(text) < 200: return None
-    r = gemini(
-        f"Ești redactor la un site de știri în limba română. Pe baza EXCLUSIV a textului sursă de mai jos, scrie o știre originală în română, "
-        f"cu cuvintele tale (nu copia fraze din sursă, nu traduce cuvânt cu cuvânt). Nu adăuga nume, cifre, date sau citate care nu apar în text. "
-        f"Acuzațiile, zvonurile și declarațiile controversate se atribuie explicit ({c['source']} / persoana citată). Ton neutru, informativ. "
-        f"Dacă textul nu conține suficiente informații pentru o știre, pune skip=true.\n"
-        f"Câmpuri: cat = eticheta secțiunii (1-3 cuvinte, ex. Tenis, Geopolitică); hed = titlu până în 110 caractere; "
-        f"sum = rezumat de 2-3 propoziții (35-55 cuvinte); body = 3-4 paragrafe de câte 2-4 propoziții.\n\n"
-        f"SURSA: {c['source']}\nTITLU ORIGINAL: {c['title']}\nTEXT:\n{text}",
-        {"type": "OBJECT", "properties": {"skip": {"type": "BOOLEAN"}, "cat": {"type": "STRING"}, "hed": {"type": "STRING"},
-         "sum": {"type": "STRING"}, "body": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["skip"]})
-    if r.get("skip") or not (r.get("hed") and r.get("sum") and r.get("body")): return None
-    return {**r, "source": c["source"], "link": c["link"], "img": c["img"]}
+    return {**c, "img": img, "article_text": text[:7000]}
+
+def prepare_many(items):
+    if not items: return []
+    with ThreadPoolExecutor(max_workers=min(6, len(items))) as pool:
+        prepared = list(pool.map(prepare, items))
+    return [item for item in prepared if item]
+
+def write_batch(items):
+    if not items: return []
+    entries = [f"ID: {i}\nSURSĂ: {c['source']}\nTITLU ORIGINAL: {c['title']}\nTEXT: {c['article_text']}" for i, c in enumerate(items)]
+    schema = {"type": "OBJECT", "properties": {"articles": {"type": "ARRAY", "items": {
+        "type": "OBJECT", "properties": {"id": {"type": "INTEGER"}, "skip": {"type": "BOOLEAN"},
+        "cat": {"type": "STRING"}, "hed": {"type": "STRING"}, "sum": {"type": "STRING"},
+        "body": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["id", "skip"]}}},
+        "required": ["articles"]}
+    prompt = (
+        "Ești redactor la un site de știri în limba română. Primești mai multe texte numerotate. "
+        "Alege cel mult 5 știri distincte, importante și susținute clar de text. Pentru fiecare ID întoarce un obiect cu acel id și skip. "
+        "Pentru o știre publicabilă, skip=false și completează toate câmpurile; pentru una insuficient documentată, skip=true. "
+        "Scrie original, cu propriile cuvinte; nu copia și nu traduce fraze. Folosește EXCLUSIV faptele din text. Nu inventa nume, cifre, date sau citate. "
+        "Atribuie explicit sursei acuzațiile și declarațiile controversate. Ton neutru. "
+        "Câmpuri pentru știrile publicabile: cat = etichetă de 1-3 cuvinte; hed = titlu de maximum 110 caractere; "
+        "sum = rezumat de 2-3 propoziții, 35-55 de cuvinte; body = 3-4 paragrafe, fiecare de 2-4 propoziții. "
+        "Păstrează ID-ul fiecărui text și nu combina informații din articole diferite.\n\n" + "\n\n---\n\n".join(entries)
+    )
+    result = gemini(prompt, schema)
+    by_id = {}
+    for article in result.get("articles", []):
+        i = article.get("id")
+        if not isinstance(i, int) or i < 0 or i >= len(items) or article.get("skip"): continue
+        if not (article.get("hed") and article.get("sum") and article.get("body")): continue
+        c = items[i]
+        by_id[i] = {**article, "source": c["source"], "link": c["link"], "img": c["img"]}
+    return [by_id[i] for i in range(len(items)) if i in by_id][:N]
 
 def render(name, cat, items):
     e, n, slides, art = html.escape, len(items), [], []
@@ -143,27 +213,30 @@ def main():
         raise SystemExit("Lipsește GEMINI_API_KEY. Adaugă cheia în GitHub Actions Secrets înainte de rulare.")
     ok_any, done = False, {}
     for name, cat in CFG["categories"].items():
-        print(f"\n== {name}")
+        print(f"\n== {name}", flush=True)
         try:
-            items = []
-            for c in pick(cat, candidates(cat)):
-                if len(items) == N: break
-                try:
-                    it = write(c)
-                except Exception as ex:
-                    print(f"  ! sar peste {c['link']}: {ex}"); continue
-                if it: items.append(it); print(f"  + {it['hed'][:80]}")
+            available = candidates(cat)
+            print(f"  {len(available)} candidați RSS", flush=True)
+            ranked = pick(cat, available)
+            print(f"  Gemini a selectat {len(ranked)} candidați; descarc textele în paralel", flush=True)
+            prepared = prepare_many(ranked)
+            print(f"  {len(prepared)} texte disponibile; redactez într-un singur apel", flush=True)
+            items = write_batch(prepared)
+            for it in items: print(f"  + {it['hed'][:80]}", flush=True)
+        except GeminiQuotaError as ex:
+            print(f"\n! {ex}\n! Oprire fără alte apeluri Gemini.", flush=True)
+            raise SystemExit(1)
         except Exception as ex:
-            print(f"  ! eroare secțiune: {ex}"); items = []
+            print(f"  ! eroare secțiune: {ex}", flush=True); items = []
         if len(items) < MIN_OK:
-            print(f"  ! doar {len(items)} știri bune -> afișez mesajul de ediție indisponibilă")
+            print(f"  ! doar {len(items)} știri bune -> afișez mesajul de ediție indisponibilă", flush=True)
             render(name, cat, []); continue
         render(name, cat, items); ok_any = True; done[name] = items
         for it in items: HIST[it["link"]] = now.strftime("%Y-%m-%d")
     HIST_F.parent.mkdir(exist_ok=True); HIST_F.write_text(json.dumps(HIST, indent=0))
     statics.run(SITE, CFG, now.strftime("%Y-%m-%d"), done)
     if not ok_any:
-        print("\nNu s-au găsit cel puțin trei știri verificate într-o secțiune; site-ul a fost actualizat cu starea ediției.")
+        print("\nNu s-au găsit cel puțin trei știri verificate într-o secțiune; site-ul a fost actualizat cu starea ediției.", flush=True)
     sys.exit(0)
 
 if __name__ == "__main__":
