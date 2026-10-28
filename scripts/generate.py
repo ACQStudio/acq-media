@@ -12,9 +12,9 @@ ROOT = Path(__file__).parent
 SITE = Path(os.getenv("SITE_DIR", ROOT.parent))
 CFG = json.loads((ROOT / "feeds.json").read_text("utf-8"))
 MODEL = os.getenv("GEMINI_MODEL", CFG["model"])
-N, MIN_OK, MAX_AGE_H = 5, 3, 40
+N, MIN_OK, MAX_AGE_H = 2, 2, 40
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ACQMediaBot/1.0)"}
-FEED_TIMEOUT, ARTICLE_TIMEOUT, GEMINI_TIMEOUT = (5, 12), (5, 15), 90
+FEED_TIMEOUT, ARTICLE_TIMEOUT, GEMINI_TIMEOUT = (5, 12), (5, 15), 75
 LUNI = "ianuarie februarie martie aprilie mai iunie iulie august septembrie octombrie noiembrie decembrie".split()
 HIST_F = ROOT / "data" / "history.json"
 now = dt.datetime.now(ZoneInfo("Europe/Bucharest"))
@@ -53,12 +53,12 @@ def gemini(prompt, schema):
     import requests
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
     body = {"contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"maxOutputTokens": 8192, "responseMimeType": "application/json", "responseSchema": schema}}
-    for a in range(3):
+            "generationConfig": {"maxOutputTokens": 2048, "responseMimeType": "application/json", "responseSchema": schema}}
+    for a in range(1):
         try:
             r = requests.post(url, json=body, headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]}, timeout=GEMINI_TIMEOUT)
         except requests.RequestException as ex:
-            if a == 2: raise
+            raise
             wait = 5 * (a + 1)
             print(f"  ! Gemini nu răspunde; reiau peste {wait}s: {ex}", flush=True)
             time.sleep(wait)
@@ -71,8 +71,8 @@ def gemini(prompt, schema):
             low = detail.lower()
             if any(term in low for term in ("perday", "per day", "requests per day", "quota exceeded")):
                 raise GeminiQuotaError(f"Limita zilnică Gemini a fost atinsă: {detail}")
-        if r.status_code in (429, 500, 503):
-            if a == 2: r.raise_for_status()
+        if r.status_code >= 400:
+            r.raise_for_status()
             wait = 5 * (a + 1)
             print(f"  ! Gemini a răspuns cu {r.status_code}; reiau peste {wait}s", flush=True)
             time.sleep(wait)
@@ -126,7 +126,7 @@ def candidates(cat):
         print(f"  {count:2d} articole noi  <- {url}", flush=True)
     return out
 
-def shortlist(items, limit=6):
+def shortlist(items, limit=2):
     """Păstrează surse diverse fără un apel Gemini separat de selecție."""
     by_source = {}
     for item in items:
@@ -156,7 +156,7 @@ def prepare(c):
         print(f"  ! articol indisponibil {c['link']}: {ex}", flush=True)
     if len(text) < 600: text = c["snippet"]
     if len(text) < 200: return None
-    return {**c, "img": img, "article_text": text[:3500]}
+    return {**c, "img": img, "article_text": text[:1600]}
 
 def prepare_many(items):
     if not items: return []
@@ -176,13 +176,13 @@ def write_batch(items):
         "required": ["articles"]}
     prompt = (
         "Ești redactor la un site de știri în limba română. Primești texte numerotate din mai multe secțiuni. "
-        "Alege cel mult 5 știri distincte, importante și susținute clar pentru fiecare secțiune. Nu amesteca secțiunile și nu combina articole. "
+        "Alege cel mult 2 știri distincte, importante și susținute clar pentru fiecare secțiune. Nu amesteca secțiunile și nu combina articole. "
         "Returnează articolele în ordinea importanței din fiecare secțiune. Pentru fiecare ID întoarce un obiect cu acel id și skip. "
         "Pentru o știre publicabilă, skip=false și completează toate câmpurile; pentru una insuficient documentată, skip=true. "
         "Scrie original, cu propriile cuvinte; nu copia și nu traduce fraze. Folosește EXCLUSIV faptele din text. Nu inventa nume, cifre, date sau citate. "
         "Atribuie explicit sursei acuzațiile și declarațiile controversate. Ton neutru. "
-        "Câmpuri pentru știrile publicabile: cat = etichetă de 1-3 cuvinte; hed = titlu de maximum 110 caractere; "
-        "sum = rezumat de 1-2 propoziții, 25-40 de cuvinte; body = 2-3 paragrafe scurte, fiecare de 1-2 propoziții. "
+        "Câmpuri pentru știrile publicabile: cat = etichetă de 1-3 cuvinte; hed = titlu de maximum 95 de caractere; "
+        "sum = rezumat de 1-2 propoziții, 20-32 de cuvinte; body = exact 2 paragrafe scurte, fiecare de 1-2 propoziții. "
         "Păstrează ID-ul fiecărui text și nu combina informații din articole diferite.\n\n" + "\n\n---\n\n".join(entries)
     )
     result = gemini(prompt, schema)
@@ -227,14 +227,14 @@ def main():
         print(f"\n== {name}", flush=True)
         try:
             available = candidates(cat)
-            selected = shortlist(available, 6)
+            selected = shortlist(available, 2)
             print(f"  {len(available)} candidați RSS; descarc maximum {len(selected)} articole", flush=True)
             for item in selected:
                 all_candidates.append({**item, "_section": name, "_brief": cat["brief"]})
         except Exception as ex:
             print(f"  ! eroare la colectarea știrilor: {ex}", flush=True)
     prepared = prepare_many(all_candidates)
-    print(f"\n{len(prepared)} texte disponibile; redactez toate secțiunile într-un singur apel Gemini", flush=True)
+    print(f"\n{len(prepared)} texte disponibile; redactez maximum 8 texte într-un singur apel Gemini", flush=True)
     try:
         generated = write_batch(prepared)
         print(f"Gemini: {1 if prepared else 0} cereri pentru toate secțiunile", flush=True)
