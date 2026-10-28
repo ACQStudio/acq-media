@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#050506"/>
+<!--SEO-->
+<title>ACQ Media — Știrile zilei, pe scurt</title>
+<meta name="description" content="Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală.">
+<meta property="og:type" content="website"><meta property="og:title" content="ACQ Media — Știrile zilei, pe scurt"><meta property="og:description" content="Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală."><meta property="og:locale" content="ro_RO"><meta property="og:site_name" content="ACQ Media">
+<meta name="twitter:card" content="summary"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "ACQ Media", "inLanguage": "ro", "description": "Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală."}</script>
+<!--/SEO-->
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ease:cubic-bezier(.16,1,.3,1);--mut:rgba(255,255,255,.55)}
+html{background:#000}
+body{min-height:100dvh;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,sans-serif;-webkit-font-smoothing:antialiased;color:#f5f5f7;padding:max(28px,env(safe-area-inset-top)) 22px max(64px,env(safe-area-inset-bottom))}
+.wrap{max-width:620px;margin:0 auto}
+@media(min-width:680px){.wrap{max-width:940px}}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:46px}
+.brand{display:flex;align-items:center;gap:12px;font-size:16px;font-weight:750;letter-spacing:.02em}
+.brand small{font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--mut)}
+.pill{font:inherit;font-size:14px;font-weight:550;color:#f5f5f7;background:#1c1c1e;border:1px solid rgba(255,255,255,.08);border-radius:99px;padding:10px 18px;cursor:pointer;transition:background .2s,border-color .2s}
+.pill:hover{background:#2c2c2e}
+h1{font-size:clamp(2.65rem,7vw,4.7rem);font-weight:720;letter-spacing:-.055em;line-height:.98}
+.date{margin:13px 0 40px;color:var(--mut);font-size:16px;text-transform:capitalize}
+.grid{display:grid;grid-template-columns:1fr;gap:20px}
+@media(min-width:680px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}}
+.f{position:relative;display:block;padding-top:42px;color:#0a0a0a;text-decoration:none;--d:color-mix(in srgb,var(--c) 72%,#000);transition:transform .25s var(--ease)}
+.f[hidden]{display:none}
+.f:hover{transform:translateY(-3px)}
+.f:focus-visible{outline:3px solid #fff;outline-offset:4px;border-radius:24px}
+.tab{position:absolute;left:0;top:0;width:40%;height:38px;background:var(--d);border-radius:14px 14px 0 0}
+.bk{position:absolute;left:0;right:0;top:20px;bottom:0;background:var(--d);border-radius:0 22px 22px 22px}
+.fr{position:relative;display:flex;flex-direction:column;min-height:234px;padding:24px 26px 16px;background:var(--c);border-radius:20px}
+.n{font-size:clamp(2.4rem,5vw,3.1rem);font-weight:720;letter-spacing:-.055em;line-height:1}
+.k{font-size:11px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;opacity:.7;margin:8px 0 18px}
+.h{font-size:15px;line-height:1.38;font-weight:500;padding:10px 0;border-top:1px solid rgba(0,0,0,.18);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.arch{grid-column:auto;color:#f5f5f7;--c:#2c2c2e;margin-top:8px;max-width:440px}.arch .tab{height:32px;width:34%}.arch .bk{top:18px}.arch .fr{min-height:104px;flex-direction:row;align-items:center;justify-content:space-between;padding:18px 22px;background:#202023}.arch .k{opacity:.6;margin:0;text-transform:none;letter-spacing:0;font-size:13px}.arch .n{font-size:1.45rem;letter-spacing:-.03em}
+#sheet{position:fixed;z-index:10;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.68);opacity:0;pointer-events:none;transition:opacity .25s;padding:18px}
+#sheet.on{opacity:1;pointer-events:auto}
+.sheet{width:min(520px,100%);background:#1c1c1e;border:1px solid rgba(255,255,255,.1);border-radius:26px;padding:28px 26px;transform:translateY(12px);transition:transform .3s var(--ease)}
+#sheet.on .sheet{transform:none}
+.sheet h2{font-size:22px;letter-spacing:-.025em}.sheet p{color:var(--mut);font-size:14px;line-height:1.5;margin:7px 0 16px}
+.sw{position:relative;display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid rgba(255,255,255,.1);font-size:17px;cursor:pointer}
+.sw input{position:absolute;opacity:0}
+.sw i{width:50px;height:30px;border-radius:99px;background:#39393d;position:relative;transition:background .25s}
+.sw i::after{content:"";position:absolute;top:2px;left:2px;width:26px;height:26px;border-radius:50%;background:#fff;transition:transform .25s var(--ease)}
+.sw input:checked+i{background:var(--c)}.sw input:checked+i::after{transform:translateX(20px)}
+.sw input:focus-visible+i{outline:2px solid #fff;outline-offset:3px}
+.done{width:100%;margin-top:14px;padding:15px;font:inherit;font-weight:650;border:0;border-radius:14px;background:#fff;color:#000;cursor:pointer}
+@media(max-width:520px){body{padding-left:18px;padding-right:18px}header{margin-bottom:38px}.brand{gap:9px}.brand small{font-size:9px}.grid{gap:18px}.fr{min-height:216px;padding:22px 22px 14px}.arch{max-width:none}.arch .fr{min-height:92px}}
+@media (prefers-reduced-motion:reduce){.f,.sheet,#sheet,.sw i,.sw i::after{transition:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header><span class="brand">ACQ Media <small>ȘTIRI, PE SCURT</small></span><button class="pill" id="edit">Personalizează</button></header>
+  <h1>Știrile zilei</h1>
+  <p class="date" id="date"></p>
+  <section class="grid" id="stack" aria-label="Secțiuni"><!--CARDS-->
+<a class="f" data-c="sport" href="sport.html" style="--c:#22c55e"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Sport</b><span class="k">0 știri azi</span><span class="h">Ediția de azi nu este încă disponibilă.</span></span></a>
+<a class="f" data-c="hot" href="hot.html" style="--c:#ef4444"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Hot</b><span class="k">0 știri azi</span><span class="h">Ediția de azi nu este încă disponibilă.</span></span></a>
+<a class="f" data-c="news" href="news.html" style="--c:#e8e8ed"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">News</b><span class="k">0 știri azi</span><span class="h">Ediția de azi nu este încă disponibilă.</span></span></a>
+<a class="f" data-c="music" href="music.html" style="--c:#3b82f6"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Music</b><span class="k">0 știri azi</span><span class="h">Ediția de azi nu este încă disponibilă.</span></span></a>
+<!--/CARDS-->
+<a class="f arch" href="arhiva.html"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Arhivă</b><span class="k">Răsfoiește zilele trecute&nbsp; →</span></span></a>
+</section>
+</main>
+<div id="sheet" role="dialog" aria-modal="true" aria-label="Alege secțiunile">
+  <div class="sheet">
+    <h2>Ce vrei să vezi?</h2><p>Secțiunile bifate rămân în listă. Alegerea se păstrează pe acest dispozitiv.</p>
+    <label class="sw" style="--c:#22c55e">Sport<input type="checkbox" value="sport"/><i></i></label>
+    <label class="sw" style="--c:#ef4444">Hot<input type="checkbox" value="hot"/><i></i></label>
+    <label class="sw" style="--c:#e8e8ed">News<input type="checkbox" value="news"/><i></i></label>
+    <label class="sw" style="--c:#3b82f6">Music<input type="checkbox" value="music"/><i></i></label>
+    <button class="done" id="done">Gata</button>
+  </div>
+</div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+$('#date').textContent=new Intl.DateTimeFormat('ro-RO',{timeZone:'Europe/Bucharest',weekday:'long',day:'numeric',month:'long'}).format(new Date());
+const fs=$$('.f[data-c]'),boxes=$$('#sheet input'),sheet=$('#sheet');
+let on=[];try{on=JSON.parse(localStorage.getItem('acq.cats')||'[]')}catch(e){}
+if(!on.length)on=fs.map(c=>c.dataset.c);
+function apply(){fs.forEach(c=>c.hidden=!on.includes(c.dataset.c));boxes.forEach(b=>b.checked=on.includes(b.value))}
+boxes.forEach(b=>b.onchange=()=>{const sel=boxes.filter(x=>x.checked).map(x=>x.value);if(!sel.length){b.checked=true;return}on=sel;try{localStorage.setItem('acq.cats',JSON.stringify(on))}catch(e){}apply()});
+const close=()=>sheet.classList.remove('on');
+$('#edit').onclick=()=>sheet.classList.add('on');$('#done').onclick=close;
+sheet.onclick=e=>{if(e.target===sheet)close()};document.onkeydown=e=>{if(e.key==='Escape')close()};
+apply();
+</script>
+</body>
+</html>

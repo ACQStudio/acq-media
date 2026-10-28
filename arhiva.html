@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<!--SEO-->
+<title>Arhiva știrilor | ACQ Media</title>
+<meta name="description" content="Alege o zi din calendar și vezi știrile publicate atunci: Sport, Hot, News și Music.">
+<meta property="og:type" content="website"><meta property="og:title" content="Arhiva știrilor | ACQ Media"><meta property="og:description" content="Alege o zi din calendar și vezi știrile publicate atunci: Sport, Hot, News și Music."><meta property="og:locale" content="ro_RO"><meta property="og:site_name" content="ACQ Media">
+<meta name="twitter:card" content="summary"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "CollectionPage", "name": "Arhiva știrilor | ACQ Media", "inLanguage": "ro", "description": "Alege o zi din calendar și vezi știrile publicate atunci: Sport, Hot, News și Music."}</script>
+<!--/SEO-->
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;color:#f5f5f7;font:16px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,sans-serif;-webkit-font-smoothing:antialiased;padding:max(30px,env(safe-area-inset-top)) 22px 72px}
+.wrap{max-width:680px;margin:0 auto}a{color:inherit}
+.back{font-size:15px;color:rgba(255,255,255,.55);text-decoration:none}
+h1{font-size:15px;font-weight:600;margin:26px 0 0;color:rgba(255,255,255,.55)}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0 28px}
+.bar h2{flex:1 1 100%;margin-bottom:6px;font-size:clamp(2.6rem,11vw,3.8rem);font-weight:700;letter-spacing:-.05em;line-height:1}
+.bar h2::first-letter{text-transform:uppercase}.bar button{height:42px;min-width:42px;padding:0 15px;border:0;border-radius:99px;background:#1c1c1e;color:#fff;font:inherit;font-size:17px;cursor:pointer}
+.bar button:hover:not(:disabled){background:#2c2c2e}.bar button:disabled{opacity:.3;cursor:default}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.wd{font-size:12px;color:rgba(255,255,255,.4);text-align:center;padding-bottom:4px}
+.d{aspect-ratio:1;border-radius:14px;padding:7px 8px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;overflow:hidden;font-size:14px;font-weight:500;color:rgba(255,255,255,.28);text-decoration:none}
+.d.has{background:#1c1c1e;color:#fff}a.d:hover{background:#2c2c2e}
+a.d:focus-visible{outline:2px solid #fff}
+.today .n{display:inline-grid;place-items:center;min-width:24px;height:24px;margin:-3px 0 0 -4px;border-radius:99px;background:#fff;color:#000;font-weight:700}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:3px;width:60%;aspect-ratio:1}.mini i{border-radius:3px;background:var(--c,transparent)}
+.leg{display:flex;gap:18px;flex-wrap:wrap;margin:22px 0 4px;font-size:14px;color:rgba(255,255,255,.6)}
+.leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:7px;background:var(--c)}
+.hint{font-size:14px;color:rgba(255,255,255,.45);margin:22px 0 6px}
+.empty{margin:18px 0;color:rgba(255,255,255,.6)}
+details{margin-top:30px}summary{cursor:pointer;color:rgba(255,255,255,.6)}
+details ul{margin-top:10px;columns:2;list-style:none}details li{padding:3px 0}
+@media(max-width:520px){body{padding-left:18px;padding-right:18px}.d{padding:6px;font-size:12px;border-radius:11px}.mini{gap:2px;width:64%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← ACQ Media</a>
+  <h1>Arhivă</h1>
+  <div class="bar"><h2 id="month"></h2><button id="today">Azi</button><button id="prev" aria-label="Luna anterioară">‹</button><button id="next" aria-label="Luna următoare">›</button></div>
+  <div class="grid" id="grid"></div>
+  <p class="hint">Fiecare pătrățel colorat arată o secțiune cu știri în ziua respectivă.</p>
+  <div class="leg"><span style="--c:#22c55e"><i></i>Sport</span><span style="--c:#ef4444"><i></i>Hot</span><span style="--c:#e8e8ed"><i></i>News</span><span style="--c:#3b82f6"><i></i>Music</span></div>
+  <p class="empty" id="empty" hidden>Arhiva începe cu prima ediție publicată. Revino după următoarea actualizare zilnică.</p>
+  <details><summary>Toate zilele</summary><ul><!--LINKS--><!--/LINKS--></ul></details>
+</div>
+<script>
+const D=/*DATES*/{}/*/DATES*/,COL={sport:'#22c55e',hot:'#ef4444',news:'#e8e8ed',music:'#3b82f6'};
+const keys=Object.keys(D).sort(),$=s=>document.querySelector(s),p2=n=>String(n).padStart(2,'0');
+const nowParts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Bucharest',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(p=>[p.type,p.value]));
+const todayIso=`${nowParts.year}-${nowParts.month}-${nowParts.day}`;
+const currentMonth=new Date(Number(nowParts.year),Number(nowParts.month)-1,1);
+let cur=new Date(currentMonth);
+if(!keys.length)$('#empty').hidden=false;
+const ym=d=>d.getFullYear()*12+d.getMonth(),lo=keys.length?Math.min(ym(new Date(keys[0]+'T12:00:00')),ym(currentMonth)):ym(currentMonth),hi=keys.length?Math.max(ym(new Date(keys[keys.length-1]+'T12:00:00')),ym(currentMonth)):ym(currentMonth);
+function render(){
+  const y=cur.getFullYear(),m=cur.getMonth(),n=new Date(y,m+1,0).getDate(),lead=(new Date(y,m,1).getDay()+6)%7;
+  $('#month').textContent=cur.toLocaleDateString('ro-RO',{month:'long',year:'numeric'});
+  let h=['L','M','M','J','V','S','D'].map(w=>`<div class="wd">${w}</div>`).join('')+'<div class="d"></div>'.repeat(lead);
+  for(let d=1;d<=n;d++){
+    const iso=`${y}-${p2(m+1)}-${p2(d)}`,c=D[iso],t=iso===todayIso?' today':'';
+    h+=c?`<a class="d has${t}" href="arhiva/${iso}.html" aria-label="${d} ${$('#month').textContent}, ${c.length} secțiuni"><span class="n">${d}</span><span class="mini">${['sport','hot','news','music'].map(k=>`<i${c.includes(k)?` style="--c:${COL[k]}"`:''}></i>`).join('')}</span></a>`:`<div class="d${t}"><span class="n">${d}</span></div>`;
+  }
+  $('#grid').innerHTML=h;$('#prev').disabled=ym(cur)<=lo;$('#next').disabled=ym(cur)>=hi;
+}
+$('#prev').onclick=()=>{cur.setMonth(cur.getMonth()-1);render()};$('#next').onclick=()=>{cur.setMonth(cur.getMonth()+1);render()};
+$('#today').onclick=()=>{cur=new Date(currentMonth);render()};
+render();
+</script>
+</body>
+</html>
