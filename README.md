@@ -22,7 +22,7 @@ Workflow-ul automat rulează zilnic la 05:00 UTC (07:00 în România iarna și 0
 - `index.html`: patru foldere cu aceeași suprafață, titluri colorate discret și mișcare tip Wallet; secțiunile pot fi ascunse din „Personalizează”. Arhiva rămâne separat, la final.
 - `arhiva.html`: calendarul zilelor publicate și filtre după secțiune.
 - `arhiva/AAAA-LL-ZZ.html`: paginile fiecărei ediții păstrate.
-- `scripts/generate.py`: RSS, selecție și rezumare cu Gemini, într-un singur apel API per rulare de generare.
+- `scripts/generate.py`: RSS, selecție și rezumare cu Gemini într-un apel; reîncearcă o singură dată doar la o eroare temporară de server.
 - `scripts/statics.py`: index, arhivă, metadate și sitemap.
 
 ## Setări
