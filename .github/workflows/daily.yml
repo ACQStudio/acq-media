@@ -4,14 +4,16 @@ on:
   push:
     branches: [main]
     paths:
+      - index.html
       - home.css
       - scripts/statics.py
   schedule:
-    - cron: "0 5 * * *" # 05:00 UTC = 07:00 în România iarna, 08:00 vara
+    - cron: "30 4 * * *"
+      timezone: "Europe/Bucharest"
   workflow_dispatch:
     inputs:
       publish_existing:
-        description: "Publică fișierele existente, fără apel Gemini"
+        description: "Doar republică fișierele existente, fără generare AI"
         required: false
         default: false
         type: boolean
@@ -27,44 +29,34 @@ concurrency:
 
 jobs:
   build-and-publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment:
       name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Descarcă repository-ul
+      - name: Descarcă ultima versiune main
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
       - name: Configurează Python
-        if: ${{ (github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.publish_existing)) || (github.event_name == 'push' && (contains(github.event.head_commit.modified, 'scripts/feeds.json') || contains(github.event.head_commit.added, 'scripts/feeds.json'))) }}
+        if: ${{ github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.publish_existing) }}
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Instalează dependențele
-        if: ${{ (github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.publish_existing)) || (github.event_name == 'push' && (contains(github.event.head_commit.modified, 'scripts/feeds.json') || contains(github.event.head_commit.added, 'scripts/feeds.json'))) }}
+        if: ${{ github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.publish_existing) }}
         run: pip install -r scripts/requirements.txt
-      - name: Generează ediția zilei
+      - name: Generează ediția zilei cu AI și rezervă RSS
         if: ${{ github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.publish_existing) }}
         run: python -u scripts/generate.py
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-      - name: Publică titluri RSS fără AI
-        if: ${{ github.event_name == 'push' && (contains(github.event.head_commit.modified, 'scripts/feeds.json') || contains(github.event.head_commit.added, 'scripts/feeds.json')) }}
-        run: python -u scripts/generate.py --rss-only
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
-      - name: Salvează arhiva în repository
-        if: ${{ (github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.publish_existing)) || (github.event_name == 'push' && (contains(github.event.head_commit.modified, 'scripts/feeds.json') || contains(github.event.head_commit.added, 'scripts/feeds.json'))) }}
-        run: |
-          git config user.name "acq-bot"
-          git config user.email "acq-bot@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "Nu sunt modificări de salvat."
-          else
-            git commit -m "Ediția $(date -u +%F)"
-            git push
-          fi
+      - name: Salvează ediția și sincronizează main
+        if: ${{ github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.publish_existing) }}
+        run: bash scripts/save_edition.sh "Ediția"
       - name: Pregătește site-ul pentru GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:

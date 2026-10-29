@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - scripts/feeds.json
+      - scripts/save_edition.sh
+      - .github/workflows/rss-only.yml
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,13 +20,17 @@ concurrency:
 
 jobs:
   update-and-publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment:
       name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Descarcă repository-ul
+      - name: Descarcă ultima versiune main
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
       - name: Configurează Python
         uses: actions/setup-python@v5
         with:
@@ -34,17 +41,8 @@ jobs:
         run: python -u scripts/generate.py --rss-only
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
-      - name: Salvează arhiva în repository
-        run: |
-          git config user.name "acq-bot"
-          git config user.email "acq-bot@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "Nu sunt modificări de salvat."
-          else
-            git commit -m "Actualizare RSS $(date -u +%F)"
-            git push
-          fi
+      - name: Salvează ediția și sincronizează main
+        run: bash scripts/save_edition.sh "Actualizare RSS"
       - name: Pregătește site-ul pentru GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
