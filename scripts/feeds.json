@@ -22,7 +22,7 @@
   "hot": {
    "file": "hot.html",
    "meta_key": "meta",
-    "brief": "Știri de cancan din România, cu accent pe vedete, showbiz, relații și evenimente mondene. Selectează exclusiv articole de pe CanCan.ro; nu include știri generale, politică sau bârfe neverificate. Atribuie explicit sursei acuzațiile și confirmă doar informațiile susținute de articol.",
+    "brief": "Știri de cancan din România, cu accent pe vedete, showbiz, relații și evenimente mondene. Selectează exclusiv articole de pe CanCan.ro și prioritizează cele mai noi; nu include știri generale, politică sau bârfe neverificate. Atribuie explicit sursei acuzațiile și confirmă doar informațiile susținute de articol.",
    "feeds": [
       "https://www.cancan.ro/rss"
    ],

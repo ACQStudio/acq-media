@@ -4,9 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - index.html
       - home.css
-      - scripts/feeds.json
       - scripts/statics.py
   schedule:
     - cron: "0 5 * * *" # 05:00 UTC = 07:00 în România iarna, 08:00 vara
