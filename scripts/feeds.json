@@ -5,13 +5,11 @@
   "sport": {
    "file": "sport.html",
    "meta_key": "src",
-   "brief": "Sport: cele mai importante știri ale zilei din fotbal (inclusiv România și cupele europene), tenis, Formula 1 și alte evenimente majore. Evită zvonurile de transfer neconfirmate.",
+   "brief": "Știri sportive din România și din lume: fotbal și cupele europene, tenis, Formula 1 și evenimente sportive majore. Prioritizează rezultate și informații confirmate; evită zvonurile de transfer.",
    "feeds": [
     "https://feeds.bbci.co.uk/sport/rss.xml",
     "https://www.theguardian.com/football/rss",
-    "https://www.espn.com/espn/rss/news",
-    "https://www.skysports.com/rss/12040",
-    "https://www.digi24.ro/rss"
+    "https://www.skysports.com/rss/12040"
    ],
    "fallback_images": [
     "https://images.unsplash.com/photo-1551958219-acbc630e2914?w=1600&q=85&auto=format&fit=crop",
@@ -24,13 +22,9 @@
   "hot": {
    "file": "hot.html",
    "meta_key": "meta",
-   "brief": "Cancan / showbiz: scandaluri, nunți, divorțuri, doliu, vedete din România și din lume. Prezintă DOAR fapte confirmate de sursă; acuzațiile și zvonurile despre persoane reale se atribuie explicit sursei.",
+    "brief": "Știri de cancan din România, cu accent pe vedete, showbiz, relații și evenimente mondene. Selectează exclusiv articole de pe CanCan.ro; nu include știri generale, politică sau bârfe neverificate. Atribuie explicit sursei acuzațiile și confirmă doar informațiile susținute de articol.",
    "feeds": [
-    "https://www.cancan.ro/rss",
-    "https://www.libertatea.ro/feed",
-    "https://people.com/feed/",
-    "https://www.eonline.com/syndication/feeds/rssfeeds/topstories.xml",
-    "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml"
+      "https://www.cancan.ro/rss"
    ],
    "fallback_images": [
     "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1600&q=88&auto=format&fit=crop",
@@ -43,13 +37,13 @@
   "news": {
    "file": "news.html",
    "meta_key": "meta",
-   "brief": "Geopolitică, politică externă, economie, bănci, energie, piețe și afaceri — știrile cu cel mai mare impact.",
+    "brief": "Politică, geopolitică și afaceri din România și din lume: decizii guvernamentale, alegeri, relații internaționale, conflicte, economie, companii, bănci, energie și piețe. Prioritizează impactul concret și separă clar faptele de opinii.",
    "feeds": [
     "https://feeds.bbci.co.uk/news/world/rss.xml",
     "https://feeds.bbci.co.uk/news/business/rss.xml",
     "https://www.theguardian.com/world/rss",
+    "https://www.theguardian.com/politics/rss",
     "https://www.theguardian.com/business/rss",
-    "https://ro.euronews.com/rss",
     "https://www.digi24.ro/rss",
     "https://www.zf.ro/rss"
    ],
@@ -64,13 +58,12 @@
   "music": {
    "file": "music.html",
    "meta_key": "meta",
-   "brief": "Muzică și entertainment: lansări, turnee, concerte, festivaluri, premii, industria muzicală, inclusiv România.",
+    "brief": "Muzică și industria entertainmentului, inclusiv România: artiști, lansări, albume, turnee, concerte, festivaluri, premii, case de discuri, streaming și business. Evită știrile generale de film și televiziune dacă nu au legătură cu muzica.",
    "feeds": [
     "https://www.theguardian.com/music/rss",
     "https://www.nme.com/feed",
     "https://pitchfork.com/feed/feed-news/rss",
-    "https://www.billboard.com/feed/",
-    "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml"
+    "https://www.billboard.com/feed/"
    ],
    "fallback_images": [
     "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1600&q=88&auto=format&fit=crop",

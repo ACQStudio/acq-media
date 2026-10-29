@@ -7,11 +7,13 @@ BRAND = "ACQ Media"
 NAME = {"sport": "Sport", "hot": "Hot", "news": "News", "music": "Music"}
 COL = {"sport": "#22c55e", "hot": "#ef4444", "news": "#e8e8ed", "music": "#3b82f6"}
 TITLE = {"sport": "Știri sportive de azi", "hot": "Cancan și showbiz de azi",
-         "news": "Geopolitică și economie, știrile de azi", "music": "Muzică și entertainment, știrile de azi"}
+         "news": "Politică, geopolitică și afaceri, știrile de azi", "music": "Muzică și industria entertainmentului, știrile de azi"}
 DESC = {"sport": "Cele mai importante știri sportive ale zilei: fotbal, tenis, Formula 1 și rezultate majore, pe scurt, cu sursa originală.",
-        "hot": "Știri din showbiz: scandaluri, nunți, divorțuri și vedete din România și din lume, cu sursa originală.",
-        "news": "Știri de geopolitică, economie, bănci și afaceri, pe scurt, cu sursa originală.",
-        "music": "Știri din muzică și entertainment: lansări, turnee, concerte și festivaluri, cu sursa originală."}
+        "hot": "Știri CanCan de azi despre vedete și showbiz, pe scurt și cu link către sursa originală.",
+        "news": "Știri de politică, geopolitică și afaceri din România și din lume, pe scurt, cu sursa originală.",
+        "music": "Știri despre muzică și industria entertainmentului: artiști, lansări, turnee, concerte și business, cu sursa originală."}
+TOPIC = {"sport": "Fotbal · tenis · Formula 1", "hot": "CanCan · showbiz", "news": "Politică · geopolitică · afaceri",
+         "music": "Muzică · industria entertainmentului"}
 LUNI = "ianuarie februarie martie aprilie mai iunie iulie august septembrie octombrie noiembrie decembrie".split()
 def ro(iso): y, m, d = map(int, iso.split("-")); return f"{d} {LUNI[m-1]} {y}"
 
@@ -88,7 +90,7 @@ def run(site, cfg, iso, today):
         empty = "true" if not its else "false"
         card_class = "f no-news" if not its else "f"
         cards += (f'<a class="{card_class}" data-c="{c}" data-empty="{empty}" data-state="{state}" href="{c}.html" style="--c:{COL[c]}"><span class="tab"></span><span class="bk"></span>'
-                  f'<span class="fr"><b class="n">{NAME[c]}</b><span class="k">{count} {count_text} azi</span>{hs}</span></a>\n')
+                  f'<span class="fr"><b class="n">{NAME[c]}</b><span class="k">{count} {count_text} azi</span><span class="topic">{TOPIC[c]}</span>{hs}</span></a>\n')
     ix = site / "index.html"; sub(ix, "<!--CARDS-->", "<!--/CARDS-->", "\n" + cards)
     t, d = f"{BRAND} — Știrile zilei, pe scurt", "Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală."
     home_url = base + "/" if base else ""

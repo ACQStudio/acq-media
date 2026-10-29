@@ -12,80 +12,18 @@
 <meta name="twitter:card" content="summary"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "ACQ Media", "inLanguage": "ro", "description": "Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală.", "url": "https://media.acq.ro/", "publisher": {"@type": "Organization", "name": "ACQ Media", "url": "https://media.acq.ro/"}}</script>
 <!--/SEO-->
-<style>
-*,*::before,*::after{box-sizing:border-box}
-:root{color-scheme:dark;--page:#090a0c;--ink:#17191c;--muted:#92949a;--line:#292a2e;--paper:#eeefec;--paper-edge:#d8d9d5;--ease:cubic-bezier(.22,1,.36,1);--deck-gap:16px;--card-height:238px;--empty-height:172px}
-html{background:var(--page);scroll-behavior:smooth}
-body{min-width:320px;min-height:100dvh;margin:0;padding:max(22px,env(safe-area-inset-top)) 24px max(36px,env(safe-area-inset-bottom));background:var(--page);color:#f5f5f7;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-button,a{-webkit-tap-highlight-color:transparent}
-button{font:inherit}
-.wrap{width:min(100%,960px);margin:0 auto}
-.topbar{display:flex;align-items:center;gap:12px;min-height:44px;margin-bottom:clamp(45px,8vh,76px);padding-bottom:15px;border-bottom:1px solid #242529}
-.brand{color:#f5f5f7;text-decoration:none;font-size:15px;font-weight:700;letter-spacing:-.035em;white-space:nowrap}
-.brand-note{color:#85878e;font-size:9px;font-weight:650;letter-spacing:.15em;text-transform:uppercase}
-.customize{margin-left:auto;padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:#151619;color:#e6e6e8;font-size:12px;font-weight:590;cursor:pointer;transition:background .2s ease,border-color .2s ease,transform .2s ease}
-.customize:hover{background:#1d1e22;border-color:#414248;transform:translateY(-1px)}
-.customize:active{transform:scale(.97)}
-.intro{margin-bottom:30px}
-.eyebrow{margin:0 0 10px;color:#97999f;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
-h1{margin:0;color:#f4f4f5;font-size:clamp(2.8rem,7vw,4.25rem);font-weight:660;letter-spacing:-.075em;line-height:.98}
-.date{margin:12px 0 0;color:#8e9096;font-size:13px;font-weight:500;text-transform:capitalize}
-.deck-wrap{width:min(100%,760px);margin:0 auto}
-.wallet-deck{position:relative;width:100%;height:var(--deck-size,220px);touch-action:pan-y;isolation:isolate}
-.f{position:absolute;top:0;right:0;left:0;display:block;width:100%;height:var(--card-height-active,var(--card-height));padding:0;color:var(--ink);text-decoration:none;transform:translate3d(0,var(--offset-y,0px),0) scale(var(--stack-scale,1)) rotate(var(--stack-rotate,0deg));transform-origin:50% 50%;transition:transform .62s var(--ease),opacity .3s ease;animation:folder-enter .5s var(--ease) both;will-change:transform}
-.f:nth-of-type(2){animation-delay:.045s}.f:nth-of-type(3){animation-delay:.09s}.f:nth-of-type(4){animation-delay:.135s}
-.f[hidden]{display:none}
-.f:focus-visible{z-index:10!important;outline:2px solid #fff;outline-offset:5px;border-radius:20px}
-.f:active{filter:brightness(.985)}
-.tab{position:absolute;z-index:2;top:0;left:23px;width:126px;height:32px;border:1px solid var(--paper-edge);border-bottom:0;border-radius:13px 13px 0 0;background:var(--paper);transition:transform .35s var(--ease)}
-.bk{position:absolute;z-index:0;top:17px;right:0;bottom:0;left:0;border:1px solid var(--paper-edge);border-radius:18px;background:var(--paper);transition:transform .42s var(--ease)}
-.fr{position:absolute;z-index:1;inset:17px 0 0;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) minmax(0,1fr) auto;gap:0 14px;height:calc(100% - 17px);min-height:0;padding:20px 24px 17px;overflow:hidden;border:1px solid var(--paper-edge);border-radius:18px;background:var(--paper);color:var(--ink);transition:background .25s ease}
-.n{grid-area:1/1;align-self:center;font-size:17px;font-weight:720;letter-spacing:-.025em;line-height:1.1}
-.f[data-c="sport"] .n{color:#28774e}.f[data-c="hot"] .n{color:#a94349}.f[data-c="news"] .n{color:#565b61}.f[data-c="music"] .n{color:#426b9f}
-.k{grid-area:1/2;align-self:center;color:#777a80;font-size:11px;font-weight:550;white-space:nowrap}
-.h{grid-row:2;grid-column:1/-1;display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;align-self:stretch;min-width:0;margin:0;padding:12px 0 0;border-top:1px solid #d6d8d3;color:#242629;font-size:clamp(16px,2vw,19px);font-weight:580;letter-spacing:-.025em;line-height:1.35}
-.h+.h{grid-row:3;align-self:start;margin-top:10px;padding-top:11px}
-.fr::after{grid-area:4/1/5/3;align-self:end;justify-self:end;content:"Deschide secțiunea  ↗";color:#707279;font-size:10px;font-weight:620;letter-spacing:.01em}
-.f.no-news .h{grid-row:2/4;align-self:center;max-width:40ch;margin:0;padding:0;border:0;color:#585b60;font-size:15px;font-weight:500;letter-spacing:-.01em;line-height:1.45}
-.f.no-news .h::before{display:block;margin-bottom:7px;content:"EDIȚIA DE AZI";color:#898c90;font-size:9px;font-weight:720;letter-spacing:.13em}
-@media(hover:hover) and (pointer:fine){.f:hover{z-index:8!important}.f:hover .tab{transform:translateY(-4px)}.f:hover .bk{transform:translateY(3px)}.f:hover .fr{background:#f3f4f1}}
-.f.opening{z-index:9!important;transform:translateY(-5px) scale(1.012)!important;transition-duration:.22s!important}.f.opening .tab{transform:translateY(-5px)}.f.opening .bk{transform:translateY(4px)}.f.opening .fr{background:#f4f5f2}
-.deck-nav{display:flex;align-items:center;gap:14px;width:min(100%,340px);margin:13px auto 0;color:#bfc0c4}
-.deck-nav button{display:grid;place-items:center;width:36px;height:34px;border:1px solid #2a2b30;border-radius:11px;background:#141518;color:#e8e9eb;font-size:16px;cursor:pointer;transition:background .2s ease,transform .2s ease}
-.deck-nav button:hover{background:#1d1e22;transform:translateY(-1px)}.deck-nav button:active{transform:scale(.96)}
-.deck-nav span{flex:1;text-align:center;color:#bfc0c4;font-size:10px;font-weight:650;letter-spacing:.11em;text-transform:uppercase}
-.archive{display:flex;align-items:center;gap:12px;width:min(100%,760px);min-height:56px;margin:23px auto 0;padding:12px 17px;border:1px solid #292a2e;border-radius:15px;background:#151619;color:#e8e8ea;text-decoration:none;transition:background .2s ease,border-color .2s ease,transform .2s ease}
-.archive:hover{transform:translateY(-1px);border-color:#414248;background:#1b1c20}
-.archive-title{font-size:14px;font-weight:650;letter-spacing:-.02em}
-.archive-note{margin-left:auto;color:#92949a;font-size:11px}
-.archive-arrow{color:#b5b6bb;font-size:16px}
-#sheet{position:fixed;z-index:20;inset:0;display:none;place-items:center;padding:18px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-#sheet.on{display:grid;animation:sheet-in .2s ease both}
-.sheet{width:min(460px,100%);padding:25px 24px 22px;border:1px solid #303136;border-radius:22px;background:#17181b;box-shadow:0 24px 80px rgba(0,0,0,.32)}
-.sheet h2{margin:0;font-size:21px;font-weight:680;letter-spacing:-.05em}
-.sheet p{margin:7px 0 17px;color:#a3a5aa;font-size:13px;line-height:1.5}
-.sw{position:relative;display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-top:1px solid #2c2d32;color:#f0f0f2;font-size:14px;font-weight:550;cursor:pointer}
-.sw input{position:absolute;width:1px;height:1px;opacity:0}
-.sw i{position:relative;width:46px;height:27px;border-radius:99px;background:#3a3b40;transition:background .2s ease}
-.sw i::after{position:absolute;top:2px;left:2px;width:23px;height:23px;border-radius:50%;background:#fff;content:"";transition:transform .2s var(--ease)}
-.sw input:checked+i{background:var(--c)}.sw input:checked+i::after{transform:translateX(19px)}.sw input:focus-visible+i{outline:2px solid #fff;outline-offset:3px}
-.done{width:100%;margin-top:15px;padding:13px;border:0;border-radius:13px;background:#f2f2f3;color:#161719;font-size:14px;font-weight:680;cursor:pointer;transition:transform .2s ease}.done:active{transform:scale(.985)}
-@keyframes folder-enter{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
-@keyframes sheet-in{from{opacity:0}to{opacity:1}}
-@media(max-width:600px){body{padding:19px max(18px,env(safe-area-inset-left)) max(28px,env(safe-area-inset-bottom))}.topbar{margin-bottom:42px;padding-bottom:13px}.brand{font-size:14px}.brand-note{font-size:8px}.customize{padding:8px 11px;font-size:11px}.intro{margin-bottom:24px}h1{font-size:clamp(2.5rem,11vw,3.35rem)}.date{margin-top:9px;font-size:12px}:root{--deck-gap:13px;--card-height:218px;--empty-height:158px}.tab{left:18px;width:108px;height:29px}.bk{top:15px}.fr{inset:15px 0 0;height:calc(100% - 15px);padding:17px 18px 15px;border-radius:16px}.n{font-size:16px}.k{font-size:10px}.h{font-size:15px;line-height:1.37}.f.no-news .h{font-size:14px}.fr::after{font-size:9px}.deck-nav{margin-top:11px}.archive{min-height:52px;margin-top:17px;padding:11px 14px}.archive-title{font-size:13px}.archive-note{font-size:10px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-</style>
+<link rel="stylesheet" href="home.css"/>
 </head>
 <body>
 <main class="wrap">
-<header class="topbar"><a class="brand" href="./">ACQ Media</a><span class="brand-note">Știri, pe scurt</span><button class="customize" id="edit" type="button">Personalizează</button></header>
-<section class="intro" aria-labelledby="page-title"><p class="eyebrow">Ediția zilei</p><h1 id="page-title">Știrile zilei.</h1><p class="date" id="date"></p></section>
+<header class="topbar"><a class="brand" href="./">ACQ Media</a><span class="brand-note">Briefing zilnic</span><button class="customize" id="edit" type="button">Personalizează</button></header>
+<section class="intro" aria-labelledby="page-title"><p class="eyebrow">Ediția zilei</p><h1 id="page-title">Azi, esențialul.</h1><p class="date" id="date"></p><p class="intro-note">Patru secțiuni. Cele mai importante povești, alese pentru tine.</p></section>
 <div class="deck-wrap">
 <section class="wallet-deck" id="stack" aria-label="Secțiuni"><!--CARDS-->
-<a class="f" data-c="sport" data-empty="false" data-state="ready" href="sport.html" style="--c:#22c55e"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Sport</b><span class="k">2 știri azi</span><span class="h">Red Roses make six changes but Kildunne on bench again</span><span class="h">Rulli’s heroics earn Manchester City shootout success against Brighton</span></span></a>
-<a class="f" data-c="hot" data-empty="false" data-state="ready" href="hot.html" style="--c:#ef4444"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Hot</b><span class="k">2 știri azi</span><span class="h">Probleme în relația dintre Victor Slav și Selina? Mesajul care a pus fanii pe gânduri</span><span class="h">Prețul gazelor naturale în Europa a depășit 100 de euro/MWh, pentru prima dată din 2022. Indust</span></span></a>
-<a class="f" data-c="news" data-empty="false" data-state="ready" href="news.html" style="--c:#e8e8ed"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">News</b><span class="k">2 știri azi</span><span class="h">Flávio Bolsonaro denies fleeing Brazil after landing in Miami</span><span class="h">Flávio Bolsonaro calls himself the ‘leader of Brazil’ after fleeing to Miami</span></span></a>
-<a class="f" data-c="music" data-empty="false" data-state="ready" href="music.html" style="--c:#3b82f6"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Music</b><span class="k">2 știri azi</span><span class="h">‘Dear Charlie’: letter revealing move to snare future Rolling Stones drummer up for auction</span><span class="h">Ozzy Osbourne and Black Sabbath’s ‘Back To The Beginning’ soundtrack and film set for release</span></span></a>
+<a class="f" data-c="sport" data-empty="false" data-state="ready" href="sport.html" style="--c:#22c55e"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Sport</b><span class="k">2 știri azi</span><span class="topic">Fotbal · tenis · Formula 1</span><span class="h">Red Roses make six changes but Kildunne on bench again</span><span class="h">Rulli’s heroics earn Manchester City shootout success against Brighton</span></span></a>
+<a class="f" data-c="hot" data-empty="false" data-state="ready" href="hot.html" style="--c:#ef4444"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Hot</b><span class="k">2 știri azi</span><span class="topic">CanCan · showbiz</span><span class="h">Probleme în relația dintre Victor Slav și Selina? Mesajul care a pus fanii pe gânduri</span><span class="h">Prețul gazelor naturale în Europa a depășit 100 de euro/MWh, pentru prima dată din 2022. Indust</span></span></a>
+<a class="f" data-c="news" data-empty="false" data-state="ready" href="news.html" style="--c:#e8e8ed"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">News</b><span class="k">2 știri azi</span><span class="topic">Politică · geopolitică · afaceri</span><span class="h">Flávio Bolsonaro denies fleeing Brazil after landing in Miami</span><span class="h">Flávio Bolsonaro calls himself the ‘leader of Brazil’ after fleeing to Miami</span></span></a>
+<a class="f" data-c="music" data-empty="false" data-state="ready" href="music.html" style="--c:#3b82f6"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Music</b><span class="k">2 știri azi</span><span class="topic">Muzică · industria entertainmentului</span><span class="h">‘Dear Charlie’: letter revealing move to snare future Rolling Stones drummer up for auction</span><span class="h">Ozzy Osbourne and Black Sabbath’s ‘Back To The Beginning’ soundtrack and film set for release</span></span></a>
 <!--/CARDS--></section>
 <nav class="deck-nav" aria-label="Navighează între secțiuni"><button type="button" id="previous" aria-label="Secțiunea anterioară">←</button><span id="deck-label" aria-live="polite"></span><button type="button" id="next" aria-label="Secțiunea următoare">→</button></nav>
 <a class="archive" href="arhiva.html"><span class="archive-title">Arhivă</span><span class="archive-note">Răsfoiește zilele trecute</span><span class="archive-arrow" aria-hidden="true">↗</span></a>
@@ -123,19 +61,22 @@ function paint(){
  if(!visible.some(card=>card.dataset.c===active))active=visible[0]?.dataset.c||'';
  const current=visible.findIndex(card=>card.dataset.c===active);
  const hasStories=visible.some(card=>card.dataset.empty!=='true');
- const height=parseFloat(getComputedStyle(document.documentElement).getPropertyValue(hasStories?'--card-height':'--empty-height'))||180;
+ const height=parseFloat(getComputedStyle(document.documentElement).getPropertyValue(hasStories?'--card-height':'--empty-height'))||210;
  const gap=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--deck-gap'))||14;
  stack.style.setProperty('--card-height-active',height+'px');
- stack.style.setProperty('--deck-size',(height+Math.max(0,visible.length-1)*gap)+'px');
+ stack.style.setProperty('--deck-size',(height+Math.max(0,visible.length-1)*gap+8)+'px');
  visible.forEach((card,index)=>{
-  const depth=(current-index+visible.length)%visible.length;
-  const y=(visible.length-1-depth)*gap;
-  const scale=(1-depth*.009).toFixed(3);
-  const angle=depth?((depth%2?-1:1)*Math.ceil(depth/2)*.16)+'deg':'0deg';
+  const depth=(index-current+visible.length)%visible.length;
+  const y=depth*gap;
+  const scale=(1-depth*.014).toFixed(3);
+  const angle=depth?((depth%2?-1:1)*Math.ceil(depth/2)*.12)+'deg':'0deg';
   card.style.setProperty('--offset-y',y+'px');
   card.style.setProperty('--stack-scale',scale);
   card.style.setProperty('--stack-rotate',angle);
   card.style.zIndex=String(visible.length-depth);
+  card.classList.toggle('active',depth===0);
+  card.tabIndex=depth===0?0:-1;
+  card.setAttribute('aria-current',depth===0?'true':'false');
  });
  label.textContent=current<0?'':sectionNames[active]+' · '+(current+1)+' / '+visible.length;
 }

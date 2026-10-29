@@ -267,6 +267,7 @@ def render(name, cat, items):
     f.write_text(t, "utf-8")
 
 def main():
+    rss_only = "--rss-only" in sys.argv
     if "--dry-run" in sys.argv:
         print("Dry-run: nu am date de probă incluse, așa că nu fac cereri și nu modific fișiere.")
         return
@@ -281,11 +282,16 @@ def main():
                 all_candidates.append({**item, "_section": name, "_brief": cat["brief"]})
         except Exception as ex:
             print(f"  ! eroare la colectarea știrilor: {ex}", flush=True)
-    prepared = prepare_many(all_candidates)
+    if rss_only:
+        prepared = [{**item, "img": item.get("rss_img"), "article_text": item.get("snippet", "")} for item in all_candidates]
+    else:
+        prepared = prepare_many(all_candidates)
     print(f"\n{len(prepared)} texte disponibile; redactez maximum 8 texte într-un singur apel Gemini", flush=True)
     generated = []
     api_key = os.getenv("GEMINI_API_KEY")
-    if prepared and api_key:
+    if prepared and rss_only:
+        print("Rulare RSS-only: nu apelez Gemini; public titlurile și linkurile surselor.", flush=True)
+    elif prepared and api_key:
         try:
             generated = write_batch(prepared)
             print(f"Gemini: 1 cerere; {len(generated)} știri validate în total", flush=True)
