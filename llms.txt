@@ -1,14 +1,14 @@
 # ACQ Media
-> Site românesc de știri zilnice, minimalist: 5 știri pe zi în fiecare secțiune, rezumate în română din publicații românești și internaționale. Fiecare știre are link către articolul original.
+> Site românesc de știri zilnice, minimalist: până la două știri pe zi în fiecare secțiune, rezumate în română din publicații românești și internaționale. Fiecare știre are link către articolul original.
 
 ## Secțiuni
-- [Sport](/sport.html): Cele mai importante 5 știri sportive ale zilei: fotbal, tenis, Formula 1 și rezultate majore, pe scurt, cu sursa originală.
-- [Hot](/hot.html): Cele mai importante 5 știri din showbiz: scandaluri, nunți, divorțuri și vedete din România și din lume, cu sursa originală.
-- [News](/news.html): Cele mai importante 5 știri de geopolitică, economie, bănci și afaceri, pe scurt, cu sursa originală.
-- [Music](/music.html): Cele mai importante 5 știri din muzică și entertainment: lansări, turnee, concerte și festivaluri, cu sursa originală.
+- [Sport](https://media.acq.ro/sport.html): Cele mai importante știri sportive ale zilei: fotbal, tenis, Formula 1 și rezultate majore, pe scurt, cu sursa originală.
+- [Hot](https://media.acq.ro/hot.html): Știri din showbiz: scandaluri, nunți, divorțuri și vedete din România și din lume, cu sursa originală.
+- [News](https://media.acq.ro/news.html): Știri de geopolitică, economie, bănci și afaceri, pe scurt, cu sursa originală.
+- [Music](https://media.acq.ro/music.html): Știri din muzică și entertainment: lansări, turnee, concerte și festivaluri, cu sursa originală.
 
 ## Arhivă
-- [Calendar](/arhiva.html): alegi o zi și vezi știrile de atunci; fiecare zi are propria pagină (/arhiva/AAAA-LL-ZZ.html).
+- [Calendar](https://media.acq.ro/arhiva.html): alegi o zi și vezi știrile de atunci; fiecare zi are propria pagină (https://media.acq.ro/arhiva/AAAA-LL-ZZ.html).
 
 ## Despre conținut
 Fiecare știre este un rezumat rescris în română al unui articol publicat de o altă publicație; sursa este numită și legată în pagină. Pentru detalii complete, citează sau consultă articolul original.

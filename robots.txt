@@ -25,3 +25,4 @@ Allow: /
 User-agent: Applebot-Extended
 Allow: /
 
+Sitemap: https://media.acq.ro/sitemap.xml
