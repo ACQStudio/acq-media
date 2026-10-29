@@ -200,13 +200,14 @@ def write_batch(items):
     schema = {"type": "OBJECT", "properties": {"articles": {"type": "ARRAY", "items": {
         "type": "OBJECT", "properties": {"id": {"type": "INTEGER"}, "skip": {"type": "BOOLEAN"},
         "cat": {"type": "STRING"}, "hed": {"type": "STRING"}, "sum": {"type": "STRING"},
-        "body": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["id", "skip"]}}},
+        "body": {"type": "ARRAY", "items": {"type": "STRING"}}},
+        "required": ["id", "skip", "cat", "hed", "sum", "body"]}}},
         "required": ["articles"]}
     prompt = (
         "Ești redactor la un site de știri în limba română. Primești texte numerotate din mai multe secțiuni. "
         "Alege cel mult 2 știri distincte, importante și susținute clar pentru fiecare secțiune. Nu amesteca secțiunile și nu combina articole. "
-        "Returnează articolele în ordinea importanței din fiecare secțiune. Pentru fiecare ID întoarce un obiect cu acel id și skip. "
-        "Pentru o știre publicabilă, skip=false și completează toate câmpurile; pentru una insuficient documentată, skip=true. "
+        "Returnează articolele în ordinea importanței din fiecare secțiune. Pentru fiecare ID întoarce id, skip, cat, hed, sum și body. "
+        "Pentru o știre publicabilă, skip=false și completează toate câmpurile. Pentru una insuficient documentată, skip=true, cat/hed/sum goale și body gol. "
         "Redactează în limba română, cu formulări proprii. Poți reda în română faptele din surse în alte limbi, dar nu traduce mot-a-mot și nu copia fraze. "
         "Folosește EXCLUSIV faptele din text. Nu inventa nume, cifre, date sau citate. "
         "Atribuie explicit sursei acuzațiile și declarațiile controversate. Ton neutru. "
@@ -226,7 +227,7 @@ def write_batch(items):
             continue
         c = items[i]
         by_id[i] = {**article, "source": c["source"], "link": c["link"], "img": c["img"], "_section": c["_section"]}
-    print(f"Gemini: a analizat {len(items)} texte, a marcat {skipped} ca skip și a validat {len(by_id)}.", flush=True)
+    print(f"Gemini: a analizat {len(items)} texte, a returnat {len(returned)} rezultate, a marcat {skipped} ca skip și a validat {len(by_id)}.", flush=True)
     return [by_id[i] for i in range(len(items)) if i in by_id]
 
 def rss_fallback(items):
