@@ -6,8 +6,8 @@
       "ai_completed": true,
       "successful_run_id": "40805493356",
       "ai_articles": 15,
-      "edition_articles": 19,
-      "evidence": "https://github.com/ACQStudio/acq-media/actions/runs/40802885594",
+      "edition_articles": 15,
+      "evidence": "https://github.com/ACQStudio/acq-media/actions/runs/40805493356",
       "reservations": {
         "40805493356-1": {
           "slots": 1,

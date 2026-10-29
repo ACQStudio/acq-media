@@ -168,7 +168,9 @@ def finish_gemini_reservation(ai_completed=False, article_count=0, quota_exhaust
         reservation["state"] = "finished"
         reservation["finished_at"] = dt.datetime.now(dt.timezone.utc).isoformat()
     if ai_completed:
-        entry.update(ai_completed=True, successful_run_id=os.getenv("GITHUB_RUN_ID"), ai_articles=article_count)
+        entry.update(ai_completed=True, successful_run_id=os.getenv("GITHUB_RUN_ID"), ai_articles=article_count, edition_articles=article_count)
+        if os.getenv("GITHUB_REPOSITORY") and os.getenv("GITHUB_RUN_ID"):
+            entry["evidence"] = f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
     if quota_exhausted:
         entry["daily_quota_exhausted"] = True
     if reservation or ai_completed or quota_exhausted:
