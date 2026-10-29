@@ -286,7 +286,10 @@ def main():
         prepared = [{**item, "img": item.get("rss_img"), "article_text": item.get("snippet", "")} for item in all_candidates]
     else:
         prepared = prepare_many(all_candidates)
-    print(f"\n{len(prepared)} texte disponibile; redactez maximum 8 texte într-un singur apel Gemini", flush=True)
+    if rss_only:
+        print(f"\n{len(prepared)} titluri RSS disponibile; nu trimit cereri Gemini.", flush=True)
+    else:
+        print(f"\n{len(prepared)} texte disponibile; redactez maximum 8 texte într-un singur apel Gemini", flush=True)
     generated = []
     api_key = os.getenv("GEMINI_API_KEY")
     if prepared and rss_only:
@@ -304,7 +307,8 @@ def main():
 
     for name, cat in CFG["categories"].items():
         items = [item for item in generated if item["_section"] == name][:N]
-        print(f"  Gemini a validat {len(items)} știri pentru {name}", flush=True)
+        if not rss_only:
+            print(f"  Gemini a validat {len(items)} știri pentru {name}", flush=True)
         if not items:
             source_items = [item for item in prepared if item["_section"] == name][:N]
             items = rss_fallback(source_items)
