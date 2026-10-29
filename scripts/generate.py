@@ -54,32 +54,41 @@ def gemini(prompt, schema):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
     body = {"contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"maxOutputTokens": 2048, "responseMimeType": "application/json", "responseSchema": schema}}
-    for a in range(1):
+    try:
+        response = requests.post(
+            url,
+            json=body,
+            headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]},
+            timeout=GEMINI_TIMEOUT,
+        )
+    except requests.RequestException as ex:
+        raise RuntimeError(f"Gemini nu a răspuns; cererea nu a fost retrimisă: {ex}") from ex
+
+    if response.status_code == 429:
         try:
-            r = requests.post(url, json=body, headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]}, timeout=GEMINI_TIMEOUT)
-        except requests.RequestException as ex:
-            raise
-            wait = 5 * (a + 1)
-            print(f"  ! Gemini nu răspunde; reiau peste {wait}s: {ex}", flush=True)
-            time.sleep(wait)
-            continue
-        if r.status_code == 429:
-            try:
-                detail = r.json().get("error", {}).get("message", "")
-            except Exception:
-                detail = r.text
-            low = detail.lower()
-            if any(term in low for term in ("perday", "per day", "requests per day", "quota exceeded")):
-                raise GeminiQuotaError(f"Limita zilnică Gemini a fost atinsă: {detail}")
-        if r.status_code >= 400:
-            r.raise_for_status()
-            wait = 5 * (a + 1)
-            print(f"  ! Gemini a răspuns cu {r.status_code}; reiau peste {wait}s", flush=True)
-            time.sleep(wait)
-            continue
-        r.raise_for_status()
-        return json.loads(r.json()["candidates"][0]["content"]["parts"][0]["text"])
-    raise RuntimeError("Gemini indisponibil")
+            detail = response.json().get("error", {}).get("message", "")
+        except Exception:
+            detail = response.text
+        low = detail.lower()
+        if any(term in low for term in ("perday", "per day", "requests per day", "quota exceeded")):
+            raise GeminiQuotaError(f"Limita zilnică Gemini a fost atinsă: {detail}")
+        raise RuntimeError(f"Gemini a impus o limită temporară (HTTP 429); cererea nu a fost retrimisă: {detail}")
+    if response.status_code >= 500:
+        raise RuntimeError(f"Gemini este temporar indisponibil (HTTP {response.status_code}); cererea nu a fost retrimisă.")
+    response.raise_for_status()
+
+    try:
+        payload = response.json()
+    except ValueError as ex:
+        raise RuntimeError("Gemini a răspuns cu un JSON invalid.") from ex
+    parts = payload.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+    text = "".join(part.get("text", "") for part in parts if part.get("text"))
+    if not text:
+        raise RuntimeError("Gemini a răspuns fără text; verifică Usage și Rate limits în AI Studio.")
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as ex:
+        raise RuntimeError("Gemini nu a întors JSON-ul cerut; cererea nu a fost retrimisă.") from ex
 
 def rss_img(e):
     for k in ("media_content", "media_thumbnail"):
@@ -242,8 +251,7 @@ def main():
         print(f"\n! {ex}\n! Oprire fără alte apeluri Gemini.", flush=True)
         raise SystemExit(1)
     except Exception as ex:
-        print(f"  ! eroare la redactarea în lot: {ex}", flush=True)
-        generated = []
+        raise SystemExit(f"Eroare la redactarea cu Gemini. Workflow-ul se oprește fără reîncercări: {ex}") from ex
     for name, cat in CFG["categories"].items():
         items = [item for item in generated if item["_section"] == name][:N]
         for item in items:
@@ -257,7 +265,7 @@ def main():
     HIST_F.parent.mkdir(exist_ok=True); HIST_F.write_text(json.dumps(HIST, indent=0))
     statics.run(SITE, CFG, now.strftime("%Y-%m-%d"), done)
     if not ok_any:
-        print("\nNu s-au găsit cel puțin trei știri verificate într-o secțiune; site-ul a fost actualizat cu starea ediției.", flush=True)
+        print("\nNu s-au găsit suficiente știri verificate într-o secțiune; site-ul a fost actualizat cu starea ediției.", flush=True)
     sys.exit(0)
 
 if __name__ == "__main__":

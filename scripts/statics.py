@@ -8,10 +8,10 @@ NAME = {"sport": "Sport", "hot": "Hot", "news": "News", "music": "Music"}
 COL = {"sport": "#22c55e", "hot": "#ef4444", "news": "#e8e8ed", "music": "#3b82f6"}
 TITLE = {"sport": "Știri sportive de azi", "hot": "Cancan și showbiz de azi",
          "news": "Geopolitică și economie, știrile de azi", "music": "Muzică și entertainment, știrile de azi"}
-DESC = {"sport": "Cele mai importante 5 știri sportive ale zilei: fotbal, tenis, Formula 1 și rezultate majore, pe scurt, cu sursa originală.",
-        "hot": "Cele mai importante 5 știri din showbiz: scandaluri, nunți, divorțuri și vedete din România și din lume, cu sursa originală.",
-        "news": "Cele mai importante 5 știri de geopolitică, economie, bănci și afaceri, pe scurt, cu sursa originală.",
-        "music": "Cele mai importante 5 știri din muzică și entertainment: lansări, turnee, concerte și festivaluri, cu sursa originală."}
+DESC = {"sport": "Cele mai importante știri sportive ale zilei: fotbal, tenis, Formula 1 și rezultate majore, pe scurt, cu sursa originală.",
+        "hot": "Știri din showbiz: scandaluri, nunți, divorțuri și vedete din România și din lume, cu sursa originală.",
+        "news": "Știri de geopolitică, economie, bănci și afaceri, pe scurt, cu sursa originală.",
+        "music": "Știri din muzică și entertainment: lansări, turnee, concerte și festivaluri, cu sursa originală."}
 LUNI = "ianuarie februarie martie aprilie mai iunie iulie august septembrie octombrie noiembrie decembrie".split()
 def ro(iso): y, m, d = map(int, iso.split("-")); return f"{d} {LUNI[m-1]} {y}"
 
@@ -84,7 +84,10 @@ def run(site, cfg, iso, today):
         count = len(its)
         count_text = "știre" if count == 1 else "știri"
         hs = "".join(f'<span class="h">{e(x["hed"])}</span>' for x in its[:2]) or '<span class="h">Ediția de azi nu este încă disponibilă.</span>'
-        cards += (f'<a class="f" data-c="{c}" href="{c}.html" style="--c:{COL[c]}"><span class="tab"></span><span class="bk"></span>'
+        state = "empty" if not its else "ready"
+        empty = "true" if not its else "false"
+        card_class = "f no-news" if not its else "f"
+        cards += (f'<a class="{card_class}" data-c="{c}" data-empty="{empty}" data-state="{state}" href="{c}.html" style="--c:{COL[c]}"><span class="tab"></span><span class="bk"></span>'
                   f'<span class="fr"><b class="n">{NAME[c]}</b><span class="k">{count} {count_text} azi</span>{hs}</span></a>\n')
     ix = site / "index.html"; sub(ix, "<!--CARDS-->", "<!--/CARDS-->", "\n" + cards)
     t, d = f"{BRAND} — Știrile zilei, pe scurt", "Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală."
@@ -108,7 +111,7 @@ def run(site, cfg, iso, today):
     sitemap_line = f"Sitemap: {base}/sitemap.xml\n" if base else ""
     (site / "robots.txt").write_text("User-agent: *\nAllow: /\n\n" + "".join(f"User-agent: {b}\nAllow: /\n\n" for b in bots) + sitemap_line, "utf-8")
     (site / "llms.txt").write_text(f"""# {BRAND}
-> Site românesc de știri zilnice, minimalist: 5 știri pe zi în fiecare secțiune, rezumate în română din publicații românești și internaționale. Fiecare știre are link către articolul original.
+> Site românesc de știri zilnice, minimalist: până la două știri pe zi în fiecare secțiune, rezumate în română din publicații românești și internaționale. Fiecare știre are link către articolul original.
 
 ## Secțiuni
 """ + "".join(f"- [{NAME[c]}]({base}/{c}.html): {DESC[c]}\n" for c in ORDER) + f"""

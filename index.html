@@ -3,229 +3,168 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<meta name="theme-color" content="#050506"/>
+<meta name="theme-color" content="#090a0c"/>
 <!--SEO-->
 <title>ACQ Media — Știrile zilei, pe scurt</title>
 <meta name="description" content="Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală.">
-<meta property="og:type" content="website"><meta property="og:title" content="ACQ Media — Știrile zilei, pe scurt"><meta property="og:description" content="Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală."><meta property="og:locale" content="ro_RO"><meta property="og:site_name" content="ACQ Media">
-<meta name="twitter:card" content="summary"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "ACQ Media", "inLanguage": "ro", "description": "Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală."}</script>
 <!--/SEO-->
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{color-scheme:dark;--ease:cubic-bezier(.2,.8,.2,1);--spring:cubic-bezier(.22,1.15,.36,1);--mut:rgba(238,239,244,.58);--line:rgba(255,255,255,.1);--folder:#eceef1}
-html{background:#08090b;scroll-behavior:smooth}
-body{min-height:100dvh;background:#08090b;color:#f5f5f7;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;padding:max(30px,env(safe-area-inset-top)) 24px max(56px,env(safe-area-inset-bottom))}
-.wrap{width:min(100%,1080px);margin:0 auto}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:clamp(60px,9vw,104px)}
-.brand{display:inline-flex;align-items:center;gap:10px;color:#f5f5f7;text-decoration:none;font-size:16px;font-weight:700;letter-spacing:-.02em}
-.brand small{font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--mut)}
-.pill{font:inherit;font-size:13px;font-weight:560;color:#f4f4f5;background:#16171a;border:1px solid var(--line);border-radius:99px;padding:11px 16px;cursor:pointer;transition:background .22s var(--ease),transform .22s var(--ease),border-color .22s var(--ease)}
-.pill:hover{background:#222327;border-color:rgba(255,255,255,.2);transform:translateY(-1px)}.pill:active{transform:scale(.97)}
-.eyebrow{font-size:11px;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:#a9abb3;margin-bottom:14px}
-h1{font-size:clamp(3rem,8vw,5.2rem);font-weight:720;letter-spacing:-.075em;line-height:.96}
-.date{margin:16px 0 44px;color:var(--mut);font-size:14px;font-weight:500;text-transform:capitalize;letter-spacing:.01em}
-.grid{display:grid;grid-template-columns:1fr;gap:16px}
-@media(min-width:680px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}}
-.f{position:relative;display:block;padding-top:36px;color:#101115;text-decoration:none;isolation:isolate;perspective:900px;animation:wallet-deal .9s var(--spring) both;transition:transform .38s var(--spring),opacity .3s var(--ease)}
-.f:nth-of-type(1){--stack-x:-20px;--stack-y:44px;--stack-r:-5deg;animation-delay:.04s}.f:nth-of-type(2){--stack-x:20px;--stack-y:52px;--stack-r:4deg;animation-delay:.11s}.f:nth-of-type(3){--stack-x:-14px;--stack-y:60px;--stack-r:-3deg;animation-delay:.18s}.f:nth-of-type(4){--stack-x:14px;--stack-y:68px;--stack-r:5deg;animation-delay:.25s}.f:nth-of-type(5){--stack-x:0px;--stack-y:74px;--stack-r:-2deg;animation-delay:.32s}
-.f[hidden]{display:none}.f:active{transform:translateY(1px) scale(.975);transition-duration:.12s}
-.f:focus-visible{outline:3px solid #fff;outline-offset:5px;border-radius:26px}
-.tab{position:absolute;z-index:2;top:0;left:0;width:42%;height:34px;background:var(--folder);border:1px solid rgba(18,20,25,.08);border-bottom:0;border-radius:14px 14px 0 0;transform-origin:left bottom;transition:transform .36s var(--spring)}
-.bk{position:absolute;z-index:0;left:0;right:0;top:18px;bottom:0;background:var(--folder);border:1px solid rgba(18,20,25,.08);border-radius:0 22px 22px 22px;transition:transform .36s var(--spring)}
-.fr{position:relative;z-index:1;display:flex;flex-direction:column;min-height:282px;padding:25px 28px 20px;background:var(--folder);border:1px solid rgba(18,20,25,.08);border-radius:0 22px 22px 22px;overflow:hidden;transform:translate3d(0,var(--lift,0px),0) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transform-style:preserve-3d;transition:transform .38s var(--spring)}
-.n,.k,.h{position:relative;transform:translate3d(var(--mx,0px),var(--my,0px),12px);transition:transform .38s var(--spring)}
-.n{font-size:clamp(2.35rem,5vw,3.2rem);font-weight:740;letter-spacing:-.07em;line-height:1}
-.f[data-c="sport"] .n{color:#167747}.f[data-c="hot"] .n{color:#bd2938}.f[data-c="news"] .n{color:#48515c}.f[data-c="music"] .n{color:#2857ad}
-.k{display:inline-flex;align-self:flex-start;margin:12px 0 7px;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.09);font-size:10px;font-weight:720;letter-spacing:.105em;text-transform:uppercase;opacity:.78}
-.h{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin-top:9px;padding-top:10px;border-top:1px solid rgba(0,0,0,.16);font-size:14px;line-height:1.38;font-weight:530;letter-spacing:-.015em}
-.fr::after{content:"DESCHIDE SECȚIUNEA  ↗";margin-top:auto;padding-top:14px;font-size:9px;line-height:1;font-weight:740;letter-spacing:.14em;opacity:.58}
-.arch{grid-column:1/-1;color:#f5f5f7;margin-top:4px}
-.arch .tab{background:#191a1e;border-color:var(--line)}.arch .bk{background:#191a1e;border-color:var(--line)}.arch .fr{min-height:94px;flex-direction:row;align-items:center;justify-content:space-between;padding:20px 24px;background:#191a1e;border-color:var(--line);border-radius:0 22px 22px 22px}
-.arch .n{font-size:25px;letter-spacing:-.05em}.arch .k{margin:0;padding:0;background:none;font-size:13px;font-weight:540;letter-spacing:0;text-transform:none;opacity:.7}.arch .fr::after{content:"↗";margin:0;padding:0;font-size:21px;letter-spacing:0;opacity:.8}
-@keyframes wallet-deal{0%{opacity:0;transform:translate3d(var(--stack-x,0px),var(--stack-y,36px),0) rotate(var(--stack-r,0deg)) scale(.92)}66%{opacity:1;transform:translate3d(0,-7px,0) rotate(0) scale(1.018)}100%{opacity:1;transform:translate3d(0,0,0) rotate(0) scale(1)}}
-@media(hover:hover) and (pointer:fine){.f:hover{z-index:4;transform:translateY(-8px) scale(1.014)}.f:hover .tab{transform:translateY(-7px) rotate(-2deg)}.f:hover .bk{transform:translateY(5px)}.f:hover .fr{--lift:-2px}#stack:has(.f:not(.arch):hover) .f:not(:hover){transform:scale(.985);opacity:.78}}
-.f.opening{z-index:5;transform:translateY(-10px) scale(1.025);transition-duration:.25s}.f.opening .tab{transform:translateY(-8px) rotateX(-48deg)}.f.opening .bk{transform:translateY(5px)}.f.opening .fr{--lift:-7px;--rx:0deg;--ry:0deg;--mx:0px;--my:0px}
-#sheet{position:fixed;z-index:10;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);opacity:0;pointer-events:none;transition:opacity .24s;padding:18px}
-#sheet.on{opacity:1;pointer-events:auto}
-.sheet{width:min(480px,100%);background:#17181b;border:1px solid var(--line);border-radius:26px;padding:28px 26px;transform:translateY(12px) scale(.985);transition:transform .3s var(--ease)}
-#sheet.on .sheet{transform:none}
-.sheet h2{font-size:22px;letter-spacing:-.045em;font-weight:680}.sheet p{color:var(--mut);font-size:13px;line-height:1.5;margin:7px 0 18px}
-.sw{position:relative;display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-top:1px solid var(--line);font-size:15px;font-weight:540;cursor:pointer}
-.sw input{position:absolute;opacity:0}
-.sw i{width:48px;height:28px;border-radius:99px;background:#393a3f;position:relative;transition:background .25s}
-.sw i::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .25s var(--ease)}
-.sw input:checked+i{background:var(--c)}.sw input:checked+i::after{transform:translateX(20px)}
-.sw input:focus-visible+i{outline:2px solid #fff;outline-offset:3px}
-.done{width:100%;margin-top:14px;padding:14px;font:inherit;font-size:14px;font-weight:680;border:0;border-radius:14px;background:#f5f5f7;color:#101115;cursor:pointer;transition:transform .2s var(--ease)}.done:active{transform:scale(.985)}
-@media(max-width:520px){body{padding-left:18px;padding-right:18px}header{margin-bottom:64px}.brand{gap:9px}.brand small{font-size:9px}.date{margin-bottom:32px}.grid{gap:14px}.fr{min-height:257px;padding:24px 23px 18px}.arch .fr{min-height:84px;padding:17px 20px}}
-@media(min-width:1100px){.grid{gap:22px}.fr{min-height:294px;padding:30px 32px 22px}.h{font-size:15px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+*,*::before,*::after{box-sizing:border-box}
+:root{color-scheme:dark;--page:#090a0c;--ink:#17191c;--muted:#92949a;--line:#292a2e;--paper:#eeefec;--paper-edge:#d8d9d5;--ease:cubic-bezier(.22,1,.36,1);--deck-gap:16px;--card-height:238px;--empty-height:172px}
+html{background:var(--page);scroll-behavior:smooth}
+body{min-width:320px;min-height:100dvh;margin:0;padding:max(22px,env(safe-area-inset-top)) 24px max(36px,env(safe-area-inset-bottom));background:var(--page);color:#f5f5f7;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button,a{-webkit-tap-highlight-color:transparent}
+button{font:inherit}
+.wrap{width:min(100%,960px);margin:0 auto}
+.topbar{display:flex;align-items:center;gap:12px;min-height:44px;margin-bottom:clamp(45px,8vh,76px);padding-bottom:15px;border-bottom:1px solid #242529}
+.brand{color:#f5f5f7;text-decoration:none;font-size:15px;font-weight:700;letter-spacing:-.035em;white-space:nowrap}
+.brand-note{color:#85878e;font-size:9px;font-weight:650;letter-spacing:.15em;text-transform:uppercase}
+.customize{margin-left:auto;padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:#151619;color:#e6e6e8;font-size:12px;font-weight:590;cursor:pointer;transition:background .2s ease,border-color .2s ease,transform .2s ease}
+.customize:hover{background:#1d1e22;border-color:#414248;transform:translateY(-1px)}
+.customize:active{transform:scale(.97)}
+.intro{margin-bottom:30px}
+.eyebrow{margin:0 0 10px;color:#97999f;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+h1{margin:0;color:#f4f4f5;font-size:clamp(2.8rem,7vw,4.25rem);font-weight:660;letter-spacing:-.075em;line-height:.98}
+.date{margin:12px 0 0;color:#8e9096;font-size:13px;font-weight:500;text-transform:capitalize}
+.deck-wrap{width:min(100%,760px);margin:0 auto}
+.wallet-deck{position:relative;width:100%;height:var(--deck-size,220px);touch-action:pan-y;isolation:isolate}
+.f{position:absolute;top:0;right:0;left:0;display:block;width:100%;height:var(--card-height-active,var(--card-height));padding:0;color:var(--ink);text-decoration:none;transform:translate3d(0,var(--offset-y,0px),0) scale(var(--stack-scale,1)) rotate(var(--stack-rotate,0deg));transform-origin:50% 50%;transition:transform .62s var(--ease),opacity .3s ease;animation:folder-enter .5s var(--ease) both;will-change:transform}
+.f:nth-of-type(2){animation-delay:.045s}.f:nth-of-type(3){animation-delay:.09s}.f:nth-of-type(4){animation-delay:.135s}
+.f[hidden]{display:none}
+.f:focus-visible{z-index:10!important;outline:2px solid #fff;outline-offset:5px;border-radius:20px}
+.f:active{filter:brightness(.985)}
+.tab{position:absolute;z-index:2;top:0;left:23px;width:126px;height:32px;border:1px solid var(--paper-edge);border-bottom:0;border-radius:13px 13px 0 0;background:var(--paper);transition:transform .35s var(--ease)}
+.bk{position:absolute;z-index:0;top:17px;right:0;bottom:0;left:0;border:1px solid var(--paper-edge);border-radius:18px;background:var(--paper);transition:transform .42s var(--ease)}
+.fr{position:absolute;z-index:1;inset:17px 0 0;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) minmax(0,1fr) auto;gap:0 14px;height:calc(100% - 17px);min-height:0;padding:20px 24px 17px;overflow:hidden;border:1px solid var(--paper-edge);border-radius:18px;background:var(--paper);color:var(--ink);transition:background .25s ease}
+.n{grid-area:1/1;align-self:center;font-size:17px;font-weight:720;letter-spacing:-.025em;line-height:1.1}
+.f[data-c="sport"] .n{color:#28774e}.f[data-c="hot"] .n{color:#a94349}.f[data-c="news"] .n{color:#565b61}.f[data-c="music"] .n{color:#426b9f}
+.k{grid-area:1/2;align-self:center;color:#777a80;font-size:11px;font-weight:550;white-space:nowrap}
+.h{grid-row:2;grid-column:1/-1;display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;align-self:stretch;min-width:0;margin:0;padding:12px 0 0;border-top:1px solid #d6d8d3;color:#242629;font-size:clamp(16px,2vw,19px);font-weight:580;letter-spacing:-.025em;line-height:1.35}
+.h+.h{grid-row:3;align-self:start;margin-top:10px;padding-top:11px}
+.fr::after{grid-area:4/1/5/3;align-self:end;justify-self:end;content:"Deschide secțiunea  ↗";color:#707279;font-size:10px;font-weight:620;letter-spacing:.01em}
+.f.no-news .h{grid-row:2/4;align-self:center;max-width:40ch;margin:0;padding:0;border:0;color:#585b60;font-size:15px;font-weight:500;letter-spacing:-.01em;line-height:1.45}
+.f.no-news .h::before{display:block;margin-bottom:7px;content:"EDIȚIA DE AZI";color:#898c90;font-size:9px;font-weight:720;letter-spacing:.13em}
+@media(hover:hover) and (pointer:fine){.f:hover{z-index:8!important}.f:hover .tab{transform:translateY(-4px)}.f:hover .bk{transform:translateY(3px)}.f:hover .fr{background:#f3f4f1}}
+.f.opening{z-index:9!important;transform:translateY(-5px) scale(1.012)!important;transition-duration:.22s!important}.f.opening .tab{transform:translateY(-5px)}.f.opening .bk{transform:translateY(4px)}.f.opening .fr{background:#f4f5f2}
+.deck-nav{display:flex;align-items:center;gap:14px;width:min(100%,340px);margin:13px auto 0;color:#bfc0c4}
+.deck-nav button{display:grid;place-items:center;width:36px;height:34px;border:1px solid #2a2b30;border-radius:11px;background:#141518;color:#e8e9eb;font-size:16px;cursor:pointer;transition:background .2s ease,transform .2s ease}
+.deck-nav button:hover{background:#1d1e22;transform:translateY(-1px)}.deck-nav button:active{transform:scale(.96)}
+.deck-nav span{flex:1;text-align:center;color:#bfc0c4;font-size:10px;font-weight:650;letter-spacing:.11em;text-transform:uppercase}
+.archive{display:flex;align-items:center;gap:12px;width:min(100%,760px);min-height:56px;margin:23px auto 0;padding:12px 17px;border:1px solid #292a2e;border-radius:15px;background:#151619;color:#e8e8ea;text-decoration:none;transition:background .2s ease,border-color .2s ease,transform .2s ease}
+.archive:hover{transform:translateY(-1px);border-color:#414248;background:#1b1c20}
+.archive-title{font-size:14px;font-weight:650;letter-spacing:-.02em}
+.archive-note{margin-left:auto;color:#92949a;font-size:11px}
+.archive-arrow{color:#b5b6bb;font-size:16px}
+#sheet{position:fixed;z-index:20;inset:0;display:none;place-items:center;padding:18px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#sheet.on{display:grid;animation:sheet-in .2s ease both}
+.sheet{width:min(460px,100%);padding:25px 24px 22px;border:1px solid #303136;border-radius:22px;background:#17181b;box-shadow:0 24px 80px rgba(0,0,0,.32)}
+.sheet h2{margin:0;font-size:21px;font-weight:680;letter-spacing:-.05em}
+.sheet p{margin:7px 0 17px;color:#a3a5aa;font-size:13px;line-height:1.5}
+.sw{position:relative;display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-top:1px solid #2c2d32;color:#f0f0f2;font-size:14px;font-weight:550;cursor:pointer}
+.sw input{position:absolute;width:1px;height:1px;opacity:0}
+.sw i{position:relative;width:46px;height:27px;border-radius:99px;background:#3a3b40;transition:background .2s ease}
+.sw i::after{position:absolute;top:2px;left:2px;width:23px;height:23px;border-radius:50%;background:#fff;content:"";transition:transform .2s var(--ease)}
+.sw input:checked+i{background:var(--c)}.sw input:checked+i::after{transform:translateX(19px)}.sw input:focus-visible+i{outline:2px solid #fff;outline-offset:3px}
+.done{width:100%;margin-top:15px;padding:13px;border:0;border-radius:13px;background:#f2f2f3;color:#161719;font-size:14px;font-weight:680;cursor:pointer;transition:transform .2s ease}.done:active{transform:scale(.985)}
+@keyframes folder-enter{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
+@keyframes sheet-in{from{opacity:0}to{opacity:1}}
+@media(max-width:600px){body{padding:19px max(18px,env(safe-area-inset-left)) max(28px,env(safe-area-inset-bottom))}.topbar{margin-bottom:42px;padding-bottom:13px}.brand{font-size:14px}.brand-note{font-size:8px}.customize{padding:8px 11px;font-size:11px}.intro{margin-bottom:24px}h1{font-size:clamp(2.5rem,11vw,3.35rem)}.date{margin-top:9px;font-size:12px}:root{--deck-gap:13px;--card-height:218px;--empty-height:158px}.tab{left:18px;width:108px;height:29px}.bk{top:15px}.fr{inset:15px 0 0;height:calc(100% - 15px);padding:17px 18px 15px;border-radius:16px}.n{font-size:16px}.k{font-size:10px}.h{font-size:15px;line-height:1.37}.f.no-news .h{font-size:14px}.fr::after{font-size:9px}.deck-nav{margin-top:11px}.archive{min-height:52px;margin-top:17px;padding:11px 14px}.archive-title{font-size:13px}.archive-note{font-size:10px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 <main class="wrap">
-  <header><span class="brand">ACQ Media <small>ȘTIRI, PE SCURT</small></span><button class="pill" id="edit">Personalizează</button></header>
-  <p class="eyebrow">EDIȚIA ZILEI</p>
-  <h1>Azi, pe scurt.</h1>
-  <p class="date" id="date"></p>
-  <section class="grid" id="stack" aria-label="Secțiuni"><!--CARDS-->
-<a class="f" data-c="sport" href="sport.html" style="--c:#22c55e"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Sport</b><span class="k">0 știri azi</span><span class="h">Ediția de azi nu este încă disponibilă.</span></span></a>
-<a class="f" data-c="hot" href="hot.html" style="--c:#ef4444"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Hot</b><span class="k">0 știri azi</span><span class="h">Ediția de azi nu este încă disponibilă.</span></span></a>
-<a class="f" data-c="news" href="news.html" style="--c:#e8e8ed"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">News</b><span class="k">0 știri azi</span><span class="h">Ediția de azi nu este încă disponibilă.</span></span></a>
-<a class="f" data-c="music" href="music.html" style="--c:#3b82f6"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Music</b><span class="k">0 știri azi</span><span class="h">Ediția de azi nu este încă disponibilă.</span></span></a>
-<!--/CARDS-->
-<a class="f arch" href="arhiva.html"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Arhivă</b><span class="k">Răsfoiește zilele trecute&nbsp; →</span></span></a>
-</section>
-</main>
-<div id="sheet" role="dialog" aria-modal="true" aria-label="Alege secțiunile">
-  <div class="sheet">
-    <h2>Ce vrei să vezi?</h2><p>Secțiunile bifate rămân în listă. Alegerea se păstrează pe acest dispozitiv.</p>
-    <label class="sw" style="--c:#22c55e">Sport<input type="checkbox" value="sport"/><i></i></label>
-    <label class="sw" style="--c:#ef4444">Hot<input type="checkbox" value="hot"/><i></i></label>
-    <label class="sw" style="--c:#e8e8ed">News<input type="checkbox" value="news"/><i></i></label>
-    <label class="sw" style="--c:#3b82f6">Music<input type="checkbox" value="music"/><i></i></label>
-    <button class="done" id="done">Gata</button>
-  </div>
+<header class="topbar"><a class="brand" href="./">ACQ Media</a><span class="brand-note">Știri, pe scurt</span><button class="customize" id="edit" type="button">Personalizează</button></header>
+<section class="intro" aria-labelledby="page-title"><p class="eyebrow">Ediția zilei</p><h1 id="page-title">Știrile zilei.</h1><p class="date" id="date"></p></section>
+<div class="deck-wrap">
+<section class="wallet-deck" id="stack" aria-label="Secțiuni"><!--CARDS-->
+<a class="f no-news" data-c="sport" data-empty="true" href="sport.html" style="--c:#22c55e"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Sport</b><span class="k">0 știri azi</span><span class="h">Știrile acestei secțiuni nu au fost publicate încă.</span></span></a>
+<a class="f no-news" data-c="hot" data-empty="true" href="hot.html" style="--c:#ef4444"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Hot</b><span class="k">0 știri azi</span><span class="h">Știrile acestei secțiuni nu au fost publicate încă.</span></span></a>
+<a class="f no-news" data-c="news" data-empty="true" href="news.html" style="--c:#e8e8ed"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">News</b><span class="k">0 știri azi</span><span class="h">Știrile acestei secțiuni nu au fost publicate încă.</span></span></a>
+<a class="f no-news" data-c="music" data-empty="true" href="music.html" style="--c:#3b82f6"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Music</b><span class="k">0 știri azi</span><span class="h">Știrile acestei secțiuni nu au fost publicate încă.</span></span></a>
+<!--/CARDS--></section>
+<nav class="deck-nav" aria-label="Navighează între secțiuni"><button type="button" id="previous" aria-label="Secțiunea anterioară">←</button><span id="deck-label" aria-live="polite"></span><button type="button" id="next" aria-label="Secțiunea următoare">→</button></nav>
+<a class="archive" href="arhiva.html"><span class="archive-title">Arhivă</span><span class="archive-note">Răsfoiește zilele trecute</span><span class="archive-arrow" aria-hidden="true">↗</span></a>
 </div>
+</main>
+<div id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-title"><div class="sheet"><h2 id="sheet-title">Ce vrei să vezi?</h2><p>Secțiunile bifate rămân în teanc. Alegerea se păstrează pe acest dispozitiv.</p>
+<label class="sw" style="--c:#22c55e">Sport<input type="checkbox" value="sport"/><i></i></label>
+<label class="sw" style="--c:#ef4444">Hot<input type="checkbox" value="hot"/><i></i></label>
+<label class="sw" style="--c:#e8e8ed">News<input type="checkbox" value="news"/><i></i></label>
+<label class="sw" style="--c:#3b82f6">Music<input type="checkbox" value="music"/><i></i></label>
+<button class="done" id="done" type="button">Gata</button></div></div>
 <script>
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-$('#date').textContent=new Intl.DateTimeFormat('ro-RO',{timeZone:'Europe/Bucharest',weekday:'long',day:'numeric',month:'long'}).format(new Date());
-const fs=$$('.f[data-c]'),boxes=$$('#sheet input'),sheet=$('#sheet');
-let on=[];try{on=JSON.parse(localStorage.getItem('acq.cats')||'[]')}catch(e){}
-if(!on.length)on=fs.map(c=>c.dataset.c);
-function apply(){fs.forEach(c=>c.hidden=!on.includes(c.dataset.c));boxes.forEach(b=>b.checked=on.includes(b.value))}
-boxes.forEach(b=>b.onchange=()=>{const sel=boxes.filter(x=>x.checked).map(x=>x.value);if(!sel.length){b.checked=true;return}on=sel;try{localStorage.setItem('acq.cats',JSON.stringify(on))}catch(e){}apply()});
-const close=()=>sheet.classList.remove('on');
-$('#edit').onclick=()=>sheet.classList.add('on');$('#done').onclick=close;
-sheet.onclick=e=>{if(e.target===sheet)close()};document.onkeydown=e=>{if(e.key==='Escape')close()};
+const $=selector=>document.querySelector(selector);
+const $$=selector=>[...document.querySelectorAll(selector)];
+const sections=$$('#stack .f[data-c]');
+const checkboxes=$$('#sheet input[type="checkbox"]');
+const stack=$('#stack');
+const label=$('#deck-label');
+const sheet=$('#sheet');
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
-$$('.f').forEach(card=>{
-  const face=card.querySelector('.fr');
-  card.addEventListener('pointermove',e=>{
-    if(e.pointerType==='touch')return;
-    const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
-    face.style.setProperty('--rx',`${(-y*5).toFixed(2)}deg`);face.style.setProperty('--ry',`${(x*7).toFixed(2)}deg`);
-    face.style.setProperty('--mx',`${(x*5).toFixed(1)}px`);face.style.setProperty('--my',`${(y*5).toFixed(1)}px`);
-  });
-  card.addEventListener('pointerleave',()=>['--rx','--ry','--mx','--my'].forEach(k=>face.style.removeProperty(k)));
-  card.addEventListener('click',e=>{
-    if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||reduceMotion.matches)return;
-    e.preventDefault();card.classList.add('opening');window.setTimeout(()=>window.location.assign(card.href),260);
-  });
+const sectionNames={sport:'Sport',hot:'Hot',news:'News',music:'Music'};
+const dateText=new Intl.DateTimeFormat('ro-RO',{timeZone:'Europe/Bucharest',weekday:'long',day:'numeric',month:'long'}).format(new Date());
+$('#date').textContent=dateText;
+let enabled=[];
+try{enabled=JSON.parse(localStorage.getItem('acq.cats')||'[]')}catch(error){}
+if(!Array.isArray(enabled))enabled=[];
+enabled=enabled.filter(value=>sections.some(card=>card.dataset.c===value));
+if(!enabled.length)enabled=sections.map(card=>card.dataset.c);
+let active=sections[0]?.dataset.c||'sport';
+let suppressCardClickUntil=0;
+function visibleSections(){return sections.filter(card=>!card.hidden)}
+function setActive(step){const visible=visibleSections();if(!visible.length)return;let index=visible.findIndex(card=>card.dataset.c===active);if(index<0)index=0;active=visible[(index+step+visible.length)%visible.length].dataset.c;paint()}
+function paint(){
+ const visible=visibleSections();
+ if(!visible.some(card=>card.dataset.c===active))active=visible[0]?.dataset.c||'';
+ const current=visible.findIndex(card=>card.dataset.c===active);
+ const hasStories=visible.some(card=>card.dataset.empty!=='true');
+ const height=parseFloat(getComputedStyle(document.documentElement).getPropertyValue(hasStories?'--card-height':'--empty-height'))||180;
+ const gap=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--deck-gap'))||14;
+ stack.style.setProperty('--card-height-active',height+'px');
+ stack.style.setProperty('--deck-size',(height+Math.max(0,visible.length-1)*gap)+'px');
+ visible.forEach((card,index)=>{
+  const depth=(current-index+visible.length)%visible.length;
+  const y=(visible.length-1-depth)*gap;
+  const scale=(1-depth*.009).toFixed(3);
+  const angle=depth?((depth%2?-1:1)*Math.ceil(depth/2)*.16)+'deg':'0deg';
+  card.style.setProperty('--offset-y',y+'px');
+  card.style.setProperty('--stack-scale',scale);
+  card.style.setProperty('--stack-rotate',angle);
+  card.style.zIndex=String(visible.length-depth);
+ });
+ label.textContent=current<0?'':sectionNames[active]+' · '+(current+1)+' / '+visible.length;
+}
+function applyPreferences(){sections.forEach(card=>{card.hidden=!enabled.includes(card.dataset.c)});checkboxes.forEach(box=>{box.checked=enabled.includes(box.value)});paint()}
+function savePreferences(){try{localStorage.setItem('acq.cats',JSON.stringify(enabled))}catch(error){}}
+checkboxes.forEach(box=>box.addEventListener('change',()=>{
+ const selected=checkboxes.filter(item=>item.checked).map(item=>item.value);
+ if(!selected.length){box.checked=true;return}
+ enabled=selected;savePreferences();applyPreferences();
+}));
+$('#previous').addEventListener('click',()=>setActive(-1));
+$('#next').addEventListener('click',()=>setActive(1));
+$('#stack').addEventListener('pointerdown',event=>{if(event.pointerType==='touch')stack.dataset.startX=String(event.clientX)});
+$('#stack').addEventListener('pointerup',event=>{
+ if(event.pointerType!=='touch'||stack.dataset.startX===undefined)return;
+ const delta=event.clientX-Number(stack.dataset.startX);delete stack.dataset.startX;
+ if(Math.abs(delta)>48){suppressCardClickUntil=Date.now()+400;setActive(delta<0?1:-1)}
 });
-apply();
+$('#stack').addEventListener('click',event=>{if(Date.now()<suppressCardClickUntil&&event.target.closest('.f[data-c]')){event.preventDefault();event.stopPropagation()}} ,true);
+sections.forEach(card=>card.addEventListener('click',event=>{
+ if(Date.now()<suppressCardClickUntil||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||reduceMotion.matches)return;
+ event.preventDefault();card.classList.add('opening');window.setTimeout(()=>window.location.assign(card.href),220);
+}));
+document.addEventListener('keydown',event=>{if(event.key==='ArrowRight')setActive(1);if(event.key==='ArrowLeft')setActive(-1)});
+let previousFocus=null;
+function openSheet(){previousFocus=document.activeElement;sheet.hidden=false;requestAnimationFrame(()=>{sheet.classList.add('on');checkboxes[0]?.focus()})}
+function closeSheet(){sheet.classList.remove('on');window.setTimeout(()=>{sheet.hidden=true;previousFocus?.focus()},200)}
+$('#edit').addEventListener('click',openSheet);
+$('#done').addEventListener('click',closeSheet);
+sheet.addEventListener('click',event=>{if(event.target===sheet)closeSheet()});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!sheet.hidden)closeSheet()});
+window.addEventListener('resize',paint,{passive:true});
+applyPreferences();
 </script>
-<style>
-header{margin-bottom:38px!important}
-h1{font-size:clamp(2.7rem,5.8vw,4rem)!important;font-weight:680!important;letter-spacing:-.065em!important;line-height:1!important}
-.date{margin:12px 0 28px!important}
-.grid{--card-h:352px;--offset:24px;position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important;padding-top:var(--deck-space,424px)!important}
-.f[data-c]{position:absolute!important;top:0;left:0;right:0;height:var(--card-h);padding:0!important;color:#121317;text-decoration:none;z-index:1;transform:translate3d(0,var(--offset-y,0px),0)!important;transition:transform .58s cubic-bezier(.18,.86,.24,1.12),filter .25s ease!important;animation:acq-card-in .55s ease both!important}
-.f[data-c][hidden]{display:none!important}.f[data-c]:active{filter:brightness(.97)}
-.f[data-c]:focus-visible{outline:3px solid #fff;outline-offset:5px;border-radius:24px;z-index:8!important}
-.tab{display:none!important}
-.bk{position:absolute!important;z-index:0;inset:5px 0 -5px!important;background:#cfd1d5!important;border:0!important;border-radius:24px!important;transition:transform .58s cubic-bezier(.18,.86,.24,1.12)!important}
-.fr{position:relative!important;z-index:1;display:flex!important;flex-flow:row wrap!important;align-content:flex-start;align-items:baseline;min-height:0!important;height:100%;padding:19px 24px 24px!important;background:#eceef1!important;border:1px solid rgba(18,20,25,.09)!important;border-radius:24px!important;overflow:hidden;transform:none!important;transform-style:flat!important;transition:filter .25s ease!important}
-.n,.k,.h{position:relative;transform:none!important;transition:none!important}
-.n{font-size:15px!important;font-weight:740!important;letter-spacing:.015em!important;line-height:1.2}
-.f[data-c="sport"] .n{color:#147747!important}.f[data-c="hot"] .n{color:#b32635!important}.f[data-c="news"] .n{color:#626775!important}.f[data-c="music"] .n{color:#3165c5!important}
-.k{display:inline-flex!important;margin:0 0 0 auto!important;padding:0!important;background:none!important;border:0;border-radius:0;font-size:12px!important;font-weight:540!important;letter-spacing:0!important;text-transform:none!important;opacity:.62}
-.h{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;flex-basis:100%;margin-top:16px!important;padding:0!important;border:0!important;font-size:clamp(17px,2.2vw,21px)!important;line-height:1.34!important;font-weight:590!important;letter-spacing:-.025em!important}
-.h+.h{margin-top:12px!important;padding-top:12px!important;border-top:1px solid rgba(0,0,0,.14)!important}
-.fr::after{content:"Deschide secțiunea  ↗"!important;position:absolute!important;right:24px;bottom:20px;margin:0!important;padding:0!important;font-size:11px!important;line-height:1;font-weight:620;letter-spacing:.015em;opacity:.58}
-@keyframes acq-card-in{from{opacity:0}to{opacity:1}}
-@media(hover:hover) and (pointer:fine){.f[data-c]:hover .fr{filter:brightness(1.035)}.f[data-c]:hover .bk{transform:translateY(3px)}.f[data-c]:focus-visible .fr{filter:brightness(1.02)}}
-.f.opening{z-index:9!important;transform:translateY(-7px) scale(1.012)!important;transition-duration:.22s!important}.f.opening .bk{transform:translateY(4px)!important}
-.arch{grid-column:1!important;margin-top:26px!important;padding:0!important;position:relative!important;display:block!important}
-.arch .tab{display:none!important}.arch .bk{inset:4px 0 -4px!important;background:#141518!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:20px!important}
-.arch .fr{min-height:82px!important;height:auto!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;padding:19px 22px!important;background:#141518!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:20px!important;color:#f5f5f7!important}
-.arch .n{font-size:20px!important;letter-spacing:-.04em!important;color:#f5f5f7!important}.arch .k{margin:0!important;padding:0!important;background:none!important;font-size:12px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important;opacity:.66}.arch .fr::after{content:"↗"!important;position:static!important;margin:0!important;padding:0!important;font-size:18px!important;letter-spacing:0;opacity:.8}
-.acq-deck-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;width:min(100%,560px);margin:17px auto 0;color:rgba(238,239,244,.58);font-size:12px;font-weight:560}
-.acq-deck-nav button{display:grid;place-items:center;width:42px;height:38px;color:#f5f5f7;background:#151619;border:1px solid rgba(255,255,255,.1);border-radius:13px;font:inherit;font-size:18px;cursor:pointer;transition:background .2s ease,transform .2s ease}
-.acq-deck-nav button:hover:not(:disabled){background:#232428;transform:translateY(-1px)}.acq-deck-nav button:active:not(:disabled){transform:scale(.96)}.acq-deck-nav button:disabled{opacity:.35;cursor:default}
-.acq-deck-nav span{min-width:0;flex:1;text-align:center;text-transform:capitalize;letter-spacing:.035em}
-@media(max-width:520px){.grid{--card-h:326px;--offset:21px}.fr{padding:18px 19px 22px!important}.h{font-size:17px!important}.h+.h{margin-top:10px!important;padding-top:10px!important}.fr::after{right:19px;bottom:18px}.arch .fr{min-height:74px!important;padding:16px 18px!important}.arch .n{font-size:18px!important}}
-@media(min-width:900px){.grid{--card-h:364px;--offset:25px}.wrap{width:min(100%,850px)}.h{font-size:21px!important}}
-@media(prefers-reduced-motion:reduce){.f[data-c],.f[data-c] .fr,.f[data-c] .bk,.acq-deck-nav button{animation:none!important;transition:none!important}}
-</style>
-<script>(()=>{const eyebrow=document.querySelector('.eyebrow');if(eyebrow)eyebrow.remove();document.querySelector('h1').textContent='Știrile zilei.';
- const stack=document.querySelector('#stack'),cards=[...document.querySelectorAll('#stack .f[data-c]')],boxes=[...document.querySelectorAll('#sheet input')];
- const nav=document.createElement('nav');nav.className='acq-deck-nav';nav.setAttribute('aria-label','Navighează între secțiuni');nav.innerHTML='<button type="button" aria-label="Secțiunea anterioară">←</button><span aria-live="polite"></span><button type="button" aria-label="Secțiunea următoare">→</button>';const archive=stack.querySelector('.arch');if(archive)stack.insertBefore(nav,archive);else stack.after(nav);
- const buttons=nav.querySelectorAll('button'),label=nav.querySelector('span');let active=cards[0]?.dataset.c,startX=null,swiped=false;
- function paint(){
-  const visible=cards.filter(card=>!card.hidden),style=getComputedStyle(stack),offset=parseFloat(style.getPropertyValue('--offset'))||24,cardH=parseFloat(style.getPropertyValue('--card-h'))||352;
-  if(!visible.some(card=>card.dataset.c===active))active=visible[0]?.dataset.c;
-  const current=visible.findIndex(card=>card.dataset.c===active),total=visible.length;
-  visible.forEach((card,index)=>{const depth=(current-index+total)%total;card.style.setProperty('--offset-y',((total-1-depth)*offset)+'px');card.style.zIndex=String(total-depth)});
-  stack.style.setProperty('--deck-space',(cardH+Math.max(0,total-1)*offset)+'px');
-  label.textContent=total?visible[current].querySelector('.n').textContent+' · '+(current+1)+' / '+total:'Nu există secțiuni selectate';buttons.forEach(button=>button.disabled=total<2);
- }
- function move(direction){const visible=cards.filter(card=>!card.hidden);if(visible.length<2)return;const i=visible.findIndex(card=>card.dataset.c===active);active=visible[(i+direction+visible.length)%visible.length].dataset.c;paint()}
- buttons[0].addEventListener('click',()=>move(-1));buttons[1].addEventListener('click',()=>move(1));
- document.addEventListener('keydown',event=>{if(document.querySelector('#sheet.on'))return;if(event.key==='ArrowLeft')move(-1);if(event.key==='ArrowRight')move(1)});
- stack.addEventListener('pointerdown',event=>{startX=event.clientX},{passive:true});
- stack.addEventListener('pointerup',event=>{if(startX===null)return;const dx=event.clientX-startX;startX=null;if(Math.abs(dx)>48){swiped=true;move(dx<0?1:-1);setTimeout(()=>swiped=false,350)}},{passive:true});
- stack.addEventListener('click',event=>{if(swiped){event.preventDefault();event.stopImmediatePropagation()}},true);
- boxes.forEach(box=>box.addEventListener('change',()=>setTimeout(paint,0)));window.addEventListener('resize',paint);paint();
-})();
-</script><style>
-/* ACQ Media home: compact editorial Wallet deck */
-html,body{background:#090a0c!important}
-body{padding:28px max(22px,env(safe-area-inset-left)) 40px!important}
-.wrap{width:min(100%,960px)!important}
-header{margin:0 0 clamp(42px,7vh,68px)!important;padding:0 0 16px;border-bottom:1px solid #25262a}
-.brand{font-size:15px!important;font-weight:680!important;letter-spacing:-.025em!important;gap:9px!important}
-.brand small{font-size:9px!important;letter-spacing:.14em!important;color:#85878e!important}
-.pill{padding:9px 14px!important;background:#151619!important;border-color:#292a2e!important;font-size:12px!important}
-.pill:hover{background:#1c1d21!important;border-color:#42434a!important}
-.eyebrow{display:none!important}
-h1{font-size:clamp(2.8rem,6vw,4.15rem)!important;font-weight:660!important;letter-spacing:-.072em!important;line-height:.98!important}
-.date{margin:11px 0 28px!important;color:#8c8e95!important;font-size:13px!important;letter-spacing:.01em!important}
-.date::before{content:"EDIȚIA · ";font-size:9px;font-weight:720;letter-spacing:.12em;color:#a9abb0}
-.grid{--card-h:258px;--offset:15px;position:relative!important;display:block!important;width:min(100%,780px)!important;margin:0 auto!important;gap:0!important;padding-top:var(--deck-space,303px)!important}
-.f[data-c]{position:absolute!important;top:0!important;left:0!important;right:0!important;height:var(--card-h)!important;padding:0!important;color:#18191b!important;z-index:1;opacity:1!important;transform:translate3d(0,var(--offset-y,0px),0) scale(var(--stack-scale,1)) rotate(var(--stack-rotate,0deg))!important;transform-origin:50% 50%;transition:transform .62s cubic-bezier(.2,.82,.23,1),opacity .25s ease!important;animation:acq-deal .65s cubic-bezier(.2,.82,.23,1) both!important}
-.f[data-c][hidden]{display:none!important}
-.f[data-c]:focus-visible{outline:2px solid #fff!important;outline-offset:5px!important;border-radius:20px;z-index:10!important}
-.f[data-c]:active{filter:brightness(.97)}
-.f[data-c] .tab{display:block!important;top:0!important;left:24px!important;width:124px!important;height:34px!important;background:#eeefec!important;border:1px solid #d7d9d4!important;border-bottom:0!important;border-radius:13px 13px 0 0!important;transform:none!important}
-.f[data-c] .bk{inset:18px 0 0!important;background:#eeefec!important;border:1px solid #d7d9d4!important;border-radius:18px!important;transform:none!important}
-.f[data-c] .fr{position:absolute!important;inset:18px 0 0!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto minmax(0,1fr) minmax(0,1fr) auto!important;align-items:start!important;align-content:stretch!important;height:calc(100% - 18px)!important;min-height:0!important;padding:22px 26px 18px!important;background:#eeefec!important;border:1px solid #d7d9d4!important;border-radius:18px!important;overflow:hidden!important;transform:none!important;transform-style:flat!important;box-shadow:none!important;transition:background .22s ease!important}
-.f[data-c] .n,.f[data-c] .k,.f[data-c] .h{position:relative!important;transform:none!important;transition:none!important}
-.f[data-c] .n{grid-area:1/1!important;font-size:18px!important;font-weight:700!important;letter-spacing:-.025em!important;line-height:1.1!important}
-.f[data-c="sport"] .n{color:#28774e!important}.f[data-c="hot"] .n{color:#a94349!important}.f[data-c="news"] .n{color:#565b61!important}.f[data-c="music"] .n{color:#426b9f!important}
-.f[data-c] .k{grid-area:1/2!important;align-self:center!important;display:inline-flex!important;margin:0!important;padding:0!important;background:none!important;border:0!important;border-radius:0!important;font-size:11px!important;font-weight:540!important;letter-spacing:0!important;text-transform:none!important;color:#73767b!important;opacity:1!important;white-space:nowrap}
-.f[data-c] .h{grid-column:1/-1!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;align-self:stretch!important;min-width:0!important;margin:0!important;padding:13px 0 0!important;border:0!important;border-top:1px solid #d6d8d3!important;font-size:clamp(16px,2vw,19px)!important;font-weight:570!important;line-height:1.36!important;letter-spacing:-.025em!important;color:#202124!important;overflow:hidden!important}
-.f[data-c] .h+.h{grid-row:3!important;align-self:start!important;margin-top:12px!important;padding-top:12px!important;border-top:1px solid #d6d8d3!important}
-.f[data-c] .fr::after{grid-area:4/1/5/3!important;align-self:end!important;justify-self:end!important;position:static!important;margin:0!important;padding:0!important;content:"Deschide secțiunea  ↗"!important;font-size:10px!important;font-weight:620!important;letter-spacing:.015em!important;color:#66696e!important;opacity:1!important}
-.f[data-c].no-news .h{align-self:center!important;max-width:520px!important;padding:0!important;border:0!important;font-size:16px!important;font-weight:500!important;line-height:1.5!important;color:#55585d!important}
-.f[data-c].no-news .h::before{display:block!important;margin-bottom:8px!important;content:"EDIȚIA DE AZI"!important;font-size:9px!important;font-weight:720!important;letter-spacing:.12em!important;color:#898c90!important}
-.f[data-c].opening{z-index:10!important;transform:translateY(-5px) scale(1.012)!important;transition-duration:.22s!important}
-.f[data-c].opening .fr{background:#f4f5f2!important}
-.acq-deck-nav{width:min(100%,340px)!important;margin:15px auto 0!important;gap:14px!important;color:#85878e!important;font-size:11px!important}
-.acq-deck-nav button{width:36px!important;height:34px!important;background:#141518!important;border:1px solid #2a2b30!important;border-radius:11px!important;color:#e8e9eb!important;font-size:16px!important;transition:transform .25s ease,background .25s ease!important}
-.acq-deck-nav button:hover:not(:disabled){background:#1b1c20!important;transform:translateY(-2px)!important}
-.acq-deck-nav span{font-size:10px!important;font-weight:650!important;letter-spacing:.11em!important;text-transform:uppercase!important;color:#c1c2c6!important}
-.arch{position:relative!important;display:block!important;width:min(100%,780px)!important;margin:20px auto 0!important;padding:0!important;color:#f3f3f4!important}
-.arch .tab{display:none!important}.arch .bk{inset:3px 0 -3px!important;background:#151619!important;border:1px solid #292a2e!important;border-radius:14px!important}
-.arch .fr{display:flex!important;min-height:58px!important;height:auto!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;padding:14px 18px!important;background:#151619!important;border:1px solid #292a2e!important;border-radius:14px!important;color:#f3f3f4!important}
-.arch .n{font-size:14px!important;font-weight:620!important;letter-spacing:-.015em!important;color:#e5e5e7!important}
-.arch .k{margin:0!important;padding:0!important;background:none!important;font-size:11px!important;font-weight:480!important;letter-spacing:0!important;color:#92949a!important;opacity:1!important}
-.arch .fr::after{position:static!important;margin:0!important;padding:0!important;content:"↗"!important;font-size:15px!important;letter-spacing:0!important;color:#aeb0b5!important;opacity:1!important}
-#sheet{backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
-.sheet{border-radius:20px!important}
-@keyframes acq-deal{from{opacity:0;transform:translate3d(0,24px,0) scale(.98)}to{opacity:1;transform:translate3d(0,var(--offset-y,0px),0) scale(var(--stack-scale,1)) rotate(var(--stack-rotate,0deg))}}
-@media(max-width:600px){body{padding:20px max(18px,env(safe-area-inset-left)) 28px!important}.wrap{width:100%!important}header{margin-bottom:40px!important;padding-bottom:13px}.brand{font-size:14px!important}.brand small{font-size:8px!important}.pill{padding:8px 11px!important;font-size:11px!important}h1{font-size:clamp(2.55rem,12vw,3.4rem)!important}.date{margin:9px 0 24px!important;font-size:12px!important}.grid{--card-h:236px;--offset:13px;width:100%!important}.f[data-c] .tab{left:18px!important;width:104px!important;height:30px!important}.f[data-c] .bk{top:16px!important}.f[data-c] .fr{inset:16px 0 0!important;height:calc(100% - 16px)!important;padding:19px 18px 16px!important;border-radius:16px!important}.f[data-c] .n{font-size:16px!important}.f[data-c] .k{font-size:10px!important}.f[data-c] .h{font-size:15px!important;line-height:1.38!important}.f[data-c].no-news .h{font-size:14px!important}.f[data-c] .fr::after{font-size:9px!important}.acq-deck-nav{margin-top:12px!important}.arch{margin-top:17px!important}.arch .fr{min-height:54px!important;padding:12px 15px!important}.arch .k{font-size:10px!important}}
-@media(prefers-reduced-motion:reduce){.f[data-c],.f[data-c] .fr,.f[data-c] .bk,.acq-deck-nav button{animation:none!important;transition:none!important}}
-</style>
-<script>
-(() => {
-const stack=document.querySelector('#stack');if(!stack)return;
-const cards=[...stack.querySelectorAll('.f[data-c]')];
-cards.forEach(card=>{const h=card.querySelector('.h');if(h&&/nu este încă disponibilă/i.test(h.textContent)){card.classList.add('no-news');h.textContent='Știrile acestei secțiuni nu au fost publicate încă.';}});
-const sync=()=>{const visible=cards.filter(card=>!card.hidden);const count=String(visible.length);if(stack.style.getPropertyValue('--visible-cards')!==count)stack.style.setProperty('--visible-cards',count);const highest=Math.max(0,...visible.map(card=>Number.parseInt(getComputedStyle(card).zIndex,10)||0));visible.forEach(card=>{const depth=Math.max(0,highest-(Number.parseInt(getComputedStyle(card).zIndex,10)||0));const scale=(1-depth*.012).toFixed(3);const angle=depth?((depth%2?-1:1)*Math.min(depth*.09,.27))+'deg':'0deg';if(card.style.getPropertyValue('--stack-scale')!==scale)card.style.setProperty('--stack-scale',scale);if(card.style.getPropertyValue('--stack-rotate')!==angle)card.style.setProperty('--stack-rotate',angle);});};
-new MutationObserver(()=>requestAnimationFrame(sync)).observe(stack,{subtree:true,attributes:true,attributeFilter:['style','hidden']});sync();
-})();
-</script>
-<style>#stack{padding-top:var(--deck-space,303px)!important}</style><style>.grid:has(.f[data-c].no-news){--card-h:196px!important;--offset:18px!important}</style></body>
+</body>
 </html>

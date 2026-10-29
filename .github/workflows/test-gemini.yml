@@ -49,13 +49,20 @@ jobs:
               print(f"Gemini API returned HTTP {error.code}: {detail or 'request failed'}")
               sys.exit(1)
 
+          if not isinstance(result, dict):
+              print("Gemini returned a response that is not a JSON object.")
+              sys.exit(1)
+
           answer = "".join(
               part.get("text", "")
               for candidate in result.get("candidates", [])
               for part in candidate.get("content", {}).get("parts", [])
           )
-          if not isinstance(result, dict):
-              print(f"Gemini returned invalid JSON.")
+          if "ACQ_OK" not in answer:
+              print(f"Gemini returned HTTP 200 but not the expected test response: {answer!r}")
               sys.exit(1)
-          print(f"Gemini API key accepted; {model} returned HTTP 200 with valid JSON.")
+
+          usage = result.get("usageMetadata", {})
+          print(f"Gemini API key accepted; {model} returned the expected response in one request.")
+          print(f"Tokens: {usage.get('promptTokenCount', 'n/a')} input, {usage.get('candidatesTokenCount', 'n/a')} output.")
           PY
