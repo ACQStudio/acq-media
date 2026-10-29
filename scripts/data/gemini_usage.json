@@ -8,7 +8,14 @@
       "ai_articles": 15,
       "edition_articles": 19,
       "evidence": "https://github.com/ACQStudio/acq-media/actions/runs/40802885594",
-      "reservations": {},
+      "reservations": {
+        "40805493356-1": {
+          "slots": 1,
+          "used": 0,
+          "state": "reserved",
+          "reserved_at": "2026-10-29T02:17:55.778520+00:00"
+        }
+      },
       "revision_requested": "Texte mai lungi și surse originale, cerute de utilizator; maximum o cerere rămasă azi."
     }
   }
