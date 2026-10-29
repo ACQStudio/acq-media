@@ -225,6 +225,23 @@ def write_batch(items):
         by_id[i] = {**article, "source": c["source"], "link": c["link"], "img": c["img"], "_section": c["_section"]}
     return [by_id[i] for i in range(len(items)) if i in by_id]
 
+def rss_fallback(items):
+    """Publică titluri RSS și linkuri când AI-ul e indisponibil sau nu validează nimic."""
+    fallback = []
+    for item in items:
+        fallback.append({
+            "cat": "Titlu din RSS",
+            "hed": item["title"][:95],
+            "sum": f"Redactarea automată nu este disponibilă momentan. Citește materialul original la {item['source']}.",
+            "body": [
+                "Titlul provine din fluxul RSS al publicației.",
+                "Nu am completat automat detaliile. Deschide articolul original pentru informații complete.",
+            ],
+            "source": item["source"], "link": item["link"], "img": item.get("img") or item.get("rss_img"),
+            "_section": item["_section"],
+        })
+    return fallback
+
 def render(name, cat, items):
     e, n, slides, art = html.escape, len(items), [], []
     fb = cat["fallback_images"]
@@ -248,8 +265,6 @@ def main():
     if "--dry-run" in sys.argv:
         print("Dry-run: nu am date de probă incluse, așa că nu fac cereri și nu modific fișiere.")
         return
-    if not os.getenv("GEMINI_API_KEY"):
-        raise SystemExit("Lipsește GEMINI_API_KEY. Adaugă cheia în GitHub Actions Secrets înainte de rulare.")
     ok_any, done, all_candidates = False, {}, []
     for name, cat in CFG["categories"].items():
         print(f"\n== {name}", flush=True)
@@ -263,17 +278,27 @@ def main():
             print(f"  ! eroare la colectarea știrilor: {ex}", flush=True)
     prepared = prepare_many(all_candidates)
     print(f"\n{len(prepared)} texte disponibile; redactez maximum 8 texte într-un singur apel Gemini", flush=True)
-    try:
-        generated = write_batch(prepared)
-        print(f"Gemini: {1 if prepared else 0} cereri; {len(generated)} știri validate în total", flush=True)
-    except GeminiQuotaError as ex:
-        print(f"\n! {ex}\n! Oprire fără alte apeluri Gemini.", flush=True)
-        raise SystemExit(1)
-    except Exception as ex:
-        raise SystemExit(f"Eroare la redactarea cu Gemini. Workflow-ul se oprește fără reîncercări: {ex}") from ex
+    generated = []
+    api_key = os.getenv("GEMINI_API_KEY")
+    if prepared and api_key:
+        try:
+            generated = write_batch(prepared)
+            print(f"Gemini: 1 cerere; {len(generated)} știri validate în total", flush=True)
+        except GeminiQuotaError as ex:
+            print(f"\n! {ex}\n! Continui fără alte apeluri Gemini, folosind titlurile RSS.", flush=True)
+        except Exception as ex:
+            print(f"\n! Gemini nu a putut redacta ediția: {ex}\n! Continui cu titlurile RSS, fără alte apeluri Gemini.", flush=True)
+    elif prepared:
+        print("! GEMINI_API_KEY lipsește; continui fără apel Gemini, folosind titlurile RSS.", flush=True)
+
     for name, cat in CFG["categories"].items():
         items = [item for item in generated if item["_section"] == name][:N]
         print(f"  Gemini a validat {len(items)} știri pentru {name}", flush=True)
+        if not items:
+            source_items = [item for item in prepared if item["_section"] == name][:N]
+            items = rss_fallback(source_items)
+            if items:
+                print(f"  {len(items)} titluri RSS publicate ca rezervă pentru {name}", flush=True)
         for item in items:
             item.pop("_section", None)
         if len(items) < MIN_OK:

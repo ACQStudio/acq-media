@@ -15,14 +15,14 @@ Site static în română, cu secțiunile Sport, Hot, News și Music. GitHub Acti
 
 > Dacă repository-ul are alt nume decât `acq-media`, workflow-ul folosește automat numele lui pentru adresa GitHub Pages.
 
-Workflow-ul automat rulează zilnic la 05:00 UTC (07:00 în România iarna și 08:00 vara). O rulare de generare trimite un apel Gemini pentru toate secțiunile, setează gândirea modelului la `LOW` și îi acordă până la 180 de secunde. La o eroare temporară de server (`500`, `502`, `503` sau `504`) face cel mult o reîncercare după `Retry-After` sau 5 secunde; în acel caz sunt maximum două apeluri. Nu reîncearcă la `429` sau timeout, pentru că cererea poate să fi fost deja procesată și ar putea consuma din nou cota. Rularea manuală a testului **Gemini API smoke test** consumă încă un apel Gemini. Limitele API depind de model și proiectul din AI Studio; abonamentul Gemini obișnuit nu schimbă automat cotele API. Dacă nu găsește suficiente știri verificate într-o secțiune, afișează starea goală în loc să lase știri vechi să pară noi.
+Workflow-ul automat rulează zilnic la 05:00 UTC (07:00 în România iarna și 08:00 vara). O rulare încearcă un singur apel Gemini pentru toate secțiunile, cu gândirea setată la `LOW` și timeout de 180 de secunde. La o eroare temporară de server (`500`, `502`, `503` sau `504`) face cel mult o reîncercare; sunt maximum două apeluri. Nu reîncearcă la `429` sau timeout. Dacă Gemini este indisponibil, cheia lipsește sau modelul nu validează știri într-o secțiune, site-ul publică titlurile din RSS cu linkuri către surse și indică faptul că rezumatul AI nu e disponibil, în loc să oprească automatizarea ori să prezinte știri vechi ca noi. Rularea manuală a testului **Gemini API smoke test** consumă încă un apel Gemini. Limitele API depind de model și proiectul din AI Studio; abonamentul Gemini obișnuit nu schimbă automat cotele API.
 
 ## În proiect
 
 - `index.html`: patru foldere cu aceeași suprafață, titluri colorate discret și mișcare tip Wallet; secțiunile pot fi ascunse din „Personalizează”. Arhiva rămâne separat, la final.
 - `arhiva.html`: calendarul zilelor publicate și filtre după secțiune.
 - `arhiva/AAAA-LL-ZZ.html`: paginile fiecărei ediții păstrate.
-- `scripts/generate.py`: RSS, selecție și rezumare cu Gemini într-un apel; reîncearcă o singură dată doar la o eroare temporară de server.
+- `scripts/generate.py`: RSS, selecție și rezumare cu Gemini într-un apel; reîncearcă o singură dată doar la o eroare temporară de server și are rezervă fără AI, din titlurile RSS.
 - `scripts/statics.py`: index, arhivă, metadate și sitemap.
 
 ## Setări
