@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 """ACQ: RSS -> selecție și rezumare în română cu Gemini -> actualizează paginile HTML.
 Rulare:  GEMINI_API_KEY=... python scripts/generate.py (opțiunea --dry-run nu schimbă fișierele)"""
-import os, re, sys, json, time, html, calendar, unicodedata, datetime as dt
+import os, re, sys, json, time, html, calendar, unicodedata, subprocess, datetime as dt
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from zoneinfo import ZoneInfo
 from urllib.parse import urlparse
 sys.path.insert(0, str(Path(__file__).parent))
 import statics
+from provenance import resolve_original_source
 
 ROOT = Path(__file__).parent
 SITE = Path(os.getenv("SITE_DIR", ROOT.parent))
 CFG = json.loads((ROOT / "feeds.json").read_text("utf-8"))
 MODEL = os.getenv("GEMINI_MODEL", CFG["model"])
 N, MIN_OK, MAX_AGE_H = 5, 1, 40
-MAX_OUTPUT_TOKENS = 8192
+MAX_OUTPUT_TOKENS = 12000
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ACQMediaBot/1.0)"}
 RSS_CACHE = {}
 FEED_TIMEOUT, ARTICLE_TIMEOUT, GEMINI_TIMEOUT = (5, 12), (5, 15), (10, 120)
@@ -22,6 +23,9 @@ FEED_TIMEOUT, ARTICLE_TIMEOUT, GEMINI_TIMEOUT = (5, 12), (5, 15), (10, 120)
 GEMINI_5XX_RETRIES = 1
 LUNI = "ianuarie februarie martie aprilie mai iunie iulie august septembrie octombrie noiembrie decembrie".split()
 HIST_F = ROOT / "data" / "history.json"
+USAGE_F = ROOT / "data" / "gemini_usage.json"
+MAX_DAILY_GEMINI_REQUESTS = 2
+REQUESTS_THIS_RUN = 0
 now = dt.datetime.now(ZoneInfo("Europe/Bucharest"))
 TODAY_ISO = now.strftime("%Y-%m-%d")
 TODAY = f"{now.day} {LUNI[now.month-1]} {now.year}"
@@ -55,6 +59,127 @@ EMPTY_SLIDE = """  <div class="slide sdk" data-theme="dark">
 class GeminiQuotaError(RuntimeError):
     pass
 
+class GeminiBudgetError(RuntimeError):
+    pass
+
+def usage_ledger():
+    """The committed reservation survives a cancelled Actions run."""
+    if not USAGE_F.exists():
+        return {"version": 1, "days": {}}
+    try:
+        ledger = json.loads(USAGE_F.read_text("utf-8"))
+        if ledger.get("version") != 1 or not isinstance(ledger.get("days"), dict):
+            raise ValueError("format necunoscut")
+        entry = ledger["days"].get(TODAY_ISO, {})
+        requests = entry.get("requests", 0)
+        if isinstance(requests, bool) or not isinstance(requests, int) or requests < 0:
+            raise ValueError("număr de cereri invalid")
+        if not isinstance(entry.get("reservations", {}), dict):
+            raise ValueError("rezervări invalide")
+        for reservation in entry.get("reservations", {}).values():
+            slots, used = reservation.get("slots"), reservation.get("used")
+            if any(isinstance(value, bool) or not isinstance(value, int) for value in (slots, used)) or not 0 <= used <= slots <= MAX_DAILY_GEMINI_REQUESTS:
+                raise ValueError("sloturi de rezervare invalide")
+        return ledger
+    except (ValueError, TypeError, AttributeError) as ex:
+        raise GeminiBudgetError(f"Registrul de consum Gemini nu este valid; nu trimit cereri: {ex}") from ex
+
+def usage_entry(ledger):
+    return ledger["days"].setdefault(TODAY_ISO, {"requests": 0, "ai_completed": False, "reservations": {}})
+
+def save_usage(ledger):
+    USAGE_F.parent.mkdir(parents=True, exist_ok=True)
+    temporary = USAGE_F.with_name(f".{USAGE_F.name}.{os.getpid()}.tmp")
+    temporary.write_text(json.dumps(ledger, ensure_ascii=False, indent=2) + "\n", "utf-8")
+    temporary.replace(USAGE_F)
+
+def reservation_id():
+    run_id = os.getenv("GITHUB_RUN_ID", "").strip()
+    return f"{run_id}-{os.getenv('GITHUB_RUN_ATTEMPT', '1')}" if run_id else None
+
+def saved_edition():
+    path = ROOT / "data" / "archive" / f"{TODAY_ISO}.json"
+    try:
+        data = json.loads(path.read_text("utf-8"))
+        if isinstance(data, dict) and any(isinstance(data.get(name), list) and data[name] for name in CFG["categories"]):
+            return data
+    except (OSError, ValueError):
+        pass
+    return None
+
+def reserve_gemini():
+    """Reserve before HTTP; Actions must commit/push this file before generation."""
+    ledger = usage_ledger()
+    entry = usage_entry(ledger)
+    if entry.get("ai_completed") and saved_edition():
+        print(f"Ediția AI din {TODAY_ISO} este deja salvată; o refolosesc fără alte cereri Gemini.", flush=True)
+        return
+    run_id = reservation_id()
+    if not run_id:
+        raise GeminiBudgetError("Rezervarea Gemini necesită GITHUB_RUN_ID și GITHUB_RUN_ATTEMPT.")
+    reservations = entry.setdefault("reservations", {})
+    if run_id in reservations:
+        print(f"Rezervarea acestei rulări există deja ({reservations[run_id]['state']}); nu o redeschid.", flush=True)
+        return
+    held = sum(max(0, r["slots"] - r["used"]) for r in reservations.values() if r.get("state") == "reserved")
+    slots = max(0, MAX_DAILY_GEMINI_REQUESTS - entry["requests"] - held)
+    if entry.get("daily_quota_exhausted") or not slots:
+        print(f"Bugetul Gemini din {TODAY_ISO} este folosit sau rezervat; continui fără cereri API.", flush=True)
+        return
+    reservations[run_id] = {"slots": slots, "used": 0, "state": "reserved", "reserved_at": dt.datetime.now(dt.timezone.utc).isoformat()}
+    save_usage(ledger)
+    print(f"Am rezervat {slots} cereri Gemini pentru rularea {run_id}. Rezervarea trebuie salvată în main înainte de API.", flush=True)
+
+def has_gemini_reservation():
+    entry = usage_entry(usage_ledger())
+    reservation = entry.get("reservations", {}).get(reservation_id(), {})
+    return not entry.get("daily_quota_exhausted") and reservation.get("state") == "reserved" and reservation.get("used", 0) < reservation.get("slots", 0)
+
+def consume_gemini_request():
+    global REQUESTS_THIS_RUN
+    if dt.datetime.now(ZoneInfo("Europe/Bucharest")).strftime("%Y-%m-%d") != TODAY_ISO:
+        raise GeminiBudgetError("Data Europei/București s-a schimbat după rezervare; nu consum sloturile zilei precedente.")
+    ledger = usage_ledger()
+    entry = usage_entry(ledger)
+    reservation = entry.get("reservations", {}).get(reservation_id(), {})
+    if entry.get("daily_quota_exhausted") or reservation.get("state") != "reserved" or reservation.get("used", 0) >= reservation.get("slots", 0) or entry["requests"] >= MAX_DAILY_GEMINI_REQUESTS:
+        raise GeminiBudgetError("Nu mai există un slot Gemini rezervat pentru această rulare; nu trimit alte cereri.")
+    if os.getenv("GITHUB_ACTIONS") == "true":
+        # A failed commit/push must not leave an unprotected API call possible.
+        path = USAGE_F.relative_to(ROOT.parent).as_posix()
+        saved = subprocess.run(["git", "show", f"origin/main:{path}"], cwd=ROOT.parent, capture_output=True, text=True)
+        try:
+            remote = json.loads(saved.stdout)["days"][TODAY_ISO]["reservations"][reservation_id()]
+            persisted = saved.returncode == 0 and remote.get("state") == "reserved" and remote.get("slots", 0) >= reservation["slots"]
+        except (ValueError, KeyError, TypeError, AttributeError):
+            persisted = False
+        if not persisted:
+            raise GeminiBudgetError("Rezervarea nu este salvată în origin/main; nu trimit cererea Gemini.")
+    reservation["used"] += 1
+    entry["requests"] += 1
+    save_usage(ledger)
+    REQUESTS_THIS_RUN += 1
+
+def finish_gemini_reservation(ai_completed=False, article_count=0, quota_exhausted=False):
+    ledger = usage_ledger()
+    entry = usage_entry(ledger)
+    reservation = entry.get("reservations", {}).get(reservation_id())
+    if reservation and reservation.get("state") == "reserved":
+        reservation["state"] = "finished"
+        reservation["finished_at"] = dt.datetime.now(dt.timezone.utc).isoformat()
+    if ai_completed:
+        entry.update(ai_completed=True, successful_run_id=os.getenv("GITHUB_RUN_ID"), ai_articles=article_count)
+    if quota_exhausted:
+        entry["daily_quota_exhausted"] = True
+    if reservation or ai_completed or quota_exhausted:
+        save_usage(ledger)
+
+def reuse_edition(data):
+    print(f"Refolosesc ediția salvată din {TODAY_ISO}; fără apeluri Gemini suplimentare.", flush=True)
+    for name, cat in CFG["categories"].items():
+        render(name, cat, data.get(name, []))
+    statics.run(SITE, CFG, TODAY_ISO, data)
+
 def gemini(prompt, schema, max_output_tokens=MAX_OUTPUT_TOKENS):
     import requests
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
@@ -63,6 +188,7 @@ def gemini(prompt, schema, max_output_tokens=MAX_OUTPUT_TOKENS):
             "generationConfig": {"maxOutputTokens": max_output_tokens, "thinkingConfig": {"thinkingLevel": "LOW"},
                                  "responseMimeType": "application/json", "responseSchema": schema}}
     for attempt in range(GEMINI_5XX_RETRIES + 1):
+        consume_gemini_request()
         try:
             response = requests.post(
                 url,
@@ -79,6 +205,8 @@ def gemini(prompt, schema, max_output_tokens=MAX_OUTPUT_TOKENS):
             raise RuntimeError(f"Gemini nu a răspuns; cererea nu a fost retrimisă: {ex}") from ex
 
         if response.status_code in (500, 502, 503, 504) and attempt < GEMINI_5XX_RETRIES:
+            if not has_gemini_reservation():
+                raise GeminiBudgetError("Gemini a răspuns cu o eroare temporară; bugetul zilnic nu permite o nouă cerere.")
             try:
                 delay = min(60, max(1, int(response.headers.get("Retry-After", "15"))))
             except ValueError:
@@ -272,14 +400,24 @@ def prepare(c):
         response = requests.get(c["link"], headers=UA, timeout=ARTICLE_TIMEOUT)
         response.raise_for_status()
         page = response.text
+        if (urlparse(c["link"]).hostname or "").endswith("soldoutmedia.ro"):
+            original = resolve_original_source(page, c["link"])
+            if not original:
+                print(f"  ! omit materialul fără sursă originală identificată: {c['title']}", flush=True)
+                return None
+            response = requests.get(original["link"], headers=UA, timeout=ARTICLE_TIMEOUT)
+            response.raise_for_status()
+            page = response.text
+            c = {**c, **original}
         text = trafilatura.extract(page, include_comments=False) or ""
         meta = trafilatura.extract_metadata(page)
         img = (meta.image if meta and meta.image else None) or img
     except Exception as ex:
         print(f"  ! articol indisponibil {c['link']}: {ex}", flush=True)
-    if len(text) < 600: text = c["snippet"]
-    if len(text) < 200: return None
-    return {**c, "img": img, "article_text": text[:1600]}
+    if len(text) < 700:
+        print(f"  ! omit materialul cu prea puțin conținut documentat: {c['title']}", flush=True)
+        return None
+    return {**c, "img": img, "article_text": text[:3200]}
 
 def prepare_many(items):
     if not items: return []
@@ -313,12 +451,15 @@ def write_batch(items):
         "Folosește EXCLUSIV faptele din text. Nu inventa nume, cifre, date sau citate. "
         "Atribuie explicit sursei acuzațiile și declarațiile controversate. Ton neutru. "
         "Pentru cat alege strict una dintre etichetele românești din schemă; hed = titlu de maximum 95 de caractere; "
-        "sum = rezumat de 1-2 propoziții, 20-28 de cuvinte; body = exact 2 paragrafe scurte, maximum 60 de cuvinte împreună. "
+        "sum = rezumat de 1-2 propoziții, 25-35 de cuvinte; body = 3 paragrafe, aproximativ 100-160 de cuvinte în total. "
+        "Corpul trebuie să dezvolte știrea: ce s-a întâmplat, detaliile concrete disponibile și contextul relevant din sursă. "
+        "Nu repeta doar rezumatul și nu adăuga formule despre fluxul RSS, accesarea sursei sau lipsa informațiilor. "
+        "Dacă textul-sursă nu susține cel puțin 3 paragrafe informative, marchează skip=true. "
         "Păstrează ID-ul fiecărui text și nu combina informații din articole diferite.\n\nSECȚIUNI:\n"
         + "\n".join(f"{section}: {brief}" for section, brief in briefs.items())
         + "\n\nTEXTE:\n" + "\n\n---\n\n".join(entries)
     )
-    output_limit = min(MAX_OUTPUT_TOKENS, max(2048, 512 + len(items) * 384))
+    output_limit = min(MAX_OUTPUT_TOKENS, max(2048, 512 + len(items) * 600))
     result = gemini(prompt, schema, max_output_tokens=output_limit)
     if not isinstance(result, dict) or not isinstance(result.get("articles"), list):
         raise RuntimeError("Gemini nu a întors lista de articole cerută.")
@@ -333,10 +474,13 @@ def write_batch(items):
             continue
         if not all(isinstance(article.get(key), str) and article[key].strip() for key in ("cat", "hed", "sum")):
             continue
-        if article["cat"] not in category_labels or not is_romanian_text(article["hed"]):
+        if article["cat"] not in category_labels or not is_romanian_text(article["hed"] + " " + article["sum"], min_markers=3):
             print(f"  ! resping rezultatul {i}: eticheta sau titlul nu este în română", flush=True)
             continue
-        if not isinstance(article.get("body"), list) or len(article["body"]) != 2 or not all(isinstance(p, str) and p.strip() for p in article["body"]):
+        if not isinstance(article.get("body"), list) or not 3 <= len(article["body"]) <= 4 or not all(isinstance(p, str) and p.strip() for p in article["body"]):
+            continue
+        if not 70 <= len(" ".join(article["body"]).split()) <= 220:
+            print(f"  ! resping rezultatul {i}: conținut prea scurt sau prea lung", flush=True)
             continue
         if not is_romanian_text(article["sum"], min_markers=2) or not is_romanian_text(" ".join(article["body"]), min_markers=3):
             print(f"  ! resping rezultatul {i}: rezumatul sau conținutul nu este în română", flush=True)
@@ -347,36 +491,6 @@ def write_batch(items):
     print(f"Gemini: a analizat {len(items)} texte, a returnat {len(returned)} rezultate, a marcat {skipped} ca skip și a validat {len(by_id)}.", flush=True)
     return [by_id[i] for i in ordered_ids]
 
-def rss_fallback(items):
-    """Folosește doar titluri și fragmente RSS în română, fără text placeholder."""
-    fallback = []
-    for item in items:
-        title = item.get("title", "").strip()
-        if not is_romanian_text(title):
-            continue
-        snippet = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", item.get("snippet", "")))).strip()
-        if not snippet or not is_romanian_text(snippet, min_markers=2):
-            continue
-        words = snippet.split()
-        excerpt = " ".join(words[:90]).rstrip(" ,;:")
-        if len(words) > 90:
-            excerpt += "…"
-        summary = " ".join(words[:30]).rstrip(" ,;:")
-        if len(words) > 30:
-            summary += "…"
-        fallback.append({
-            "cat": {"sport": "Sport", "hot": "Monden", "news": "Știri", "music": "Muzică"}.get(item.get("_section"), "Știri"),
-            "hed": title[:95],
-            "sum": summary,
-            "body": [
-                f"Fragment din fluxul RSS al publicației: „{excerpt}”",
-                "Pentru context și informații complete, deschide articolul original.",
-            ],
-            "source": item["source"], "link": item["link"], "img": item.get("img") or item.get("rss_img"),
-            "_section": item["_section"],
-        })
-    return fallback
-
 def render(name, cat, items):
     e, n, slides, art = html.escape, len(items), [], []
     fb = cat["fallback_images"]
@@ -386,8 +500,7 @@ def render(name, cat, items):
         slides.append(SLIDE.format(cls="sdk" if dark else "slt", theme="dark" if dark else "light", img=e(img), cat=e(it["cat"]),
             i=k + 1, n=n, hed=e(it["hed"]), sum=e(it["sum"]), meta=e(f"{TODAY} · {it['source']}"), k=k, nxt=k + 1,
             btn="Încheie ediția" if k == n - 1 else "Următoarea știre"))
-        body = "".join(f"<p>{e(p)}</p>" for p in it["body"]) + \
-               f'<p><a href="{e(it["link"])}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Citește articolul original la {e(it["source"])} ↗</a></p>'
+        body = "".join(f"<p>{e(p)}</p>" for p in it["body"])
         art.append({"tag": it["cat"], cat["meta_key"]: f"{TODAY} · Sursa: {it['source']}", "hed": it["hed"], "body": body})
     if not slides:
         label = {"sport": "Sport", "hot": "Hot", "news": "Știri", "music": "Muzică"}.get(name, "Știri")
@@ -403,18 +516,32 @@ def main():
     if "--dry-run" in sys.argv:
         print("Dry-run: nu am date de probă incluse, așa că nu fac cereri și nu modific fișiere.")
         return
-    ok_any, done, all_candidates, fallback_candidates = False, {}, [], {}
+    if "--reserve-gemini" in sys.argv:
+        reserve_gemini()
+        return
+    existing_edition = saved_edition()
+    if rss_only:
+        if existing_edition:
+            reuse_edition(existing_edition)
+        else:
+            print("Fără API: păstrez ediția publicată; nu o înlocuiesc cu titluri sau fragmente RSS.", flush=True)
+        return
+    entry = usage_entry(usage_ledger())
+    if entry.get("ai_completed") and existing_edition:
+        reuse_edition(existing_edition)
+        return
+    api_allowed = has_gemini_reservation() if not rss_only else False
+    if not rss_only and not api_allowed and existing_edition:
+        reuse_edition(existing_edition)
+        return
+    ok_any, done, all_candidates = False, {}, []
     for name, cat in CFG["categories"].items():
         print(f"\n== {name}", flush=True)
         try:
             available = candidates(cat)
             suitable = [item for item in available if relevant(item, name)]
             selected = shortlist(suitable, N)
-            romanian_rss = [item for item in suitable if is_romanian_text(item.get("title", ""))
-                            and is_romanian_text(item.get("snippet", ""), min_markers=2)]
-            fallback_candidates[name] = shortlist(({**item, "_section": name} for item in romanian_rss), N)
             print(f"  {len(available)} candidați RSS; {len(suitable)} se potrivesc secțiunii; selectez maximum {len(selected)}", flush=True)
-            print(f"  {len(fallback_candidates[name])} fragmente în română pregătite ca rezervă RSS", flush=True)
             for item in selected:
                 all_candidates.append({**item, "_section": name, "_brief": cat["brief"]})
         except Exception as ex:
@@ -427,35 +554,40 @@ def main():
         print(f"\n{len(prepared)} titluri RSS disponibile; nu trimit cereri Gemini.", flush=True)
     else:
         print(f"\n{len(prepared)} texte disponibile; redactez până la {N} știri relevante pe secțiune într-un singur apel Gemini", flush=True)
-    generated, ai_completed = [], False
+    generated, ai_completed, budget_blocked, quota_exhausted = [], False, False, False
     api_key = os.getenv("GEMINI_API_KEY")
     if prepared and rss_only:
         print("Rulare RSS-only: nu apelez Gemini; public titlurile și linkurile surselor.", flush=True)
-    elif prepared and api_key:
+    elif prepared and api_key and api_allowed:
         try:
             generated = write_batch(prepared)
             ai_completed = True
-            print(f"Gemini: 1 cerere; {len(generated)} știri validate în total", flush=True)
+            print(f"Gemini: {REQUESTS_THIS_RUN} cereri în această rulare; {len(generated)} știri validate în total", flush=True)
         except GeminiQuotaError as ex:
-            print(f"\n! {ex}\n! Continui fără alte apeluri Gemini, folosind titlurile RSS.", flush=True)
+            quota_exhausted = True
+            print(f"\n! {ex}\n! Păstrez ediția publicată fără alte apeluri Gemini.", flush=True)
+        except GeminiBudgetError as ex:
+            budget_blocked = True
+            print(f"\n! {ex}\n! Păstrez ediția existentă dacă este disponibilă.", flush=True)
         except Exception as ex:
-            print(f"\n! Gemini nu a putut redacta ediția: {ex}\n! Continui cu titlurile RSS, fără alte apeluri Gemini.", flush=True)
+            print(f"\n! Gemini nu a putut redacta ediția: {ex}\n! Păstrez ediția publicată, fără alte apeluri Gemini.", flush=True)
+    elif prepared and api_key:
+        print("! Nu există o rezervare Gemini disponibilă; păstrez ediția publicată fără API.", flush=True)
     elif prepared:
-        print("! GEMINI_API_KEY lipsește; continui fără apel Gemini, folosind titlurile RSS.", flush=True)
+        print("! GEMINI_API_KEY lipsește; păstrez ediția publicată fără apel Gemini.", flush=True)
+
+    if not generated:
+        finish_gemini_reservation(quota_exhausted=quota_exhausted)
+        if existing_edition:
+            reuse_edition(existing_edition)
+        else:
+            print("Nu există o ediție nouă completă; paginile publicate rămân disponibile.", flush=True)
+        return
 
     for name, cat in CFG["categories"].items():
         items = [dict(item) for item in generated if item.get("_section") == name][:N]
         if not rss_only:
             print(f"  Gemini a validat {len(items)} știri pentru {name}", flush=True)
-        if len(items) < N:
-            existing_links = {item.get("link") for item in items}
-            source_items = [item for item in fallback_candidates.get(name, []) if item.get("link") not in existing_links]
-            reserve = rss_fallback(source_items)[:N - len(items)]
-            items.extend(reserve)
-            if reserve:
-                print(f"  {len(reserve)} fragmente RSS în română adăugate pentru {name}", flush=True)
-            elif len(items) == 0 and fallback_candidates.get(name):
-                print(f"  {name}: fragmentele RSS disponibile nu sunt în română sau nu au text util; nu public text-placeholder.", flush=True)
         for item in items:
             item.pop("_section", None)
         if len(items) < MIN_OK:
@@ -466,6 +598,7 @@ def main():
         for it in items: HIST[it["link"]] = TODAY_ISO
     HIST_F.parent.mkdir(exist_ok=True); HIST_F.write_text(json.dumps(HIST, indent=0))
     statics.run(SITE, CFG, TODAY_ISO, done)
+    finish_gemini_reservation(ai_completed=ai_completed and bool(generated), article_count=len(generated), quota_exhausted=quota_exhausted)
     if not ok_any:
         print("\nNu s-au găsit suficiente știri verificate într-o secțiune; site-ul a fost actualizat cu starea ediției.", flush=True)
     sys.exit(0)

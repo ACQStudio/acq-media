@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "days": {
+    "2026-10-29": {
+      "requests": 1,
+      "ai_completed": false,
+      "successful_run_id": "40802885594",
+      "ai_articles": 15,
+      "edition_articles": 19,
+      "evidence": "https://github.com/ACQStudio/acq-media/actions/runs/40802885594",
+      "reservations": {},
+      "revision_requested": "Texte mai lungi și surse originale, cerute de utilizator; maximum o cerere rămasă azi."
+    }
+  }
+}

@@ -3,7 +3,7 @@
   const script = document.currentScript;
   const base = new URL('./', script ? script.src : location.href);
   const url = path => new URL(path, base).href;
-  const storageKey = 'acq.install.dismissed';
+  const storageKey = 'acq.install.dismissed.v3';
   const installedKey = 'acq.install.accepted';
   const httpsFailureKey = 'acq.https.probe.failedAt';
   const week = 7 * 24 * 60 * 60 * 1000;
@@ -95,7 +95,7 @@
   }
 
   function invitationAvailable() {
-    return window.isSecureContext && (Boolean(installPrompt) || (isIOS && isSafari));
+    return window.isSecureContext;
   }
 
   function maybeOfferInstallation() {
@@ -104,11 +104,13 @@
       toast = document.createElement('aside');
       toast.className = 'acq-install-card';
       toast.setAttribute('aria-label', 'Adaugă ACQ Media pe ecranul principal');
-      toast.innerHTML = `<button class="acq-install-card__close" type="button" aria-label="Închide invitația">×</button><div class="acq-install-card__top"><img class="acq-install-card__icon" src="${url('icons/acq-192.png')}" alt="" width="42" height="42"><p class="acq-install-card__title">ACQ Media,<br>la o atingere.</p></div><p class="acq-install-card__text">Păstrează știrile zilei pe ecranul principal, alături de aplicațiile tale.</p><button class="acq-install-card__action" type="button">${installPrompt ? 'Adaugă ACQ Media' : 'Arată pașii'}</button>`;
+      toast.innerHTML = `<button class="acq-install-card__close" type="button" aria-label="Închide invitația">×</button><div class="acq-install-card__top"><img class="acq-install-card__icon" src="${url('icons/acq-192.png')}" alt="" width="42" height="42"><p class="acq-install-card__title">Știrile, la o atingere.</p></div><p class="acq-install-card__text">Adaugă ACQ Media pe ecranul principal și deschide direct ediția zilei.</p><div class="acq-install-card__actions"><button class="acq-install-card__action" type="button">${installPrompt ? 'Adaugă pe ecran' : 'Cum o adaugi'}</button><button class="acq-install-card__later" type="button">Mai târziu</button></div>`;
       toast.querySelector('.acq-install-card__close').addEventListener('click', () => hideInvitation(true));
+      toast.querySelector('.acq-install-card__later').addEventListener('click', () => hideInvitation(true));
       toast.querySelector('.acq-install-card__action').addEventListener('click', requestInstall);
       document.body.appendChild(toast);
     }
+    toast.querySelector('.acq-install-card__action').textContent = installPrompt ? 'Adaugă pe ecran' : 'Cum o adaugi';
     toast.hidden = false;
   }
 
@@ -147,7 +149,7 @@
     } else if (isAndroid) {
       content = '<ol><li>Deschide meniul browserului <strong>⋮</strong>.</li><li>Alege <strong>Instalează aplicația</strong> sau <strong>Adaugă pe ecranul principal</strong>.</li><li>Confirmă adăugarea. Dacă opțiunea lipsește, încearcă pagina în Chrome.</li></ol>';
     } else if (isSafari && /Mac/.test(navigator.platform)) {
-      content = '<ol><li>În Safari, deschide meniul <strong>Fișier</strong>.</li><li>Alege <strong>Adaugă în Dock</strong>.</li><li>Confirmă numele <strong>ACQ Media</strong> și apasă <strong>Adaugă</strong>.</li></ol>';
+      content = '<p>Pe Mac, deschide site-ul în Safari.</p><ol><li>Deschide meniul <strong>Fișier</strong>.</li><li>Alege <strong>Adaugă în Dock</strong>.</li><li>Confirmă numele <strong>ACQ Media</strong> și apasă <strong>Adaugă</strong>.</li></ol>';
     } else if (/Chrome|Chromium|Edg/.test(navigator.userAgent)) {
       content = '<p>Caută pictograma de instalare din bara de adrese sau opțiunea de instalare din meniul browserului. Dacă nu apare, browserul nu oferă instalarea acestei pagini în acest moment.</p>';
     } else {
@@ -190,7 +192,7 @@
   function init() {
     addFooter();
     ready = true;
-    window.setTimeout(() => { invitationReady = true; maybeOfferInstallation(); }, 12000);
+    window.setTimeout(() => { invitationReady = true; maybeOfferInstallation(); }, 4500);
     if ('serviceWorker' in navigator && window.isSecureContext) {
       const register = () => navigator.serviceWorker.register(url('sw.js'), { scope: base.pathname }).catch(() => {});
       if (document.readyState === 'complete') register();

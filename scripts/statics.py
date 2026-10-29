@@ -62,7 +62,7 @@ def day_page(base, iso, data):
     body = "".join(f'<section data-c="{c}" style="--c:{COL[c]}"><h2><i></i>{NAME[c]}</h2>' + "".join(
         f'<article><h3>{e(it["hed"])}</h3><p>{e(it["sum"])}</p><details><summary>Citește mai mult</summary>'
         + "".join(f"<p>{e(p)}</p>" for p in it["body"]) +
-        f'</details><p class="src">Sursa: <a href="{e(it["link"])}" rel="noopener" target="_blank">{e(it["source"])}</a></p></article>' for it in data[c]) + "</section>" for c in cats)
+        f'</details><p class="src">Sursa: {e(it["source"])}</p></article>' for it in data[c]) + "</section>" for c in cats)
     chips = "".join(f'<button aria-pressed="true" data-c="{c}" style="--c:{COL[c]}">{NAME[c]}</button>' for c in cats)
     allitems = [it for c in cats for it in data[c]]
     title, desc = f"Știrile din {ro(iso)} | {BRAND}", f"Cele mai importante știri din {ro(iso)} la Sport, Hot, Știri și Muzică."
@@ -73,8 +73,33 @@ def day_page(base, iso, data):
 def home_card(category, entries):
     label = NAME[category]
     return (f'<a class="f" data-c="{category}" href="{category}.html" '
-            f'aria-label="Deschide secțiunea {e(label)}" style="--folder:{FOLDER[category]}">'
+            f'aria-label="Deschide secțiunea {e(label)}">'
             f'<span class="folder-label" aria-hidden="true">{e(label)}</span></a>\n')
+
+def home_edition(data):
+    available = [(category, i, item) for category in ("news", "sport", "hot", "music")
+                 for i, item in enumerate(data.get(category, []))]
+    if not available:
+        return '<p class="story-summary">Ediția este în pregătire. Poți răsfoi știrile din arhivă.</p>'
+    lead = available[0]
+    choices = []
+    for category in ("sport", "hot", "music", "news"):
+        match = next((entry for entry in available if entry[0] == category and entry != lead), None)
+        if match:
+            choices.append(match)
+    def story(entry, is_lead=False):
+        category, index, item = entry
+        href = f"{category}.html?articol={index}"
+        common = (f'<p class="story-category">{NAME[category]}</p>'
+                  f'<h{2 if is_lead else 3}>{e(item["hed"])}</h{2 if is_lead else 3}>'
+                  f'<p class="story-summary">{e(item["sum"])}</p>'
+                  f'<span class="story-source">{e(item["source"])}</span>')
+        if not is_lead:
+            return f'<a class="edition-story" href="{href}">{common}</a>'
+        image = item.get("img")
+        art = f'<div class="lead-art"><img src="{e(image)}" alt="" loading="eager"></div>' if image else ""
+        return f'<a class="lead-story{" no-image" if not image else ""}" href="{href}">{art}<div class="lead-copy">{common}</div></a>'
+    return '<div class="edition-layout">' + story(lead, True) + '<div class="edition-list">' + ''.join(story(entry) for entry in choices[:4]) + '</div></div>'
 
 def run(site, cfg, iso, today):
     base = site_base(cfg)
@@ -89,6 +114,8 @@ def run(site, cfg, iso, today):
         sub(site / f"{c}.html", "<!--SEO-->", "<!--/SEO-->", head(u, t, DESC[c], page_ld(base, u, t, DESC[c], today.get(c, []), iso)))
     cards = "".join(home_card(category, today.get(category, [])) for category in ORDER)
     ix = site / "index.html"; sub(ix, "<!--CARDS-->", "<!--/CARDS-->", "\n" + cards)
+    sub(ix, "<!--EDITION-->", "<!--/EDITION-->", home_edition(today))
+    sub(ix, "<!--EDITION_DATE-->", "<!--/EDITION_DATE-->", f'<time class="date" datetime="{iso}">{ro(iso)}</time>')
     t, d = f"{BRAND} — Știrile zilei, pe scurt", "Cele mai importante știri de azi, în Sport, Hot, Știri și Muzică. Pe scurt, cu sursa originală."
     home_url = base + "/" if base else ""
     home_ld = {"@context": "https://schema.org", "@type": "WebSite", "name": BRAND, "inLanguage": "ro", "description": d}
@@ -118,5 +145,5 @@ def run(site, cfg, iso, today):
 - [Calendar]({base}/arhiva.html): alegi o zi și vezi știrile de atunci; fiecare zi are propria pagină ({base}/arhiva/AAAA-LL-ZZ.html).
 
 ## Despre conținut
-Fiecare știre este un rezumat rescris în română al unui articol publicat de o altă publicație; sursa este numită și legată în pagină. Pentru detalii complete, citează sau consultă articolul original.
+Fiecare știre este o sinteză în română cu mai multe paragrafe; publicația de origine este menționată discret în articol.
 """, "utf-8")

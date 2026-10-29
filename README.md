@@ -1,38 +1,29 @@
-# ACQ Media — știri pe scurt
+# ACQ Media
 
-Site static în limba română, cu patru secțiuni: **Sport**, **Hot** (CanCan și showbiz), **Știri** (politică, geopolitică și afaceri) și **Muzică** (muzică și industria divertismentului). Fiecare ediție poate include până la cinci știri relevante în fiecare secțiune; dacă nu sunt cinci știri potrivite și verificate, publică mai puține. Fiecare știre trimite la sursa originală.
+Site de știri în română, publicat la https://media.acq.ro prin GitHub Pages.
 
-Prima pagină are patru foldere închise la culoare, cu textură discretă și numele secțiunii gravat. Site-ul se adaptează la telefon și desktop și poate fi instalat pe ecranul principal.
+## Ediția zilnică
 
-## Publicare și automatizare
+Workflow-ul „Știri zilnice” rulează la 04:30, Europe/Bucharest. GitHub poate întârzia pornirea programată.
 
-1. Repository-ul trebuie să fie public și să conțină fișierul `.github/workflows/daily.yml`.
-2. În **Settings → Actions → General → Workflow permissions**, activează **Read and write permissions**. Acțiunea zilnică salvează articolele și arhiva în repository.
-3. În **Settings → Pages → Build and deployment**, alege **GitHub Actions** ca sursă.
-4. În **Settings → Secrets and variables → Actions**, adaugă secretul `GEMINI_API_KEY`. Cheia rămâne numai în GitHub Actions Secrets.
-5. Pentru ediția nouă, deschide **Actions → Știri zilnice → Run workflow** și lasă debifată opțiunea „Doar republică fișierele existente, fără generare AI”. Pentru publicarea designului existent, bifeaz-o.
-6. Workflow-ul zilnic rulează la **04:30, ora Europei/București**. Poate porni cu întârziere când GitHub Actions este aglomerat.
-7. Domeniul configurat este `media.acq.ro`. DNS-ul trebuie să aibă `CNAME media → acqstudio.github.io`; înregistrările pentru `acq.ro` rămân neschimbate. După validarea DNS, activează **Enforce HTTPS** în **Settings → Pages**.
+Generatorul citește fluxurile configurate în scripts/feeds.json, selectează până la cinci subiecte relevante pe secțiune și extrage textul articolelor. Pentru materialele descoperite prin Sold Out Media urmărește linkul explicit al publicației originale. Omite materialele fără sursă identificabilă sau fără suficient text.
 
-## Cum generează ediția
+Un singur lot Gemini redactează titlurile, rezumatele și articolele în română. Fiecare articol are trei paragrafe, aproximativ 100–160 de cuvinte, și mențiunea discretă a publicației de origine. Nu se completează ediția cu titluri ori fragmente RSS. Dacă serviciul AI nu răspunde, se păstrează ediția existentă.
 
-- Citește fluxurile RSS din `scripts/feeds.json`, elimină duplicatele și știrile nepotrivite secțiunii.
-- Pregătește cel mult cinci articole pe secțiune și face un singur apel Gemini pentru întregul lot.
-- Modelul implicit este `gemini-3.5-flash-lite`, configurabil prin `GEMINI_MODEL`. Un răspuns Gemini este verificat pentru câmpuri complete și text în română înainte de publicare.
-- La o eroare temporară de server (`500`, `502`, `503` sau `504`), poate încerca încă o dată; un singur lot înseamnă maximum două cereri API. Nu retrimite automat un timeout sau o eroare de cotă.
-- Dacă Gemini nu răspunde, publică cel mult cinci fragmente RSS numai când titlul și fragmentul sunt în română. Dacă nu există material românesc suficient, secțiunea spune că ediția nu este disponibilă; nu completează cu text inventat sau în engleză.
-- **Actualizează titlurile din RSS fără AI** publică fluxurile fără apeluri Gemini. Este declanșat de modificarea surselor RSS și se poate porni manual din Actions.
-- Schimbările de design publică site-ul existent, fără să consume apeluri Gemini. Un test Gemini separat nu este necesar: rularea manuală a ediției zilnice face cel mult un apel pe lot.
+## Plafonul API
 
-## Fișiere principale
+Model: gemini-3.5-flash-lite. Maximum două cereri Gemini pe zi, pentru întregul site. În mod normal este suficientă una. Se poate retrimite o singură dată numai la răspunsuri 5xx și numai dacă mai există un slot zilnic. Nu se repetă timeout-urile sau erorile 429.
 
-- `index.html`, `home.css`: pagina Home și folderele secțiunilor.
-- `site-ui.css`, `site-ui.js`, `manifest.webmanifest`, `sw.js`: aspectul comun, instalarea și funcțiile offline.
-- `scripts/feeds.json`: adrese RSS, model Gemini și `site_url`.
-- `scripts/generate.py`: colectarea RSS, filtrarea, redactarea în română și verificarea textului.
-- `scripts/statics.py`: calendarul, arhiva, metadatele și sitemap-ul.
-- `scripts/save_edition.sh`: salvează ediția și sincronizează în siguranță `main`.
-- `.github/workflows/daily.yml`: ediția zilnică și publicarea.
-- `.github/workflows/rss-only.yml`: publicarea RSS fără AI.
+Înainte de API, workflow-ul rezervă sloturile în scripts/data/gemini_usage.json și le salvează în main. Generatorul verifică rezervarea salvată înainte de HTTP. O rulare anulată păstrează conservator sloturile rezervate până a doua zi. După o ediție AI reușită, reluarea workflow-ului refolosește ediția fără alte apeluri.
 
-Cheia Gemini se păstrează doar în GitHub Secrets. Abonamentul Gemini pentru aplicația Gemini nu include automat credit sau limite API în AI Studio.
+Plafonul aparține acestui repository; alte aplicații care folosesc același proiect Google au consum separat. Cota gratuită și facturarea se verifică în Google AI Studio pentru proiectul cheii. Cheia rămâne numai în secretul GitHub GEMINI_API_KEY.
+
+## Publicare manuală
+
+Actions → Știri zilnice → Run workflow. Bifează „Doar republică fișierele existente” când vrei să publici designul fără generare. Un push obișnuit publică numai fișierele. Un commit marcat [testeaza-gemini] trece prin același plafon zilnic și aceleași rezervări.
+
+## Domeniu și instalare
+
+DNS: media.acq.ro CNAME acqstudio.github.io. Domeniul acq.ro rămâne la furnizorul său. În GitHub Pages este activată opțiunea Enforce HTTPS.
+
+Invitația de pe Home permite instalarea directă unde browserul oferă această funcție; pe iPhone explică Partajează → Adaugă pe ecranul principal, iar pe Mac pașii din Safari → Adaugă în Dock. Nu apare în modul aplicație și se poate amâna.

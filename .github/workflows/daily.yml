@@ -1,5 +1,4 @@
 name: Știri zilnice
-# Testul AI se pornește o singură dată printr-un commit cu [testeaza-gemini].
 
 on:
   push:
@@ -9,6 +8,17 @@ on:
       - home.css
       - scripts/statics.py
       - scripts/generate.py
+      - scripts/provenance.py
+      - scripts/feeds.json
+      - scripts/day_template.html
+      - site-ui.js
+      - site-ui.css
+      - icons/**
+      - manifest.webmanifest
+      - sport.html
+      - hot.html
+      - news.html
+      - music.html
       - .github/workflows/daily.yml
   schedule:
     - cron: "30 4 * * *"
@@ -51,7 +61,13 @@ jobs:
       - name: Instalează dependențele
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.publish_existing) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[testeaza-gemini]')) }}
         run: pip install -r scripts/requirements.txt
-      - name: Generează ediția zilei cu AI și rezervă RSS
+      - name: Rezervă plafonul zilnic Gemini
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.publish_existing) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[testeaza-gemini]')) }}
+        run: python -B -u scripts/generate.py --reserve-gemini
+      - name: Salvează rezervarea înainte de apelul API
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.publish_existing) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[testeaza-gemini]')) }}
+        run: bash scripts/save_edition.sh "Rezervare Gemini"
+      - name: Generează articolele sau păstrează ediția existentă
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.publish_existing) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[testeaza-gemini]')) }}
         run: python -B -u scripts/generate.py
         env:

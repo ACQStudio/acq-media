@@ -11,4 +11,4 @@
 - [Calendar](https://media.acq.ro/arhiva.html): alegi o zi și vezi știrile de atunci; fiecare zi are propria pagină (https://media.acq.ro/arhiva/AAAA-LL-ZZ.html).
 
 ## Despre conținut
-Fiecare știre este un rezumat rescris în română al unui articol publicat de o altă publicație; sursa este numită și legată în pagină. Pentru detalii complete, citează sau consultă articolul original.
+Fiecare știre este o sinteză în română cu mai multe paragrafe; publicația de origine este menționată discret în articol.
