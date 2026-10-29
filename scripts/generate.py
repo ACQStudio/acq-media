@@ -207,7 +207,8 @@ def write_batch(items):
         "Alege cel mult 2 știri distincte, importante și susținute clar pentru fiecare secțiune. Nu amesteca secțiunile și nu combina articole. "
         "Returnează articolele în ordinea importanței din fiecare secțiune. Pentru fiecare ID întoarce un obiect cu acel id și skip. "
         "Pentru o știre publicabilă, skip=false și completează toate câmpurile; pentru una insuficient documentată, skip=true. "
-        "Scrie original, cu propriile cuvinte; nu copia și nu traduce fraze. Folosește EXCLUSIV faptele din text. Nu inventa nume, cifre, date sau citate. "
+        "Redactează în limba română, cu formulări proprii. Poți reda în română faptele din surse în alte limbi, dar nu traduce mot-a-mot și nu copia fraze. "
+        "Folosește EXCLUSIV faptele din text. Nu inventa nume, cifre, date sau citate. "
         "Atribuie explicit sursei acuzațiile și declarațiile controversate. Ton neutru. "
         "Câmpuri pentru știrile publicabile: cat = etichetă de 1-3 cuvinte; hed = titlu de maximum 95 de caractere; "
         "sum = rezumat de 1-2 propoziții, 20-32 de cuvinte; body = exact 2 paragrafe scurte, fiecare de 1-2 propoziții. "
@@ -215,7 +216,9 @@ def write_batch(items):
     )
     result = gemini(prompt, schema)
     by_id = {}
-    for article in result.get("articles", []):
+    returned = result.get("articles", [])
+    skipped = sum(1 for article in returned if article.get("skip") is True)
+    for article in returned:
         i = article.get("id")
         if not isinstance(i, int) or i < 0 or i >= len(items) or article.get("skip"):
             continue
@@ -223,6 +226,7 @@ def write_batch(items):
             continue
         c = items[i]
         by_id[i] = {**article, "source": c["source"], "link": c["link"], "img": c["img"], "_section": c["_section"]}
+    print(f"Gemini: a analizat {len(items)} texte, a marcat {skipped} ca skip și a validat {len(by_id)}.", flush=True)
     return [by_id[i] for i in range(len(items)) if i in by_id]
 
 def rss_fallback(items):
