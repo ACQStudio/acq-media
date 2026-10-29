@@ -1,0 +1,53 @@
+name: Verifică domeniul și certificatul HTTPS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/pages-status.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: read
+
+jobs:
+  pages-status:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Citește starea publicării și a certificatului
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+
+          url = f"{os.environ['GITHUB_API_URL']}/repos/{os.environ['GITHUB_REPOSITORY']}/pages"
+          request = urllib.request.Request(url, headers={
+              "Accept": "application/vnd.github+json",
+              "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+          })
+          try:
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  page = json.load(response)
+          except urllib.error.HTTPError as error:
+              print(f"Nu am putut citi setările Pages: HTTP {error.code}.")
+              raise SystemExit(1)
+          result = {
+              "status": page.get("status"),
+              "cname": page.get("cname"),
+              "html_url": page.get("html_url"),
+              "https_enforced": page.get("https_enforced"),
+              "https_certificate": page.get("https_certificate"),
+              "protected_domain_state": page.get("protected_domain_state"),
+          }
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("## GitHub Pages: domeniu și HTTPS\n\n```json\n")
+              summary.write(json.dumps(result, ensure_ascii=False, indent=2))
+              summary.write("\n```\n")
+          PY
