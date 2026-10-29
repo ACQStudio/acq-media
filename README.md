@@ -15,7 +15,7 @@ Site static în română, cu secțiunile Sport, Hot, News și Music. GitHub Acti
 
 > Dacă repository-ul are alt nume decât `acq-media`, workflow-ul folosește automat numele lui pentru adresa GitHub Pages.
 
-Workflow-ul automat rulează zilnic la 05:00 UTC (07:00 în România iarna și 08:00 vara). O rulare de generare trimite maximum **un singur apel Gemini** pentru toate secțiunile și nu reîncearcă automat cereri eșuate; un `429`, `503` sau timeout oprește rularea și păstrează ultima versiune publicată. Rularea manuală a testului **Gemini API smoke test** consumă încă un apel Gemini. Limitele API depind de model și proiectul din AI Studio; abonamentul Gemini obișnuit nu schimbă automat cotele API. Dacă nu găsește suficiente știri verificate într-o secțiune, afișează starea goală în loc să lase știri vechi să pară noi.
+Workflow-ul automat rulează zilnic la 05:00 UTC (07:00 în România iarna și 08:00 vara). O rulare de generare trimite maximum **un singur apel Gemini** pentru toate secțiunile, îi acordă până la 180 de secunde și nu reîncearcă automat cereri eșuate. Un timeout poate apărea după ce Google a primit cererea, așa că o rulare manuală nouă poate consuma încă un apel. Un `429`, `503` sau timeout oprește rularea și păstrează ultima versiune publicată. Rularea manuală a testului **Gemini API smoke test** consumă încă un apel Gemini. Limitele API depind de model și proiectul din AI Studio; abonamentul Gemini obișnuit nu schimbă automat cotele API. Dacă nu găsește suficiente știri verificate într-o secțiune, afișează starea goală în loc să lase știri vechi să pară noi.
 
 ## În proiect
 

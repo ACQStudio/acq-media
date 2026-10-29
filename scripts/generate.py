@@ -14,7 +14,7 @@ CFG = json.loads((ROOT / "feeds.json").read_text("utf-8"))
 MODEL = os.getenv("GEMINI_MODEL", CFG["model"])
 N, MIN_OK, MAX_AGE_H = 2, 2, 40
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ACQMediaBot/1.0)"}
-FEED_TIMEOUT, ARTICLE_TIMEOUT, GEMINI_TIMEOUT = (5, 12), (5, 15), 75
+FEED_TIMEOUT, ARTICLE_TIMEOUT, GEMINI_TIMEOUT = (5, 12), (5, 15), (10, 180)
 LUNI = "ianuarie februarie martie aprilie mai iunie iulie august septembrie octombrie noiembrie decembrie".split()
 HIST_F = ROOT / "data" / "history.json"
 now = dt.datetime.now(ZoneInfo("Europe/Bucharest"))
@@ -61,6 +61,11 @@ def gemini(prompt, schema):
             headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]},
             timeout=GEMINI_TIMEOUT,
         )
+    except requests.Timeout as ex:
+        raise RuntimeError(
+            "Gemini nu a răspuns în 180 de secunde. Cererea poate să fi fost procesată; "
+            f"nu o retrimit automat ca să evit un al doilea consum: {ex}"
+        ) from ex
     except requests.RequestException as ex:
         raise RuntimeError(f"Gemini nu a răspuns; cererea nu a fost retrimisă: {ex}") from ex
 
