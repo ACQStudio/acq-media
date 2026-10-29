@@ -15,6 +15,7 @@ MODEL = os.getenv("GEMINI_MODEL", CFG["model"])
 N, MIN_OK, MAX_AGE_H = 2, 2, 40
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ACQMediaBot/1.0)"}
 FEED_TIMEOUT, ARTICLE_TIMEOUT, GEMINI_TIMEOUT = (5, 12), (5, 15), (10, 180)
+GEMINI_5XX_RETRIES = 1
 LUNI = "ianuarie februarie martie aprilie mai iunie iulie august septembrie octombrie noiembrie decembrie".split()
 HIST_F = ROOT / "data" / "history.json"
 now = dt.datetime.now(ZoneInfo("Europe/Bucharest"))
@@ -53,21 +54,33 @@ def gemini(prompt, schema):
     import requests
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
     body = {"contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"maxOutputTokens": 2048, "responseMimeType": "application/json", "responseSchema": schema}}
-    try:
-        response = requests.post(
-            url,
-            json=body,
-            headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]},
-            timeout=GEMINI_TIMEOUT,
-        )
-    except requests.Timeout as ex:
-        raise RuntimeError(
-            "Gemini nu a răspuns în 180 de secunde. Cererea poate să fi fost procesată; "
-            f"nu o retrimit automat ca să evit un al doilea consum: {ex}"
-        ) from ex
-    except requests.RequestException as ex:
-        raise RuntimeError(f"Gemini nu a răspuns; cererea nu a fost retrimisă: {ex}") from ex
+            "generationConfig": {"maxOutputTokens": 2048, "thinkingConfig": {"thinkingLevel": "LOW"},
+                                 "responseMimeType": "application/json", "responseSchema": schema}}
+    for attempt in range(GEMINI_5XX_RETRIES + 1):
+        try:
+            response = requests.post(
+                url,
+                json=body,
+                headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]},
+                timeout=GEMINI_TIMEOUT,
+            )
+        except requests.Timeout as ex:
+            raise RuntimeError(
+                "Gemini nu a trimis răspunsul în 180 de secunde. Cererea poate să fi fost procesată; "
+                f"nu o retrimit automat ca să evit un al doilea consum: {ex}"
+            ) from ex
+        except requests.RequestException as ex:
+            raise RuntimeError(f"Gemini nu a răspuns; cererea nu a fost retrimisă: {ex}") from ex
+
+        if response.status_code in (500, 502, 503, 504) and attempt < GEMINI_5XX_RETRIES:
+            try:
+                delay = min(60, max(1, int(response.headers.get("Retry-After", "5"))))
+            except ValueError:
+                delay = 5
+            print(f"Gemini a răspuns HTTP {response.status_code}; reîncerc o singură dată după {delay}s.", flush=True)
+            time.sleep(delay)
+            continue
+        break
 
     if response.status_code == 429:
         try:
