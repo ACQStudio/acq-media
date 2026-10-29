@@ -12,15 +12,15 @@
 <meta name="twitter:card" content="summary"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "ACQ Media", "inLanguage": "ro", "description": "Cele mai importante știri de azi, în Sport, Hot, Știri și Muzică. Pe scurt, cu sursa originală.", "url": "https://media.acq.ro/", "publisher": {"@type": "Organization", "name": "ACQ Media", "url": "https://media.acq.ro/"}}</script>
 <!--/SEO-->
-<link rel="stylesheet" href="site-ui.css?v=20261029-5"/>
-<link rel="stylesheet" href="home.css?v=20261029-6"/>
+<link rel="stylesheet" href="site-ui.css?v=20261029-8"/>
+<link rel="stylesheet" href="home.css?v=20261029-7"/>
 <link rel="manifest" href="manifest.webmanifest"/>
 <link rel="icon" href="icons/acq.svg" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="ACQ Media"/>
-<script defer src="site-ui.js?v=20261029-5"></script>
+<script defer src="site-ui.js?v=20261029-8"></script>
 </head>
 <body>
 <div class="wrap">
@@ -30,8 +30,8 @@
 <nav class="section-grid" id="sections" aria-label="Secțiunile de azi"><!--CARDS-->
 <a class="f" data-c="sport" href="sport.html" aria-label="Deschide secțiunea Sport"><span class="folder-label" aria-hidden="true">Sport</span></a>
 <a class="f" data-c="hot" href="hot.html" aria-label="Deschide secțiunea Hot"><span class="folder-label" aria-hidden="true">Hot</span></a>
-<a class="f" data-c="news" href="news.html" aria-label="Deschide secțiunea Știri"><span class="folder-label" aria-hidden="true">Știri</span></a>
-<a class="f" data-c="music" href="music.html" aria-label="Deschide secțiunea Muzică"><span class="folder-label" aria-hidden="true">Muzică</span></a>
+<a class="f" data-c="news" href="news.html" aria-label="Deschide secțiunea News"><span class="folder-label" aria-hidden="true">News</span></a>
+<a class="f" data-c="music" href="music.html" aria-label="Deschide secțiunea Music"><span class="folder-label" aria-hidden="true">Music</span></a>
 <!--/CARDS--></nav>
 <section class="edition" aria-label="Selecția ediției"><!--EDITION--><div class="edition-layout"><a class="lead-story" href="news.html?articol=0"><div class="lead-art"><img src="https://ichef.bbci.co.uk/ace/branded_news/1200/cpsprodpb/0364/live/44d987f0-d32a-11f1-b0c3-4b2ce0e9f02a.jpg" alt="" loading="eager"></div><div class="lead-copy"><p class="story-category">Știri</p><h2>Profitul trimestrial al companiei Microsoft a crescut semnificativ pe fondul investițiilor masive în inteligența artificială</h2><p class="story-summary">Gigantul tehnologic a înregistrat rezultate financiare solide, deși a anunțat recent planuri de reducere a personalului. Veniturile diviziei de cloud au urcat considerabil.</p><span class="story-source">BBC News</span></div></a><div class="edition-list"><a class="edition-story" href="sport.html?articol=0"><p class="story-category">Sport</p><h3>Barcelona, amendată de federația spaniolă pentru contactul neoficial cu Julian Alvarez</h3><p class="story-summary">Gruparea catalană a fost sancționată financiar în urma unei plângeri depuse de Atletico Madrid. Incidentul vizează discuții purtate cu atacantul argentinian fără o notificare scrisă prealabilă.</p><span class="story-source">BBC Sport</span></a><a class="edition-story" href="hot.html?articol=0"><p class="story-category">Hot</p><h3>Ancheta privind decesul actriței Hayden Panettiere a fost închisă oficial de poliție</h3><p class="story-summary">Autoritățile americane au stabilit că moartea vedetei a fost accidentală. O expertiză anterioară a indicat prezența unor substanțe toxice în organismul acesteia.</p><span class="story-source">LADbible</span></a><a class="edition-story" href="music.html?articol=0"><p class="story-category">Muzică</p><h3>Rapperul 50 Cent a dat-o în judecată pe fosta parteneră a lui Rick Ross pentru defăimare</h3><p class="story-summary">Artistul american solicită despăgubiri de milioane de dolari în urma unor declarații făcute pe rețelele sociale. Acesta o acuză că i-a atacat fiul minor.</p><span class="story-source">LADbible</span></a><a class="edition-story" href="news.html?articol=1"><p class="story-category">Știri</p><h3>Datele oficiale arată că mai puțin de 13% dintre șomerii din Australia au fost integrați pe piața muncii</h3><p class="story-summary">Programul guvernamental dedicat ocupării forței de muncă nu a reușit să atingă ținta stabilită. Opoziția a criticat lipsa de performanță a furnizorilor de servicii.</p><span class="story-source">The Guardian</span></a></div></div><!--/EDITION--></section>
 <a class="archive-end" href="arhiva.html">Toate edițiile <span aria-hidden="true">↗</span></a>
@@ -39,12 +39,66 @@
 </div>
 <script>
 (() => {
- if(!('IntersectionObserver' in window)||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+ const precisePointer=window.matchMedia('(hover: hover) and (pointer: fine)');
  const cards=[...document.querySelectorAll('#sections .f')];
- const observer=new IntersectionObserver(entries=>{
-  entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in-view');observer.unobserve(entry.target)}});
- },{threshold:.08});
- cards.forEach((card,index)=>{card.classList.add('reveal');card.style.setProperty('--delay',index*55+'ms');observer.observe(card)});
+ const resetPage=()=>{
+  document.body.classList.remove('is-leaving');
+  cards.forEach(card=>card.classList.remove('is-selected'));
+ };
+ window.addEventListener('pageshow',resetPage);
+ document.body.classList.add('home-ready');
+ if(!reduced.matches&&'IntersectionObserver' in window){
+  const revealItems=[...cards,...document.querySelectorAll('.lead-story,.edition-story')];
+  const observer=new IntersectionObserver(entries=>{
+   entries.forEach(entry=>{
+    if(!entry.isIntersecting)return;
+    entry.target.classList.add('in-view');
+    observer.unobserve(entry.target);
+   });
+  },{threshold:.08,rootMargin:'0px 0px -12px 0px'});
+  revealItems.forEach((item,index)=>{
+   item.classList.add('motion-reveal');
+   item.style.setProperty('--delay',(index<cards.length?index*55:0)+'ms');
+   observer.observe(item);
+  });
+ }
+ cards.forEach(card=>{
+  let frame=0,rect=null,point=null;
+  const clearTilt=()=>{
+   if(frame)cancelAnimationFrame(frame);
+   frame=0;point=null;rect=null;
+   card.classList.remove('is-hovering');
+   card.style.removeProperty('--rx');card.style.removeProperty('--ry');
+  };
+  card.addEventListener('pointerenter',event=>{
+   if(reduced.matches||!precisePointer.matches||event.pointerType==='touch')return;
+   rect=card.getBoundingClientRect();
+   card.classList.add('is-hovering');
+  });
+  card.addEventListener('pointermove',event=>{
+   if(!rect||reduced.matches||!precisePointer.matches)return;
+   point={x:event.clientX,y:event.clientY};
+   if(frame)return;
+   frame=requestAnimationFrame(()=>{
+    frame=0;if(!point||!rect)return;
+    const x=Math.max(-.5,Math.min(.5,(point.x-rect.left)/rect.width-.5));
+    const y=Math.max(-.5,Math.min(.5,(point.y-rect.top)/rect.height-.5));
+    card.style.setProperty('--rx',(-y*4).toFixed(2)+'deg');
+    card.style.setProperty('--ry',(x*4).toFixed(2)+'deg');
+   });
+  });
+  card.addEventListener('pointerleave',clearTilt);
+  card.addEventListener('pointercancel',clearTilt);
+  card.addEventListener('click',event=>{
+   if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.detail===0||reduced.matches)return;
+   event.preventDefault();clearTilt();
+   card.classList.add('is-selected');
+   document.body.classList.add('is-leaving');
+   const destination=card.href;
+   window.setTimeout(()=>{location.assign(destination)},140);
+  });
+ });
 })();
 </script>
 </body>

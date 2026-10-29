@@ -32,7 +32,7 @@ TODAY = f"{now.day} {LUNI[now.month-1]} {now.year}"
 HIST = json.loads(HIST_F.read_text()) if HIST_F.exists() else {}
 HIST = {u: d for u, d in HIST.items() if d >= (now - dt.timedelta(days=14)).strftime("%Y-%m-%d")}
 
-SLIDE = """  <div class="slide {cls}" data-theme="{theme}">
+SLIDE = """  <div class="slide {cls}" data-theme="{theme}" data-article-index="{k}" data-slide-label="Știrea {i}">
     <div class="s-bg"><img src="{img}" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">{cat}</span><span class="card-prog">{i} / {n}</span></div>
@@ -45,6 +45,15 @@ SLIDE = """  <div class="slide {cls}" data-theme="{theme}">
       </div>
     </div>
   </div>
+"""
+AD_SLIDE = """  <section class="slide ad-slide" data-theme="dark" data-slide-kind="advertisement" data-slide-label="Publicitate" aria-label="Publicitate — ACQ {section}">
+    <div class="ad-panel">
+      <p class="ad-kicker">Publicitate · ACQ {section}</p>
+      <h2 class="ad-title">Vrei un spot<br>publicitar?</h2>
+      <p class="ad-copy">Adu brandul tău în atenția cititorilor ACQ {section}. Spune-ne ce ai în plan și hai să găsim împreună formatul potrivit.</p>
+      <div class="ad-actions"><a class="ad-cta" href="contact.html?sectiune={category}">Contactează-ne <span aria-hidden="true">↗</span></a><button class="card-next ad-continue" data-next="3" type="button">{next_label} <span aria-hidden="true">→</span></button></div>
+    </div>
+  </section>
 """
 EMPTY_SLIDE = """  <div class="slide sdk" data-theme="dark">
     <div class="s-bg"></div><div class="s-mask"></div>
@@ -496,12 +505,18 @@ def write_batch(items):
 def render(name, cat, items):
     e, n, slides, art = html.escape, len(items), [], []
     fb = cat["fallback_images"]
+    has_ad = n >= 2
+    section_name = {"sport": "Sport", "hot": "Hot", "news": "News", "music": "Music"}.get(name, name.title())
     for k, it in enumerate(items):
         dark = k % 2 == 0
         img = it["img"] if CFG["use_source_images"] and it.get("img") else fb[k % len(fb)]
+        visual_index = k + (1 if has_ad and k >= 2 else 0)
+        next_label = "Continuă" if has_ad and k == 1 else ("Încheie ediția" if k == n - 1 else "Următoarea știre")
         slides.append(SLIDE.format(cls="sdk" if dark else "slt", theme="dark" if dark else "light", img=e(img), cat=e(it["cat"]),
-            i=k + 1, n=n, hed=e(it["hed"]), sum=e(it["sum"]), meta=e(f"{TODAY} · {it['source']}"), k=k, nxt=k + 1,
-            btn="Încheie ediția" if k == n - 1 else "Următoarea știre"))
+            i=k + 1, n=n, hed=e(it["hed"]), sum=e(it["sum"]), meta=e(f"{TODAY} · {it['source']}"), k=k, nxt=visual_index + 1,
+            btn=next_label))
+        if has_ad and k == 1:
+            slides.append(AD_SLIDE.format(section=e(section_name), category=e(name), next_label="Continuă știrile" if n > 2 else "Încheie ediția"))
         body = "".join(f"<p>{e(p)}</p>" for p in it["body"])
         art.append({"tag": it["cat"], cat["meta_key"]: f"{TODAY} · Sursa: {it['source']}", "hed": it["hed"], "body": body})
     if not slides:

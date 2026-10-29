@@ -132,6 +132,26 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
   .s-card{border-radius:var(--rlg);padding:22px 20px 20px;bottom:max(20px,3vh)}
   .m-body{padding:20px 20px 36px}
 }
+
+/* ACQ-HOUSE-AD */
+.ad-slide{display:grid;place-items:center;padding:96px 28px 70px;background:#111315;color:#f1f2f4}
+.ad-slide::before{display:none!important}
+.ad-panel{width:min(100%,660px);opacity:0;translate:0 18px;transition:opacity .65s var(--ease) .1s,translate .65s var(--ease) .1s}
+.slide.on .ad-panel{opacity:1;translate:0 0}
+.ad-kicker{margin:0 0 28px;color:#8d939b;font-size:10px;font-weight:600;letter-spacing:.16em;line-height:1.5;text-transform:uppercase}
+.ad-title{margin:0;color:#f1f2f4;font-size:clamp(42px,7vw,76px);font-weight:600;line-height:1.01;letter-spacing:-.065em}
+.ad-copy{max-width:43ch;margin:25px 0 0;color:#a2a8b1;font-size:16px;font-weight:400;line-height:1.65;letter-spacing:-.015em}
+.ad-actions{display:flex;align-items:center;flex-wrap:wrap;gap:17px 26px;margin-top:34px}
+.ad-cta{display:inline-flex;align-items:center;justify-content:space-between;gap:40px;min-height:50px;padding:0 20px;border:1px solid #e9ebee;border-radius:12px;background:#e9ebee;color:#17191d;text-decoration:none;font:inherit;font-size:13px;font-weight:600;transition:background .2s ease,transform .2s ease}
+.ad-cta:hover{background:#fff;transform:translateY(-2px)}
+.ad-slide .ad-continue{height:44px;padding:0;border:0;border-radius:0;background:none;color:#8e959f;box-shadow:none;font-size:12px;font-weight:500;cursor:pointer}
+.ad-slide .ad-continue:hover{color:#f1f2f4;transform:none}
+.ad-cta:focus-visible,.ad-continue:focus-visible,.pip:focus-visible{outline:2px solid #e6e9ee;outline-offset:6px}
+.pip{position:relative}.pip::before{position:absolute;inset:-12px -6px;content:''}
+.pip.ad-pip{height:5px;border:1px solid currentColor;border-radius:1px;color:var(--acc);background:transparent}.pip.ad-pip.on{width:16px;background:var(--acc);border-radius:2px}
+@media(max-width:600px){.ad-slide{padding:92px 25px 55px}.ad-kicker{margin-bottom:24px;font-size:9px}.ad-title{font-size:clamp(42px,12vw,62px)}.ad-copy{max-width:35ch;font-size:14px;margin-top:22px}.ad-actions{gap:15px 22px;margin-top:28px}.ad-cta{min-height:48px;padding:0 18px;gap:30px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){#intro{display:none!important}#nav{opacity:1;pointer-events:auto}#track,.ad-panel,.ad-cta,.ic{transition:none!important;animation:none!important}.ad-panel{opacity:1;translate:none}}
+/* /ACQ-HOUSE-AD */
 </style>
 <style>.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.arch-btn{display:inline-flex;align-items:center;margin-top:22px;padding:13px 22px;border:1px solid rgba(255,255,255,.2);border-radius:99px;color:rgba(255,255,255,.75);font-size:14px;font-weight:500;text-decoration:none;transition:background .2s,color .2s}.arch-btn:hover{background:rgba(255,255,255,.08);color:#fff}</style>
 <style>
@@ -143,22 +163,19 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
 .card-next{text-decoration:none}
 </style>
 <!--ACQ-SITE-UI-->
-<link rel="stylesheet" href="site-ui.css?v=20261029-1">
+<link rel="stylesheet" href="site-ui.css?v=20261029-8">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/acq.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" sizes="180x180">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ACQ Media">
-<script defer src="site-ui.js?v=20261029-1"></script>
+<script defer src="site-ui.js?v=20261029-8"></script>
 <!--/ACQ-SITE-UI-->
 </head>
 <body>
 <h1 class="sr">ACQ Media — Muzică și entertainment, știrile de azi</h1>
-<div id="intro"><div id="iw">
-    <span class="ic">A</span><span class="ic">C</span><span class="ic">Q</span>
-    <span class="ic lt" style="margin-left:.08em">M</span><span class="ic lt">e</span><span class="ic lt">d</span><span class="ic lt">i</span><span class="ic lt">a</span>
-  </div></div>
+<div id="intro" aria-hidden="true"><div id="iw"><span class="ic" style="animation-delay:0.040s">A</span><span class="ic" style="animation-delay:0.095s">C</span><span class="ic" style="animation-delay:0.150s">Q</span><span class="ic lt" style="animation-delay:0.205s;margin-left:.11em">M</span><span class="ic lt" style="animation-delay:0.260s">u</span><span class="ic lt" style="animation-delay:0.315s">s</span><span class="ic lt" style="animation-delay:0.370s">i</span><span class="ic lt" style="animation-delay:0.425s">c</span></div></div>
 <nav id="nav">
   <a href="index.html" class="nav-logo">ACQ Media</a>
   <div id="nav-pips"></div>
@@ -167,7 +184,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
 <div id="hint" aria-hidden="true"></div>
 <div id="stage"><div id="track">
 <!--SLIDES-->
-  <div class="slide sdk" data-theme="dark">
+  <div class="slide sdk" data-theme="dark" data-article-index="0" data-slide-label="Știrea 1">
     <div class="s-bg"><img src="https://resizer.ladbiblegroup.com/ogimage/v3/assets/bltcd74acc1d0a99f3a/blt6066ffb860efccbc/6ae1d6754d36e6fd4fb2fc1b/50cent.jpg" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">Muzică</span><span class="card-prog">1 / 3</span></div>
@@ -181,7 +198,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
     </div>
   </div>
 
-  <div class="slide slt" data-theme="light">
+  <div class="slide slt" data-theme="light" data-article-index="1" data-slide-label="Știrea 2">
     <div class="s-bg"><img src="https://www.nme.com/wp-content/uploads/2026/10/bono@2000x1270.jpg" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">Muzică</span><span class="card-prog">2 / 3</span></div>
@@ -190,12 +207,21 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
       <div class="card-foot">
         <span class="card-meta">29 octombrie 2026 · NME</span>
         <button class="card-read" onclick="openModal(1)">Citește</button>
-        <button class="card-next" data-next="2">Următoarea știre <span class="card-next-icon">→</span></button>
+        <button class="card-next" data-next="2">Continuă <span class="card-next-icon">→</span></button>
       </div>
     </div>
   </div>
 
-  <div class="slide sdk" data-theme="dark">
+  <section class="slide ad-slide" data-theme="dark" data-slide-kind="advertisement" data-slide-label="Publicitate" aria-label="Publicitate — ACQ Music">
+    <div class="ad-panel">
+      <p class="ad-kicker">Publicitate · ACQ Music</p>
+      <h2 class="ad-title">Vrei un spot<br>publicitar?</h2>
+      <p class="ad-copy">Adu brandul tău în atenția cititorilor ACQ Music. Spune-ne ce ai în plan și hai să găsim împreună formatul potrivit.</p>
+      <div class="ad-actions"><a class="ad-cta" href="contact.html?sectiune=music">Contactează-ne <span aria-hidden="true">↗</span></a><button class="card-next ad-continue" data-next="3" type="button">Continuă știrile <span aria-hidden="true">→</span></button></div>
+    </div>
+  </section>
+
+  <div class="slide sdk" data-theme="dark" data-article-index="2" data-slide-label="Știrea 3">
     <div class="s-bg"><img src="https://media.pitchfork.com/photos/6ae0fed8360013d7d2b5a02d/16:9/w_1280,c_limit/Timeline%201_01_03_47_23.tif.jpg" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">Muzică</span><span class="card-prog">3 / 3</span></div>
@@ -204,7 +230,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
       <div class="card-foot">
         <span class="card-meta">29 octombrie 2026 · Pitchfork</span>
         <button class="card-read" onclick="openModal(2)">Citește</button>
-        <button class="card-next" data-next="3">Încheie ediția <span class="card-next-icon">→</span></button>
+        <button class="card-next" data-next="4">Încheie ediția <span class="card-next-icon">→</span></button>
       </div>
     </div>
   </div>
@@ -212,7 +238,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
   <!--/SLIDES-->
 
   <div class="slide" id="ssub" data-theme="dark">
-    <span class="sub-label">ACQ Media · Music · EDIȚIA ZILEI</span>
+    <span class="sub-label">ACQ Music · EDIȚIA ZILEI</span>
     <h2 class="sub-title">Ai ajuns<br>la final.</h2>
     <p class="sub-sub">Alege altă secțiune sau caută știrile dintr-o zi anterioară.</p>
     <div class="end-links">
@@ -244,7 +270,7 @@ function loadImgs(){document.querySelectorAll('.slide[data-img]').forEach((s,i)=
 const ART=/*ART*/[{"tag": "Muzică", "meta": "29 octombrie 2026 · Sursa: LADbible", "hed": "Rapperul 50 Cent a dat-o în judecată pe fosta parteneră a lui Rick Ross pentru defăimare", "body": "<p>Rapperul 50 Cent, pe numele său real Curtis Jackson, a inițiat o acțiune în instanță împotriva Tiallondrei Tia Kemp, fosta parteneră a lui Rick Ross. Procesul a fost înregistrat la o curte federală din Los Angeles și vizează postări defăimătoare publicate recent în mediul online la adresa fiului artistului în vârstă de 14 ani.<\/p><p>Plângerea depusă de avocații muzicianului susține că pârâta a făcut afirmații false și ofensatoare legate de starea de sănătate a minorului, folosind insulte cu caracter denigrator pentru a-i ataca familia. Echipa juridică solicită daune de cel puțin 6 milioane de dolari pentru defăimare, încălcare a vieții private și provocare intenționată de suferință emoțională.<\/p><p>Conform informațiilor apărute în presă, artistul a cerut de asemenea emiterea unei ordonanțe care să interzică pârâtei să mai facă referiri la copilul său. De cealaltă parte, aceasta a avut o reacție publică pe rețelele de socializare, respingând acuzațiile aduse prin intermediul avocaților.<\/p>"}, {"tag": "Muzică", "meta": "29 octombrie 2026 · Sursa: NME", "hed": "Bono recunoaște că strategia U2 de a lansa gratuit albumul pe iTunes a fost o eroare", "body": "<p>Solistul formației U2, Bono, a revenit asupra momentului în care albumul Songs Of Innocence a fost descărcat automat pe conturile a milioane de utilizatori ai platformei iTunes. Muzicianul a recunoscut că această campanie de promovare neconvențională a mers prea departe și a reprezentat o greșeală din partea sa.<\/p><p>Lansarea a generat numeroase reacții negative în rândul publicului la vremea respectivă, determinând compania Apple să ofere ulterior un instrument prin care utilizatorii puteau șterge în mod facil materialul din bibliotecile lor digitale. Artistul a comparat anterior gestul cu plasarea nedorită a unei sticle de lapte pe pragul caselor oamenilor.<\/p><p>Într-un interviu recent, cântărețul și-a asumat întreaga responsabilitate pentru această decizie luată în cadrul unui parteneriat cu gigantul tehnologic. Deși membrii trupei au experimentat diverse modalități de a atrage atenția asupra valorii muzicii în societate, strategia inițială a fost intens criticată de fani și de presă.<\/p>"}, {"tag": "Muzică", "meta": "29 octombrie 2026 · Sursa: Pitchfork", "hed": "Trupa Diiv a anunțat un turneu mondial extins pentru promovarea noului album", "body": "<p>Grupul Diiv a programat un turneu mondial de amploare pentru anul 2027, care va cuprinde 47 de reprezentații în diverse orașe de pe glob. Seria de concerte va începe în luna februarie în Australia și se va încheia în luna iunie cu un spectacol în capitala Regatului Unit.<\/p><p>Turneul este organizat pentru a susține noul material discografic al trupei, intitulat ZIRP!, produs în colaborare cu A.G. Cook și lansat prin intermediul casei de discuri Fantasy Recordings. Fanii vor putea asculta live atât piese noi, precum single-ul prezentat recent, cât și melomane cunoscute de pe albumele anterioare.<\/p><p>Înainte de debutul oficial al turneului din 2027, formația va mai urca pe scenă în cadrul unor festivaluri muzicale internaționale programate în Europa. Programul complet al concertelor a fost publicat de reprezentanții trupei pentru a fi consultat de publicul din fiecare oraș inclus pe listă.<\/p>"}]/*/ART*/;
 const track=document.getElementById('track');const nav=document.getElementById('nav');const pipsEl=document.getElementById('nav-pips');const hint=document.getElementById('hint');const slides=Array.from(document.querySelectorAll('#track > .slide'));const N=slides.length;let cur=0,busy=false;
 slides.forEach((s,i)=>s.style.top=(i*100)+'dvh');
-const pips=[];slides.forEach((_,i)=>{const b=document.createElement('button');b.className='pip'+(i===0?' on':'');b.setAttribute('aria-label','Știrea '+(i+1));b.onclick=()=>go(i);pipsEl.appendChild(b);pips.push(b);});
+const pips=[];slides.forEach((_,i)=>{const b=document.createElement('button');b.className='pip'+(i===0?' on':'');b.setAttribute('aria-label',slides[i].dataset.slideLabel||(slides[i].id==='ssub'?'Finalul ediției':'Ediția zilei'));b.classList.toggle('ad-pip',slides[i].dataset.slideKind==='advertisement');b.onclick=()=>go(i);pipsEl.appendChild(b);pips.push(b);});
 function go(idx){if(busy||idx===cur||idx<0||idx>=N)return;busy=true;const prev=cur;cur=idx;track.style.transform=`translateY(${-cur*100}dvh)`;slides[prev].classList.remove('on');setTimeout(()=>slides[cur].classList.add('on'),160);pips.forEach((p,i)=>p.classList.toggle('on',i===cur));nav.classList.toggle('light',slides[cur].dataset.theme==='light');if(cur>0)hint.classList.add('off');setTimeout(()=>{busy=false;},800);}
 slides[0].classList.add('on');
 document.querySelectorAll('.card-next[data-next]').forEach(b=>b.addEventListener('click',()=>go(parseInt(b.dataset.next))));
@@ -256,15 +282,24 @@ function closeModal(){document.getElementById('modal-ov').classList.remove('open
 document.getElementById('modal-ov').addEventListener('click',function(e){if(e.target===this)closeModal();});
 setTimeout(()=>{const intro=document.getElementById('intro');intro.classList.add('exit');nav.classList.add('show');hint.classList.add('show');setTimeout(()=>{intro.style.display='none';},600);},1700);
 loadImgs();
+
+
+/* ACQ-ARTICLE-ROUTE: article indices are independent of inserted ad slides. */
 const requestedArticle = new URLSearchParams(location.search).get('articol');
 if(requestedArticle !== null && /^\d+$/.test(requestedArticle)){
  const articleIndex=Number(requestedArticle);
- if(articleIndex>=0 && articleIndex<ART.length){
+ const visualIndex=slides.findIndex(slide=>slide.dataset.articleIndex===String(articleIndex));
+ if(articleIndex>=0 && articleIndex<ART.length && visualIndex>=0){
   document.getElementById('intro').style.display='none';
-  nav.classList.add('show');go(articleIndex);openModal(articleIndex);
+  cur=visualIndex;track.style.transform=`translateY(${-cur*100}dvh)`;
+  slides.forEach((slide,index)=>slide.classList.toggle('on',index===cur));
+  pips.forEach((pip,index)=>pip.classList.toggle('on',index===cur));
+  nav.classList.add('show');nav.classList.toggle('light',slides[cur].dataset.theme==='light');
+  hint.classList.add('off');openModal(articleIndex);
  }
 }
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeModal()});
+/* /ACQ-ARTICLE-ROUTE */
 </script>
 </body>
 </html>

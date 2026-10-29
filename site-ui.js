@@ -73,7 +73,7 @@
         </nav>
         <div class="acq-site-footer__studio">
           <h2 class="acq-site-footer__heading">ACQ</h2>
-          <ul><li><a href="https://acq.ro/" target="_blank" rel="noopener">Despre ACQ Studio ↗</a></li><li>Știri pe scurt. Sursa la vedere.</li></ul>
+          <ul><li><a href="https://acq.ro/" target="_blank" rel="noopener">Despre ACQ Studio ↗</a></li><li><a href="${url('contact.html')}">Contact pentru publicitate</a></li><li>Știri pe scurt. Sursa la vedere.</li></ul>
           <button class="acq-site-footer__install" type="button" data-acq-install>Adaugă pe ecran ↗</button>
         </div>
       </div>

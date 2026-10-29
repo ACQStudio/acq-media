@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111214">
+<title>Publicitate și contact | ACQ Media</title>
+<meta name="description" content="Propune o campanie de publicitate în ACQ Media. Spune-ne despre brand, mesaj și secțiunea în care vrei să apari.">
+<link rel="canonical" href="https://media.acq.ro/contact.html">
+<link rel="icon" href="icons/acq.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="contact.css?v=20261029-1">
+<script defer src="contact.js?v=20261029-1"></script>
+</head>
+<body>
+<div class="contact-wrap">
+  <header class="contact-nav">
+    <a class="contact-brand" href="index.html">ACQ Media</a>
+    <a class="contact-back" id="back-link" href="index.html"><span aria-hidden="true">←</span> Înapoi la știri</a>
+  </header>
+  <main class="contact-main">
+    <section class="contact-intro" aria-labelledby="contact-title">
+      <p class="contact-kicker">Publicitate</p>
+      <h1 id="contact-title">Spune-ne despre<br>campania ta.</h1>
+      <p class="contact-description">Ai un brand, un produs sau un eveniment de promovat? Lasă-ne câteva detalii și discutăm despre locul potrivit în ACQ Media.</p>
+      <p class="contact-address"><span>Ne găsești și la</span><a href="mailto:hello@acq.studio">hello@acq.studio <span aria-hidden="true">↗</span></a></p>
+    </section>
+    <form class="contact-form" id="advertising-form" action="mailto:hello@acq.studio" method="post" enctype="text/plain" aria-label="Formular pentru publicitate">
+      <div class="contact-fields">
+        <div class="contact-field">
+          <label for="contact-name">Nume</label>
+          <input id="contact-name" name="name" type="text" autocomplete="name" maxlength="120" required>
+        </div>
+        <div class="contact-field">
+          <label for="contact-email">E-mail</label>
+          <input id="contact-email" name="email" type="email" autocomplete="email" maxlength="254" inputmode="email" required>
+        </div>
+        <div class="contact-field">
+          <label for="contact-company">Companie <span>opțional</span></label>
+          <input id="contact-company" name="company" type="text" autocomplete="organization" maxlength="160">
+        </div>
+        <div class="contact-field">
+          <label for="contact-section">Secțiunea care te interesează</label>
+          <select id="contact-section" name="section">
+            <option value="all">Toate secțiunile</option>
+            <option value="sport">Sport</option>
+            <option value="hot">Hot</option>
+            <option value="news">News</option>
+            <option value="music">Music</option>
+          </select>
+        </div>
+        <div class="contact-field contact-field--wide">
+          <label for="contact-brief">Ce ai vrea să promovăm?</label>
+          <textarea id="contact-brief" name="brief" rows="6" maxlength="3000" placeholder="Brandul, mesajul campaniei și perioada în care ai vrea să apari." required></textarea>
+        </div>
+      </div>
+      <div class="contact-submit-row">
+        <button class="contact-submit" type="submit">Continuă în e-mail <span aria-hidden="true">↗</span></button>
+        <p class="contact-hint" id="contact-hint">Se deschide aplicația ta de e-mail cu mesajul completat. Tu confirmi trimiterea acolo.</p>
+      </div>
+      <p class="contact-status" id="contact-status" role="status" aria-live="polite"></p>
+    </form>
+  </main>
+  <footer class="contact-footer"><span>ACQ Media</span><span>O publicație ACQ Studio</span></footer>
+</div>
+</body>
+</html>

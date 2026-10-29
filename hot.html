@@ -132,6 +132,26 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
   .s-card{border-radius:var(--rlg);padding:22px 20px 20px;bottom:max(20px,3vh)}
   .m-body{padding:20px 20px 36px}
 }
+
+/* ACQ-HOUSE-AD */
+.ad-slide{display:grid;place-items:center;padding:96px 28px 70px;background:#111315;color:#f1f2f4}
+.ad-slide::before{display:none!important}
+.ad-panel{width:min(100%,660px);opacity:0;translate:0 18px;transition:opacity .65s var(--ease) .1s,translate .65s var(--ease) .1s}
+.slide.on .ad-panel{opacity:1;translate:0 0}
+.ad-kicker{margin:0 0 28px;color:#8d939b;font-size:10px;font-weight:600;letter-spacing:.16em;line-height:1.5;text-transform:uppercase}
+.ad-title{margin:0;color:#f1f2f4;font-size:clamp(42px,7vw,76px);font-weight:600;line-height:1.01;letter-spacing:-.065em}
+.ad-copy{max-width:43ch;margin:25px 0 0;color:#a2a8b1;font-size:16px;font-weight:400;line-height:1.65;letter-spacing:-.015em}
+.ad-actions{display:flex;align-items:center;flex-wrap:wrap;gap:17px 26px;margin-top:34px}
+.ad-cta{display:inline-flex;align-items:center;justify-content:space-between;gap:40px;min-height:50px;padding:0 20px;border:1px solid #e9ebee;border-radius:12px;background:#e9ebee;color:#17191d;text-decoration:none;font:inherit;font-size:13px;font-weight:600;transition:background .2s ease,transform .2s ease}
+.ad-cta:hover{background:#fff;transform:translateY(-2px)}
+.ad-slide .ad-continue{height:44px;padding:0;border:0;border-radius:0;background:none;color:#8e959f;box-shadow:none;font-size:12px;font-weight:500;cursor:pointer}
+.ad-slide .ad-continue:hover{color:#f1f2f4;transform:none}
+.ad-cta:focus-visible,.ad-continue:focus-visible,.pip:focus-visible{outline:2px solid #e6e9ee;outline-offset:6px}
+.pip{position:relative}.pip::before{position:absolute;inset:-12px -6px;content:''}
+.pip.ad-pip{height:5px;border:1px solid currentColor;border-radius:1px;color:var(--acc);background:transparent}.pip.ad-pip.on{width:16px;background:var(--acc);border-radius:2px}
+@media(max-width:600px){.ad-slide{padding:92px 25px 55px}.ad-kicker{margin-bottom:24px;font-size:9px}.ad-title{font-size:clamp(42px,12vw,62px)}.ad-copy{max-width:35ch;font-size:14px;margin-top:22px}.ad-actions{gap:15px 22px;margin-top:28px}.ad-cta{min-height:48px;padding:0 18px;gap:30px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){#intro{display:none!important}#nav{opacity:1;pointer-events:auto}#track,.ad-panel,.ad-cta,.ic{transition:none!important;animation:none!important}.ad-panel{opacity:1;translate:none}}
+/* /ACQ-HOUSE-AD */
 </style>
 <style>.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.arch-btn{display:inline-flex;align-items:center;margin-top:22px;padding:13px 22px;border:1px solid rgba(255,255,255,.2);border-radius:99px;color:rgba(255,255,255,.75);font-size:14px;font-weight:500;text-decoration:none;transition:background .2s,color .2s}.arch-btn:hover{background:rgba(255,255,255,.08);color:#fff}</style>
 <style>
@@ -143,22 +163,19 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
 .card-next{text-decoration:none}
 </style>
 <!--ACQ-SITE-UI-->
-<link rel="stylesheet" href="site-ui.css?v=20261029-1">
+<link rel="stylesheet" href="site-ui.css?v=20261029-8">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/acq.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" sizes="180x180">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ACQ Media">
-<script defer src="site-ui.js?v=20261029-1"></script>
+<script defer src="site-ui.js?v=20261029-8"></script>
 <!--/ACQ-SITE-UI-->
 </head>
 <body>
 <h1 class="sr">ACQ Media — Cancan și showbiz de azi</h1>
-<div id="intro"><div id="iw">
-    <span class="ic">A</span><span class="ic">C</span><span class="ic">Q</span>
-    <span class="ic lt" style="margin-left:.08em">M</span><span class="ic lt">e</span><span class="ic lt">d</span><span class="ic lt">i</span><span class="ic lt">a</span>
-  </div></div>
+<div id="intro" aria-hidden="true"><div id="iw"><span class="ic" style="animation-delay:0.040s">A</span><span class="ic" style="animation-delay:0.095s">C</span><span class="ic" style="animation-delay:0.150s">Q</span><span class="ic lt" style="animation-delay:0.205s;margin-left:.11em">H</span><span class="ic lt" style="animation-delay:0.260s">o</span><span class="ic lt" style="animation-delay:0.315s">t</span></div></div>
 <nav id="nav">
   <a href="index.html" class="nav-logo">ACQ Media</a>
   <div id="nav-pips"></div>
@@ -167,7 +184,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
 <div id="hint" aria-hidden="true"></div>
 <div id="stage"><div id="track">
 <!--SLIDES-->
-  <div class="slide sdk" data-theme="dark">
+  <div class="slide sdk" data-theme="dark" data-article-index="0" data-slide-label="Știrea 1">
     <div class="s-bg"><img src="https://resizer.ladbiblegroup.com/ogimage/v3/assets/bltcd74acc1d0a99f3a/blt7c5b6cf6bd1c8caa/6ae26e8c35078523a76d754e/hayden-panittere.jpg" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">Monden</span><span class="card-prog">1 / 5</span></div>
@@ -181,7 +198,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
     </div>
   </div>
 
-  <div class="slide slt" data-theme="light">
+  <div class="slide slt" data-theme="light" data-article-index="1" data-slide-label="Știrea 2">
     <div class="s-bg"><img src="https://www.cancan.ro/wp-content/uploads/2026/10/COLAJ-V-SLAV.jpg.jpeg" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">Monden</span><span class="card-prog">2 / 5</span></div>
@@ -190,12 +207,21 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
       <div class="card-foot">
         <span class="card-meta">29 octombrie 2026 · CanCan</span>
         <button class="card-read" onclick="openModal(1)">Citește</button>
-        <button class="card-next" data-next="2">Următoarea știre <span class="card-next-icon">→</span></button>
+        <button class="card-next" data-next="2">Continuă <span class="card-next-icon">→</span></button>
       </div>
     </div>
   </div>
 
-  <div class="slide sdk" data-theme="dark">
+  <section class="slide ad-slide" data-theme="dark" data-slide-kind="advertisement" data-slide-label="Publicitate" aria-label="Publicitate — ACQ Hot">
+    <div class="ad-panel">
+      <p class="ad-kicker">Publicitate · ACQ Hot</p>
+      <h2 class="ad-title">Vrei un spot<br>publicitar?</h2>
+      <p class="ad-copy">Adu brandul tău în atenția cititorilor ACQ Hot. Spune-ne ce ai în plan și hai să găsim împreună formatul potrivit.</p>
+      <div class="ad-actions"><a class="ad-cta" href="contact.html?sectiune=hot">Contactează-ne <span aria-hidden="true">↗</span></a><button class="card-next ad-continue" data-next="3" type="button">Continuă știrile <span aria-hidden="true">→</span></button></div>
+    </div>
+  </section>
+
+  <div class="slide sdk" data-theme="dark" data-article-index="2" data-slide-label="Știrea 3">
     <div class="s-bg"><img src="https://resizer.ladbiblegroup.com/ogimage/v3/assets/blt949ea8e16e463049/blt550da279744cd1a2/6ae1491aa79f6926ac65bec1/GettyImages-2299699774.jpg" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">Monden</span><span class="card-prog">3 / 5</span></div>
@@ -204,12 +230,12 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
       <div class="card-foot">
         <span class="card-meta">29 octombrie 2026 · Unilad</span>
         <button class="card-read" onclick="openModal(2)">Citește</button>
-        <button class="card-next" data-next="3">Următoarea știre <span class="card-next-icon">→</span></button>
+        <button class="card-next" data-next="4">Următoarea știre <span class="card-next-icon">→</span></button>
       </div>
     </div>
   </div>
 
-  <div class="slide slt" data-theme="light">
+  <div class="slide slt" data-theme="light" data-article-index="3" data-slide-label="Știrea 4">
     <div class="s-bg"><img src="https://www.cancan.ro/wp-content/uploads/2026/09/andreea.jpg.jpeg" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">Monden</span><span class="card-prog">4 / 5</span></div>
@@ -218,12 +244,12 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
       <div class="card-foot">
         <span class="card-meta">29 octombrie 2026 · CanCan</span>
         <button class="card-read" onclick="openModal(3)">Citește</button>
-        <button class="card-next" data-next="4">Următoarea știre <span class="card-next-icon">→</span></button>
+        <button class="card-next" data-next="5">Următoarea știre <span class="card-next-icon">→</span></button>
       </div>
     </div>
   </div>
 
-  <div class="slide sdk" data-theme="dark">
+  <div class="slide sdk" data-theme="dark" data-article-index="4" data-slide-label="Știrea 5">
     <div class="s-bg"><img src="https://resizer.ladbiblegroup.com/ogimage/v3/assets/bltcd74acc1d0a99f3a/blt3e5d5b3e8213eaf6/6ae14ee4d5e947556aeb2448/christina-applegate.jpg" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">Monden</span><span class="card-prog">5 / 5</span></div>
@@ -232,7 +258,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
       <div class="card-foot">
         <span class="card-meta">29 octombrie 2026 · LADbible</span>
         <button class="card-read" onclick="openModal(4)">Citește</button>
-        <button class="card-next" data-next="5">Încheie ediția <span class="card-next-icon">→</span></button>
+        <button class="card-next" data-next="6">Încheie ediția <span class="card-next-icon">→</span></button>
       </div>
     </div>
   </div>
@@ -240,7 +266,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
   <!--/SLIDES-->
 
   <div class="slide" id="ssub" data-theme="dark">
-    <span class="sub-label">ACQ Media · Hot · EDIȚIA ZILEI</span>
+    <span class="sub-label">ACQ Hot · EDIȚIA ZILEI</span>
     <h2 class="sub-title">Ai ajuns<br>la final.</h2>
     <p class="sub-sub">Alege altă secțiune sau caută știrile dintr-o zi anterioară.</p>
     <div class="end-links">
@@ -263,7 +289,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
 const ART=/*ART*/[{"tag": "Monden", "meta": "29 octombrie 2026 · Sursa: LADbible", "hed": "Ancheta privind decesul actriței Hayden Panettiere a fost închisă oficial de poliție", "body": "<p>Departamentul de Poliție din Greenville a anunțat în mod oficial închiderea anchetei referitoare la decesul actriței Hayden Panettiere, survenit în luna august în statul Carolina de Sud, la vârsta de 36 de ani. Oamenii legii au confirmat că investigația s-a finalizat pe baza concluziilor medicului legist.<\/p><p>Potrivit raportului prezentat anterior de biroul coronerului din comitatul Greenville, decesul a fost cauzat de efectele toxice ale mai multor substanțe medicamentoase și compuși găsiți în organism. Autoritățile au precizat încă de la început că nu au fost identificate semne de violență sau circumstanțe suspecte care să indice o crimă.<\/p><p>Actrița a devenit cunoscută publicului larg pentru rolurile din seriale de succes precum Heroes sau drama muzicală Nashville, având o carieră longevivă în industria de divertisment din Statele Unite. Decizia autorităților pune capăt speculațiilor apărute în mediul online referitoare la cauzele exacte ale tragediei.<\/p>"}, {"tag": "Monden", "meta": "29 octombrie 2026 · Sursa: CanCan", "hed": "Noi speculații în mediul online privind o posibilă despărțire între Victor Slav și Selina", "body": "<p>Relația dintre Victor Slav și partenera sa, Selina, a revenit în atenția publicului după ce aceasta a distribuit pe platformele de socializare câteva mesaje cu un puternic caracter reflexiv. Conținutul publicat a stârnit numeroase semne de întrebare în rândul urmăritorilor cu privire la starea actuală a cuplului.<\/p><p>Într-una dintre postări, Selina a făcut o comparație între generații în ceea ce privește decizia de a părăsi o relație nefericită sau de a lupta pentru menținerea ei. De asemenea, un alt mesaj a făcut referire la dezamăgirile provocate de persoane prefăcute întâlnite de-a lungul timpului.<\/p><p>Cei doi au mai trecut în trecut prin momente în care au șters imaginile comune de pe rețelele de socializare, generând zvonuri similare. Cu toate acestea, ei au continuat să apară împreună și au format o familie extinsă alături de fiica prezentatorului din mariajul anterior.<\/p>"}, {"tag": "Monden", "meta": "29 octombrie 2026 · Sursa: Unilad", "hed": "Demi Lovato, spitalizată de urgență din cauza unei alergii alimentare severe după cină", "body": "<p>Cântăreața americană Demi Lovato și-a alarmat fanii după ce a publicat pe o rețea de socializare o imagine dintr-o unitate medicală, având o branulă în braț. Artista în vârstă de 34 de ani a explicat că a suferit o reacție alergică bruscă în timpul unei mese, suspectând că aceasta a fost provocată de fructul pasiunii sau de sushi.<\/p><p>Incidentul medical a fost depășit rapid, vedeta revenind ulterior cu un mesaj în care și-a liniștit admiratorii, menționând că se simte bine și a părăsit spitalul. Reprezentanții asociațiilor de profil notează că alergiile alimentare dezvoltate la vârsta adultă reprezintă o problemă tot mai frecventă, care poate afecta persoanele fără un istoric medical anterior în acest sens.<\/p><p>Reacțiile alergice severe pot declanșa simptome periculoase, necesitând uneori intervenție medicală de urgență pentru a evita complicațiile majore. Evenimentul survine într-o perioadă aniversară importantă pentru artistă, atât pe plan personal, cât și profesional.<\/p>"}, {"tag": "Monden", "meta": "29 octombrie 2026 · Sursa: CanCan", "hed": "Incident neașteptat în noua locuință a Andreei Popescu: fiul cel mic a vopsit camera surorii sale", "body": "<p>Andreea Popescu a trecut prin momente neprevăzute în noua sa locuință, un penthouse în care s-a mutat alături de cei trei copii ai săi după separarea de Rareș Cojoc. Profitând de câteva momente de liniște, mezinul familiei, Alexie, a transformat dormitorul surorii sale într-un spațiu plin de urme de vopsea pe pereți și mobilier.<\/p><p>Întâmplarea a fost făcută publică de vedetă pe rețelele de socializare, unde a surprins atât pagubele provocate, cât și reacția fiicei sale, Anastasia, afectată de cele întâmplate. Locuința se află încă în etapa de finisare și organizare, iar curățarea suprafețelor a reprezentat o sarcină suplimentară pentru influenceriță.<\/p><p>Această schimbare de domiciliu face parte dintr-o etapă de reorganizare prin care a trecut Andreea Popescu după divorț, având ca scop asigurarea unui spațiu mai generos și confortabil pentru creșterea copiilor săi.<\/p>"}, {"tag": "Monden", "meta": "29 octombrie 2026 · Sursa: LADbible", "hed": "Actrița Christina Applegate susține că starea sa de sănătate s-a înrăutățit după un diagnostic greșit", "body": "<p>Actrița în vârstă de 54 de ani a declarat în cadrul unui podcast că se află din nou în punctul de plecare în ceea ce privește afecțiunea sa misterioasă. După ce în anul 2021 a fost diagnosticată cu scleroză multiplă în urma unor amorțeli la nivelul picioarelor, medicii i-au transmis recent că a fost vorba despre un diagnostic greșit.<\/p><p>Vestea nu a adus însă o ameliorare a stării sale, actrița precizând că simptomele s-au agravat considerabil. Aceasta a descris dificultățile cotidiene prin care trece, menționând că are nevoie de sprijin și de un dispozitiv ajutător pentru a se deplasa prin locuință și pentru a evita durerile intense.<\/p><p>Specialiștii în neurologie subliniază că erorile de diagnostic în cazul acestei afecțiuni pot apărea relativ des, deoarece nu există un test unic de confirmare, ci o listă complexă de criterii clinice. Între timp, vedeta continuă să discute deschis despre provocările cu care se confruntă zilnic.<\/p>"}]/*/ART*/;
 const track=document.getElementById('track');const nav=document.getElementById('nav');const pipsEl=document.getElementById('nav-pips');const hint=document.getElementById('hint');const slides=Array.from(document.querySelectorAll('#track > .slide'));const N=slides.length;let cur=0,busy=false;
 slides.forEach((s,i)=>s.style.top=(i*100)+'dvh');
-const pips=[];slides.forEach((_,i)=>{const b=document.createElement('button');b.className='pip'+(i===0?' on':'');b.setAttribute('aria-label','Știrea '+(i+1));b.onclick=()=>go(i);pipsEl.appendChild(b);pips.push(b);});
+const pips=[];slides.forEach((_,i)=>{const b=document.createElement('button');b.className='pip'+(i===0?' on':'');b.setAttribute('aria-label',slides[i].dataset.slideLabel||(slides[i].id==='ssub'?'Finalul ediției':'Ediția zilei'));b.classList.toggle('ad-pip',slides[i].dataset.slideKind==='advertisement');b.onclick=()=>go(i);pipsEl.appendChild(b);pips.push(b);});
 function go(idx){if(busy||idx===cur||idx<0||idx>=N)return;busy=true;const prev=cur;cur=idx;track.style.transform=`translateY(${-cur*100}dvh)`;slides[prev].classList.remove('on');setTimeout(()=>slides[cur].classList.add('on'),160);pips.forEach((p,i)=>p.classList.toggle('on',i===cur));nav.classList.toggle('light',slides[cur].dataset.theme==='light');if(cur>0)hint.classList.add('off');setTimeout(()=>{busy=false;},800);}
 slides[0].classList.add('on');
 document.querySelectorAll('.card-next[data-next]').forEach(b=>b.addEventListener('click',()=>go(parseInt(b.dataset.next))));
@@ -274,6 +300,23 @@ function openModal(i){const a=ART[i];document.getElementById('m-tag').textConten
 function closeModal(){document.getElementById('modal-ov').classList.remove('open');document.body.style.overflow='';}
 document.getElementById('modal-ov').addEventListener('click',function(e){if(e.target===this)closeModal();});
 setTimeout(()=>{const intro=document.getElementById('intro');intro.classList.add('exit');nav.classList.add('show');hint.classList.add('show');setTimeout(()=>{intro.style.display='none';},600);},1700);
+
+/* ACQ-ARTICLE-ROUTE: article indices are independent of inserted ad slides. */
+const requestedArticle = new URLSearchParams(location.search).get('articol');
+if(requestedArticle !== null && /^\d+$/.test(requestedArticle)){
+ const articleIndex=Number(requestedArticle);
+ const visualIndex=slides.findIndex(slide=>slide.dataset.articleIndex===String(articleIndex));
+ if(articleIndex>=0 && articleIndex<ART.length && visualIndex>=0){
+  document.getElementById('intro').style.display='none';
+  cur=visualIndex;track.style.transform=`translateY(${-cur*100}dvh)`;
+  slides.forEach((slide,index)=>slide.classList.toggle('on',index===cur));
+  pips.forEach((pip,index)=>pip.classList.toggle('on',index===cur));
+  nav.classList.add('show');nav.classList.toggle('light',slides[cur].dataset.theme==='light');
+  hint.classList.add('off');openModal(articleIndex);
+ }
+}
+document.addEventListener('keydown',event=>{if(event.key==='Escape')closeModal()});
+/* /ACQ-ARTICLE-ROUTE */
 </script>
 </body>
 </html>

@@ -19,6 +19,9 @@ on:
       - hot.html
       - news.html
       - music.html
+      - contact.html
+      - contact.css
+      - contact.js
       - .github/workflows/daily.yml
   schedule:
     - cron: "30 4 * * *"

@@ -5,6 +5,7 @@ e = html.escape
 ORDER = ["sport", "hot", "news", "music"]
 BRAND = "ACQ Media"
 NAME = {"sport": "Sport", "hot": "Hot", "news": "Știri", "music": "Muzică"}
+FOLDER_NAME = {"sport": "Sport", "hot": "Hot", "news": "News", "music": "Music"}
 COL = {"sport": "#22c55e", "hot": "#ef4444", "news": "#e8e8ed", "music": "#3b82f6"}
 FOLDER = {"sport": "#172b20", "hot": "#301d22", "news": "#222428", "music": "#19263a"}
 TITLE = {"sport": "Știri sportive de azi", "hot": "CanCan și showbiz de azi",
@@ -71,7 +72,7 @@ def day_page(base, iso, data):
                .replace("@@DATE@@", ro(iso)).replace("@@CHIPS@@", chips).replace("@@BODY@@", body))
 
 def home_card(category, entries):
-    label = NAME[category]
+    label = FOLDER_NAME[category]
     return (f'<a class="f" data-c="{category}" href="{category}.html" '
             f'aria-label="Deschide secțiunea {e(label)}">'
             f'<span class="folder-label" aria-hidden="true">{e(label)}</span></a>\n')
@@ -130,7 +131,8 @@ def run(site, cfg, iso, today):
     sub(ar, "<!--SEO-->", "<!--/SEO-->", head(u, t2, d2, archive_ld))
     sub(ar, "/*DATES*/", "/*/DATES*/", json.dumps({d: [c for c in ORDER if days[d].get(c)] for d in days}))
     sub(ar, "<!--LINKS-->", "<!--/LINKS-->", "".join(f'<li><a href="arhiva/{d}.html">{ro(d)}</a></li>' for d in sorted(days, reverse=True)))
-    urls = ([(base + "/", last)] + [(f"{base}/{p}.html", last) for p in ORDER + ["arhiva"]] + [(f"{base}/arhiva/{d}.html", d) for d in sorted(days)]) if base else []
+    extra_pages = ["arhiva"] + (["contact"] if (site / "contact.html").exists() else [])
+    urls = ([(base + "/", last)] + [(f"{base}/{p}.html", last) for p in ORDER + extra_pages] + [(f"{base}/arhiva/{d}.html", d) for d in sorted(days)]) if base else []
     (site / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
         "".join(f"<url><loc>{e(u)}</loc><lastmod>{m}</lastmod></url>\n" for u, m in urls) + "</urlset>\n", "utf-8")
     bots = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "PerplexityBot", "Google-Extended", "Applebot-Extended"]

@@ -27,3 +27,9 @@ Actions → Știri zilnice → Run workflow. Bifează „Doar republică fișier
 DNS: media.acq.ro CNAME acqstudio.github.io. Domeniul acq.ro rămâne la furnizorul său. În GitHub Pages este activată opțiunea Enforce HTTPS.
 
 Invitația de pe Home permite instalarea directă unde browserul oferă această funcție; pe iPhone explică Partajează → Adaugă pe ecranul principal, iar pe Mac pașii din Safari → Adaugă în Dock. Nu apare în modul aplicație și se poate amâna.
+
+## Publicitate
+
+Fiecare secțiune cu cel puțin două articole include un singur ecran de publicitate după al doilea articol, în aceeași derulare. Ecranul nu este numărat ca știre și nu schimbă articolul deschis prin link direct.
+
+Butonul deschide contact.html cu secțiunea preselectată. Formularul pregătește un mesaj către hello@acq.studio, adresa publică folosită și pe acq.ro. „Continuă în e-mail” deschide aplicația de e-mail; vizitatorul trimite mesajul de acolo. Site-ul nu afișează o confirmare falsă de livrare și nu stochează datele formularului.

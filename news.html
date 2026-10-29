@@ -132,6 +132,26 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
   .s-card{border-radius:var(--rlg);padding:22px 20px 20px;bottom:max(20px,3vh)}
   .m-body{padding:20px 20px 36px}
 }
+
+/* ACQ-HOUSE-AD */
+.ad-slide{display:grid;place-items:center;padding:96px 28px 70px;background:#111315;color:#f1f2f4}
+.ad-slide::before{display:none!important}
+.ad-panel{width:min(100%,660px);opacity:0;translate:0 18px;transition:opacity .65s var(--ease) .1s,translate .65s var(--ease) .1s}
+.slide.on .ad-panel{opacity:1;translate:0 0}
+.ad-kicker{margin:0 0 28px;color:#8d939b;font-size:10px;font-weight:600;letter-spacing:.16em;line-height:1.5;text-transform:uppercase}
+.ad-title{margin:0;color:#f1f2f4;font-size:clamp(42px,7vw,76px);font-weight:600;line-height:1.01;letter-spacing:-.065em}
+.ad-copy{max-width:43ch;margin:25px 0 0;color:#a2a8b1;font-size:16px;font-weight:400;line-height:1.65;letter-spacing:-.015em}
+.ad-actions{display:flex;align-items:center;flex-wrap:wrap;gap:17px 26px;margin-top:34px}
+.ad-cta{display:inline-flex;align-items:center;justify-content:space-between;gap:40px;min-height:50px;padding:0 20px;border:1px solid #e9ebee;border-radius:12px;background:#e9ebee;color:#17191d;text-decoration:none;font:inherit;font-size:13px;font-weight:600;transition:background .2s ease,transform .2s ease}
+.ad-cta:hover{background:#fff;transform:translateY(-2px)}
+.ad-slide .ad-continue{height:44px;padding:0;border:0;border-radius:0;background:none;color:#8e959f;box-shadow:none;font-size:12px;font-weight:500;cursor:pointer}
+.ad-slide .ad-continue:hover{color:#f1f2f4;transform:none}
+.ad-cta:focus-visible,.ad-continue:focus-visible,.pip:focus-visible{outline:2px solid #e6e9ee;outline-offset:6px}
+.pip{position:relative}.pip::before{position:absolute;inset:-12px -6px;content:''}
+.pip.ad-pip{height:5px;border:1px solid currentColor;border-radius:1px;color:var(--acc);background:transparent}.pip.ad-pip.on{width:16px;background:var(--acc);border-radius:2px}
+@media(max-width:600px){.ad-slide{padding:92px 25px 55px}.ad-kicker{margin-bottom:24px;font-size:9px}.ad-title{font-size:clamp(42px,12vw,62px)}.ad-copy{max-width:35ch;font-size:14px;margin-top:22px}.ad-actions{gap:15px 22px;margin-top:28px}.ad-cta{min-height:48px;padding:0 18px;gap:30px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){#intro{display:none!important}#nav{opacity:1;pointer-events:auto}#track,.ad-panel,.ad-cta,.ic{transition:none!important;animation:none!important}.ad-panel{opacity:1;translate:none}}
+/* /ACQ-HOUSE-AD */
 </style>
 <style>.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.arch-btn{display:inline-flex;align-items:center;margin-top:22px;padding:13px 22px;border:1px solid rgba(255,255,255,.2);border-radius:99px;color:rgba(255,255,255,.75);font-size:14px;font-weight:500;text-decoration:none;transition:background .2s,color .2s}.arch-btn:hover{background:rgba(255,255,255,.08);color:#fff}</style>
 <style>
@@ -143,22 +163,19 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
 .card-next{text-decoration:none}
 </style>
 <!--ACQ-SITE-UI-->
-<link rel="stylesheet" href="site-ui.css?v=20261029-1">
+<link rel="stylesheet" href="site-ui.css?v=20261029-8">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/acq.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" sizes="180x180">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ACQ Media">
-<script defer src="site-ui.js?v=20261029-1"></script>
+<script defer src="site-ui.js?v=20261029-8"></script>
 <!--/ACQ-SITE-UI-->
 </head>
 <body>
 <h1 class="sr">ACQ Media — Geopolitică și economie, știrile de azi</h1>
-<div id="intro"><div id="iw">
-    <span class="ic">A</span><span class="ic">C</span><span class="ic">Q</span>
-    <span class="ic lt" style="margin-left:.08em">M</span><span class="ic lt">e</span><span class="ic lt">d</span><span class="ic lt">i</span><span class="ic lt">a</span>
-  </div></div>
+<div id="intro" aria-hidden="true"><div id="iw"><span class="ic" style="animation-delay:0.040s">A</span><span class="ic" style="animation-delay:0.095s">C</span><span class="ic" style="animation-delay:0.150s">Q</span><span class="ic lt" style="animation-delay:0.205s;margin-left:.11em">N</span><span class="ic lt" style="animation-delay:0.260s">e</span><span class="ic lt" style="animation-delay:0.315s">w</span><span class="ic lt" style="animation-delay:0.370s">s</span></div></div>
 <nav id="nav">
   <a href="index.html" class="nav-logo">ACQ Media</a>
   <div id="nav-pips"></div>
@@ -167,7 +184,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
 <div id="hint" aria-hidden="true"></div>
 <div id="stage"><div id="track">
 <!--SLIDES-->
-  <div class="slide sdk" data-theme="dark">
+  <div class="slide sdk" data-theme="dark" data-article-index="0" data-slide-label="Știrea 1">
     <div class="s-bg"><img src="https://ichef.bbci.co.uk/ace/branded_news/1200/cpsprodpb/0364/live/44d987f0-d32a-11f1-b0c3-4b2ce0e9f02a.jpg" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">Economie</span><span class="card-prog">1 / 4</span></div>
@@ -181,7 +198,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
     </div>
   </div>
 
-  <div class="slide slt" data-theme="light">
+  <div class="slide slt" data-theme="light" data-article-index="1" data-slide-label="Știrea 2">
     <div class="s-bg"><img src="https://i.guim.co.uk/img/media/ad71578b038b0ab42d803f08e9b8040b19dbe096/1638_422_5023_4019/master/5023.jpg?width=1200&amp;height=630&amp;quality=85&amp;auto=format&amp;fit=crop&amp;precrop=40:21,offset-x50,offset-y0&amp;overlay-align=bottom%2Cleft&amp;overlay-width=100p&amp;overlay-base64=L2ltZy9zdGF0aWMvb3ZlcmxheXMvdGctbGl2ZS5wbmc&amp;enable=upscale&amp;s=b8e48ab28fd8d973ee0694a9d125c042" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">Politică</span><span class="card-prog">2 / 4</span></div>
@@ -190,12 +207,21 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
       <div class="card-foot">
         <span class="card-meta">29 octombrie 2026 · The Guardian</span>
         <button class="card-read" onclick="openModal(1)">Citește</button>
-        <button class="card-next" data-next="2">Următoarea știre <span class="card-next-icon">→</span></button>
+        <button class="card-next" data-next="2">Continuă <span class="card-next-icon">→</span></button>
       </div>
     </div>
   </div>
 
-  <div class="slide sdk" data-theme="dark">
+  <section class="slide ad-slide" data-theme="dark" data-slide-kind="advertisement" data-slide-label="Publicitate" aria-label="Publicitate — ACQ News">
+    <div class="ad-panel">
+      <p class="ad-kicker">Publicitate · ACQ News</p>
+      <h2 class="ad-title">Vrei un spot<br>publicitar?</h2>
+      <p class="ad-copy">Adu brandul tău în atenția cititorilor ACQ News. Spune-ne ce ai în plan și hai să găsim împreună formatul potrivit.</p>
+      <div class="ad-actions"><a class="ad-cta" href="contact.html?sectiune=news">Contactează-ne <span aria-hidden="true">↗</span></a><button class="card-next ad-continue" data-next="3" type="button">Continuă știrile <span aria-hidden="true">→</span></button></div>
+    </div>
+  </section>
+
+  <div class="slide sdk" data-theme="dark" data-article-index="2" data-slide-label="Știrea 3">
     <div class="s-bg"><img src="https://s.iw.ro/gateway/g/ZmlsZVNvdXJjZT1odHRwJTNBJTJGJTJG/c3RvcmFnZTA4dHJhbnNjb2Rlci5yY3Mt/cmRzLnJvJTJGc3RvcmFnZSUyRjIwMjYl/MkYxMCUyRjI5JTJGMzAzNTYyM18zMDM1/NjIzX0lEMjM2NzMyLUlOUVVBTS1QSE9U/T1MtU0FCSU4tQ0lSU1RPVkVBTlUuanBn/Jnc9MTIwMCZoPTYzMCZ6Yz0xJmhhc2g9/ZWNmMmRiNmI1ZDliNzIyMDZmYWY4NDM2ZDZjMWQ5M2M=.thumb.jpg" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">Economie</span><span class="card-prog">3 / 4</span></div>
@@ -204,12 +230,12 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
       <div class="card-foot">
         <span class="card-meta">29 octombrie 2026 · Digi24</span>
         <button class="card-read" onclick="openModal(2)">Citește</button>
-        <button class="card-next" data-next="3">Următoarea știre <span class="card-next-icon">→</span></button>
+        <button class="card-next" data-next="4">Următoarea știre <span class="card-next-icon">→</span></button>
       </div>
     </div>
   </div>
 
-  <div class="slide slt" data-theme="light">
+  <div class="slide slt" data-theme="light" data-article-index="3" data-slide-label="Știrea 4">
     <div class="s-bg"><img src="https://storage0.dms.mpinteractiv.ro/media/1/1481/22466/23270031/1/ministerul-finantelor-mfax.jpg" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">Economie</span><span class="card-prog">4 / 4</span></div>
@@ -218,14 +244,14 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-famil
       <div class="card-foot">
         <span class="card-meta">29 octombrie 2026 · Ziarul Financiar</span>
         <button class="card-read" onclick="openModal(3)">Citește</button>
-        <button class="card-next" data-next="4">Încheie ediția <span class="card-next-icon">→</span></button>
+        <button class="card-next" data-next="5">Încheie ediția <span class="card-next-icon">→</span></button>
       </div>
     </div>
   </div>
 
   <!--/SLIDES-->
   <div class="slide" id="ssub" data-theme="dark">
-    <span class="sub-label">ACQ Media · News · EDIȚIA ZILEI</span>
+    <span class="sub-label">ACQ News · EDIȚIA ZILEI</span>
     <h2 class="sub-title">Ai ajuns<br>la final.</h2>
     <p class="sub-sub">Alege altă secțiune sau caută știrile dintr-o zi anterioară.</p>
     <div class="end-links">
@@ -259,7 +285,7 @@ const ART=/*ART*/[{"tag": "Economie", "meta": "29 octombrie 2026 · Sursa: BBC N
 
 const track=document.getElementById('track');const nav=document.getElementById('nav');const pipsEl=document.getElementById('nav-pips');const hint=document.getElementById('hint');const slides=Array.from(document.querySelectorAll('#track > .slide'));const N=slides.length;let cur=0,busy=false;
 slides.forEach((s,i)=>s.style.top=(i*100)+'dvh');
-const pips=[];slides.forEach((_,i)=>{const b=document.createElement('button');b.className='pip'+(i===0?' on':'');b.setAttribute('aria-label','Știrea '+(i+1));b.onclick=()=>go(i);pipsEl.appendChild(b);pips.push(b);});
+const pips=[];slides.forEach((_,i)=>{const b=document.createElement('button');b.className='pip'+(i===0?' on':'');b.setAttribute('aria-label',slides[i].dataset.slideLabel||(slides[i].id==='ssub'?'Finalul ediției':'Ediția zilei'));b.classList.toggle('ad-pip',slides[i].dataset.slideKind==='advertisement');b.onclick=()=>go(i);pipsEl.appendChild(b);pips.push(b);});
 function go(idx){if(busy||idx===cur||idx<0||idx>=N)return;busy=true;const prev=cur;cur=idx;track.style.transform=`translateY(${-cur*100}dvh)`;slides[prev].classList.remove('on');setTimeout(()=>slides[cur].classList.add('on'),160);pips.forEach((p,i)=>p.classList.toggle('on',i===cur));nav.classList.toggle('light',slides[cur].dataset.theme==='light');if(cur>0)hint.classList.add('off');setTimeout(()=>{busy=false;},800);}
 slides[0].classList.add('on');
 document.querySelectorAll('.card-next[data-next]').forEach(b=>b.addEventListener('click',()=>go(parseInt(b.dataset.next))));
@@ -271,15 +297,24 @@ function closeModal(){document.getElementById('modal-ov').classList.remove('open
 document.getElementById('modal-ov').addEventListener('click',function(e){if(e.target===this)closeModal();});
 setTimeout(()=>{const intro=document.getElementById('intro');intro.classList.add('exit');nav.classList.add('show');hint.classList.add('show');setTimeout(()=>{intro.style.display='none';},600);},1700);
 loadImgs();
+
+
+/* ACQ-ARTICLE-ROUTE: article indices are independent of inserted ad slides. */
 const requestedArticle = new URLSearchParams(location.search).get('articol');
 if(requestedArticle !== null && /^\d+$/.test(requestedArticle)){
  const articleIndex=Number(requestedArticle);
- if(articleIndex>=0 && articleIndex<ART.length){
+ const visualIndex=slides.findIndex(slide=>slide.dataset.articleIndex===String(articleIndex));
+ if(articleIndex>=0 && articleIndex<ART.length && visualIndex>=0){
   document.getElementById('intro').style.display='none';
-  nav.classList.add('show');go(articleIndex);openModal(articleIndex);
+  cur=visualIndex;track.style.transform=`translateY(${-cur*100}dvh)`;
+  slides.forEach((slide,index)=>slide.classList.toggle('on',index===cur));
+  pips.forEach((pip,index)=>pip.classList.toggle('on',index===cur));
+  nav.classList.add('show');nav.classList.toggle('light',slides[cur].dataset.theme==='light');
+  hint.classList.add('off');openModal(articleIndex);
  }
 }
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeModal()});
+/* /ACQ-ARTICLE-ROUTE */
 </script>
 </body>
 </html>
