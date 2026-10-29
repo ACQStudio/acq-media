@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <!--SEO-->
 <title>Arhiva știrilor | ACQ Media</title>
-<meta name="description" content="Alege o zi din calendar și vezi știrile publicate atunci: Sport, Hot, News și Music.">
+<meta name="description" content="Alege o zi din calendar și vezi știrile publicate atunci: Sport, Hot, Știri și Muzică.">
 <link rel="canonical" href="https://media.acq.ro/arhiva.html">
-<meta property="og:type" content="website"><meta property="og:title" content="Arhiva știrilor | ACQ Media"><meta property="og:description" content="Alege o zi din calendar și vezi știrile publicate atunci: Sport, Hot, News și Music."><meta property="og:url" content="https://media.acq.ro/arhiva.html"><meta property="og:locale" content="ro_RO"><meta property="og:site_name" content="ACQ Media">
+<meta property="og:type" content="website"><meta property="og:title" content="Arhiva știrilor | ACQ Media"><meta property="og:description" content="Alege o zi din calendar și vezi știrile publicate atunci: Sport, Hot, Știri și Muzică."><meta property="og:url" content="https://media.acq.ro/arhiva.html"><meta property="og:locale" content="ro_RO"><meta property="og:site_name" content="ACQ Media">
 <meta name="twitter:card" content="summary"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "CollectionPage", "name": "Arhiva știrilor | ACQ Media", "inLanguage": "ro", "description": "Alege o zi din calendar și vezi știrile publicate atunci: Sport, Hot, News și Music.", "url": "https://media.acq.ro/arhiva.html"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "CollectionPage", "name": "Arhiva știrilor | ACQ Media", "inLanguage": "ro", "description": "Alege o zi din calendar și vezi știrile publicate atunci: Sport, Hot, Știri și Muzică.", "url": "https://media.acq.ro/arhiva.html"}</script>
 <!--/SEO-->
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -38,6 +38,16 @@ details{margin-top:30px}summary{cursor:pointer;color:rgba(255,255,255,.6)}
 details ul{margin-top:10px;columns:2;list-style:none}details li{padding:3px 0}
 @media(max-width:520px){body{padding-left:18px;padding-right:18px}.d{padding:6px;font-size:12px;border-radius:11px}.mini{gap:2px;width:64%}}
 </style>
+<!--ACQ-SITE-UI-->
+<link rel="stylesheet" href="site-ui.css?v=20261029-1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/acq.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" sizes="180x180">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ACQ Media">
+<script defer src="site-ui.js?v=20261029-1"></script>
+<!--/ACQ-SITE-UI-->
 </head>
 <body>
 <div class="wrap">
@@ -46,7 +56,7 @@ details ul{margin-top:10px;columns:2;list-style:none}details li{padding:3px 0}
   <div class="bar"><h2 id="month"></h2><button id="today">Azi</button><button id="prev" aria-label="Luna anterioară">‹</button><button id="next" aria-label="Luna următoare">›</button></div>
   <div class="grid" id="grid"></div>
   <p class="hint">Fiecare pătrățel colorat arată o secțiune cu știri în ziua respectivă.</p>
-  <div class="leg"><span style="--c:#22c55e"><i></i>Sport</span><span style="--c:#ef4444"><i></i>Hot</span><span style="--c:#e8e8ed"><i></i>News</span><span style="--c:#3b82f6"><i></i>Music</span></div>
+  <div class="leg"><span style="--c:#22c55e"><i></i>Sport</span><span style="--c:#ef4444"><i></i>Hot</span><span style="--c:#e8e8ed"><i></i>Știri</span><span style="--c:#3b82f6"><i></i>Muzică</span></div>
   <p class="empty" id="empty" hidden>Arhiva începe cu prima ediție publicată. Revino după următoarea actualizare zilnică.</p>
   <details><summary>Toate zilele</summary><ul><!--LINKS--><li><a href="arhiva/2026-10-29.html">29 octombrie 2026</a></li><!--/LINKS--></ul></details>
 </div>

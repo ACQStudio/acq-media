@@ -1,4 +1,4 @@
-name: Gemini API smoke test
+name: Verifică cheia Gemini
 
 on:
   workflow_dispatch:
@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - name: Send one minimal Gemini request
+      - name: Trimite o singură cerere de verificare
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: gemini-3.8-flash
+          GEMINI_MODEL: gemini-3.5-flash-lite
         run: |
           python - <<'PY'
           import json
@@ -46,11 +46,11 @@ jobs:
                   detail = json.loads(error.read().decode("utf-8")).get("error", {}).get("message", "")
               except Exception:
                   detail = ""
-              print(f"Gemini API returned HTTP {error.code}: {detail or 'request failed'}")
+              print(f"Gemini API a răspuns cu HTTP {error.code}: {detail or 'cererea a eșuat'}")
               sys.exit(1)
 
           if not isinstance(result, dict):
-              print("Gemini returned a response that is not a JSON object.")
+              print("Gemini a răspuns cu un conținut care nu este un obiect JSON.")
               sys.exit(1)
 
           answer = "".join(
@@ -59,10 +59,10 @@ jobs:
               for part in candidate.get("content", {}).get("parts", [])
           )
           if "ACQ_OK" not in answer:
-              print(f"Gemini returned HTTP 200 but not the expected test response: {answer!r}")
+              print(f"Gemini a răspuns cu HTTP 200, dar nu cu textul de verificare așteptat: {answer!r}")
               sys.exit(1)
 
           usage = result.get("usageMetadata", {})
-          print(f"Gemini API key accepted; {model} returned the expected response in one request.")
-          print(f"Tokens: {usage.get('promptTokenCount', 'n/a')} input, {usage.get('candidatesTokenCount', 'n/a')} output.")
+          print(f"Cheia Gemini API a fost acceptată; modelul {model} a răspuns corect într-o singură cerere.")
+          print(f"Tokenuri: {usage.get('promptTokenCount', 'n/a')} la intrare, {usage.get('candidatesTokenCount', 'n/a')} la ieșire.")
           PY

@@ -1,5 +1,5 @@
 {
- "model": "gemini-3.8-flash",
+ "model": "gemini-3.5-flash-lite",
  "use_source_images": true,
  "categories": {
   "sport": {
@@ -7,6 +7,7 @@
    "meta_key": "src",
    "brief": "Știri sportive din România și din lume: fotbal și cupele europene, tenis, Formula 1 și evenimente sportive majore. Prioritizează rezultate și informații confirmate; evită zvonurile de transfer.",
    "feeds": [
+    {"url": "https://news.soldoutmedia.ro/rss.xml", "categories": ["Sport"]},
     "https://feeds.bbci.co.uk/sport/rss.xml",
     "https://www.theguardian.com/football/rss",
     "https://www.skysports.com/rss/12040"
@@ -22,8 +23,9 @@
   "hot": {
    "file": "hot.html",
    "meta_key": "meta",
-    "brief": "Știri de cancan din România, cu accent pe vedete, showbiz, relații și evenimente mondene. Selectează exclusiv articole de pe CanCan.ro și prioritizează cele mai noi; nu include știri generale, politică sau bârfe neverificate. Atribuie explicit sursei acuzațiile și confirmă doar informațiile susținute de articol.",
+    "brief": "Știri de cancan și showbiz din România și din lume, cu accent pe vedete, relații și evenimente mondene. Folosește CanCan.ro și categoria Entertainment din SOM NEWS și prioritizează știrile relevante recente; nu include știri generale, economie, politică sau bârfe neverificate. Atribuie explicit sursei acuzațiile și confirmă doar informațiile susținute de articol.",
    "feeds": [
+    {"url": "https://news.soldoutmedia.ro/rss.xml", "categories": ["Entertainment"]},
       "https://www.cancan.ro/rss"
    ],
    "fallback_images": [
@@ -39,6 +41,7 @@
    "meta_key": "meta",
     "brief": "Politică, geopolitică și afaceri din România și din lume: decizii guvernamentale, alegeri, relații internaționale, conflicte, economie, companii, bănci, energie și piețe. Prioritizează impactul concret și separă clar faptele de opinii.",
    "feeds": [
+    {"url": "https://news.soldoutmedia.ro/rss.xml", "categories": ["Internațional", "Trending", "Tech & AI"]},
     "https://feeds.bbci.co.uk/news/world/rss.xml",
     "https://feeds.bbci.co.uk/news/business/rss.xml",
     "https://www.theguardian.com/world/rss",
@@ -60,6 +63,7 @@
    "meta_key": "meta",
     "brief": "Muzică și industria entertainmentului, inclusiv România: artiști, lansări, albume, turnee, concerte, festivaluri, premii, case de discuri, streaming și business. Evită știrile generale de film și televiziune dacă nu au legătură cu muzica.",
    "feeds": [
+    {"url": "https://news.soldoutmedia.ro/rss.xml", "categories": ["Muzică", "Entertainment"]},
     "https://www.theguardian.com/music/rss",
     "https://www.nme.com/feed",
     "https://pitchfork.com/feed/feed-news/rss",

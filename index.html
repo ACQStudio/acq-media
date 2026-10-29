@@ -3,113 +3,96 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<meta name="theme-color" content="#090a0c"/>
+<meta name="theme-color" content="#0b0c0e"/>
 <!--SEO-->
 <title>ACQ Media — Știrile zilei, pe scurt</title>
-<meta name="description" content="Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală.">
+<meta name="description" content="Cele mai importante știri de azi, în Sport, Hot, Știri și Muzică. Pe scurt, cu sursa originală.">
 <link rel="canonical" href="https://media.acq.ro/">
-<meta property="og:type" content="website"><meta property="og:title" content="ACQ Media — Știrile zilei, pe scurt"><meta property="og:description" content="Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală."><meta property="og:url" content="https://media.acq.ro/"><meta property="og:locale" content="ro_RO"><meta property="og:site_name" content="ACQ Media">
+<meta property="og:type" content="website"><meta property="og:title" content="ACQ Media — Știrile zilei, pe scurt"><meta property="og:description" content="Cele mai importante știri de azi, în Sport, Hot, Știri și Muzică. Pe scurt, cu sursa originală."><meta property="og:url" content="https://media.acq.ro/"><meta property="og:locale" content="ro_RO"><meta property="og:site_name" content="ACQ Media">
 <meta name="twitter:card" content="summary"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "ACQ Media", "inLanguage": "ro", "description": "Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală.", "url": "https://media.acq.ro/", "publisher": {"@type": "Organization", "name": "ACQ Media", "url": "https://media.acq.ro/"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "ACQ Media", "inLanguage": "ro", "description": "Cele mai importante știri de azi, în Sport, Hot, Știri și Muzică. Pe scurt, cu sursa originală.", "url": "https://media.acq.ro/", "publisher": {"@type": "Organization", "name": "ACQ Media", "url": "https://media.acq.ro/"}}</script>
 <!--/SEO-->
-<link rel="stylesheet" href="home.css"/>
+<link rel="stylesheet" href="site-ui.css?v=20261029-2"/>
+<link rel="stylesheet" href="home.css?v=20261029-4"/>
+<link rel="manifest" href="manifest.webmanifest"/>
+<link rel="icon" href="icons/acq.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="ACQ Media"/>
+<script defer src="site-ui.js?v=20261029-2"></script>
 </head>
 <body>
-<main class="wrap">
-<header class="topbar"><a class="brand" href="./">ACQ Media</a><span class="brand-note">Briefing zilnic</span><button class="customize" id="edit" type="button">Personalizează</button></header>
-<section class="intro" aria-labelledby="page-title"><p class="eyebrow">Ediția zilei</p><h1 id="page-title">Azi, esențialul.</h1><p class="date" id="date"></p><p class="intro-note">Patru secțiuni. Cele mai importante povești, alese pentru tine.</p></section>
-<div class="deck-wrap">
-<section class="wallet-deck" id="stack" aria-label="Secțiuni"><!--CARDS-->
-<a class="f" data-c="sport" data-empty="false" data-state="ready" href="sport.html" style="--c:#22c55e"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Sport</b><span class="k">2 știri azi</span><span class="topic">Fotbal · tenis · Formula 1</span><span class="h">How unbeaten Chelsea are getting back to their best</span><span class="h">Howe, Nagelsmann, Pochettino: can anyone end Manchester United’s doom loop?</span></span></a>
-<a class="f" data-c="hot" data-empty="false" data-state="ready" href="hot.html" style="--c:#ef4444"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Hot</b><span class="k">2 știri azi</span><span class="topic">CanCan · showbiz</span><span class="h">Răzvan Kovacs a făcut anunțul după întâlnirea cu Ema Oprișan. Ce se întâmplă cu divorțul lor</span><span class="h">CNA a sancționat dur Antena 1. Insula Iubirii, somată să se mute la ora 23:00 de săptămâna viit</span></span></a>
-<a class="f" data-c="news" data-empty="false" data-state="ready" href="news.html" style="--c:#e8e8ed"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">News</b><span class="k">2 știri azi</span><span class="topic">Politică · geopolitică · afaceri</span><span class="h">Girl seriously injured in wolf attack at German wildlife park</span><span class="h">A US woman feared dead was reported alive in Mexico. But police now say that isn’t true</span></span></a>
-<a class="f" data-c="music" data-empty="false" data-state="ready" href="music.html" style="--c:#3b82f6"><span class="tab"></span><span class="bk"></span><span class="fr"><b class="n">Music</b><span class="k">2 știri azi</span><span class="topic">Muzică · industria entertainmentului</span><span class="h">‘It’s not my pain. There’s a responsibility in that’: Thea Gilmore on writing songs from anonym</span><span class="h">Cliff Richard doesn’t know what ‘GTA 6’ is – despite ‘Devil Woman’ sync resurgence</span></span></a>
+<div class="wrap">
+<header class="topbar"><a class="brand" href="./">ACQ Media</a><button class="customize" id="edit" type="button" aria-haspopup="dialog" aria-controls="sheet">Personalizează</button></header>
+<main>
+<section class="intro" aria-labelledby="page-title"><p class="eyebrow">Ediția zilei</p><h1 id="page-title">Azi, pe scurt.</h1><p class="date" id="date">Ediția de azi</p></section>
+<section class="section-grid" id="sections" aria-label="Secțiunile de azi"><!--CARDS-->
+<a class="f" data-c="sport" href="sport.html" aria-label="Deschide secțiunea Sport" style="--folder:#172b20"><span class="folder-label" aria-hidden="true">Sport</span></a>
+<a class="f" data-c="hot" href="hot.html" aria-label="Deschide secțiunea Hot" style="--folder:#301d22"><span class="folder-label" aria-hidden="true">Hot</span></a>
+<a class="f" data-c="news" href="news.html" aria-label="Deschide secțiunea Știri" style="--folder:#222428"><span class="folder-label" aria-hidden="true">Știri</span></a>
+<a class="f" data-c="music" href="music.html" aria-label="Deschide secțiunea Muzică" style="--folder:#19263a"><span class="folder-label" aria-hidden="true">Muzică</span></a>
 <!--/CARDS--></section>
-<nav class="deck-nav" aria-label="Navighează între secțiuni"><button type="button" id="previous" aria-label="Secțiunea anterioară">←</button><span id="deck-label" aria-live="polite"></span><button type="button" id="next" aria-label="Secțiunea următoare">→</button></nav>
-<a class="archive" href="arhiva.html"><span class="archive-title">Arhivă</span><span class="archive-note">Răsfoiește zilele trecute</span><span class="archive-arrow" aria-hidden="true">↗</span></a>
-</div>
+<a class="archive" href="arhiva.html"><span class="archive-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="15" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10.5h16M8 14.5h3M8 17.5h6"/></svg></span><span class="archive-copy"><span class="archive-title">Arhivă</span><span class="archive-note">Toate edițiile, zi de zi.</span></span><span class="archive-arrow" aria-hidden="true">↗</span></a>
 </main>
-<div id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-title"><div class="sheet"><h2 id="sheet-title">Ce vrei să vezi?</h2><p>Secțiunile bifate rămân în teanc. Alegerea se păstrează pe acest dispozitiv.</p>
-<label class="sw" style="--c:#22c55e">Sport<input type="checkbox" value="sport"/><i></i></label>
-<label class="sw" style="--c:#ef4444">Hot<input type="checkbox" value="hot"/><i></i></label>
-<label class="sw" style="--c:#e8e8ed">News<input type="checkbox" value="news"/><i></i></label>
-<label class="sw" style="--c:#3b82f6">Music<input type="checkbox" value="music"/><i></i></label>
-<button class="done" id="done" type="button">Gata</button></div></div>
+</div>
+<dialog id="sheet" aria-labelledby="sheet-title"><form method="dialog" class="sheet">
+<div class="sheet-heading"><h2 id="sheet-title">Ce vrei să vezi?</h2><button class="sheet-close" value="close" aria-label="Închide personalizarea">×</button></div>
+<p>Alege secțiunile care apar pe prima pagină. Alegerea se păstrează pe acest dispozitiv.</p>
+<label class="sw" style="--c:#79ba93">Sport<input type="checkbox" value="sport"/><i aria-hidden="true"></i></label>
+<label class="sw" style="--c:#eb959b">Hot<input type="checkbox" value="hot"/><i aria-hidden="true"></i></label>
+<label class="sw" style="--c:#f2f2f5">Știri<input type="checkbox" value="news"/><i aria-hidden="true"></i></label>
+<label class="sw" style="--c:#8eafe2">Muzică<input type="checkbox" value="music"/><i aria-hidden="true"></i></label>
+<p id="prefs-status" role="status" aria-live="polite"></p><button class="done" type="submit" value="done">Gata</button>
+</form></dialog>
 <script>
-const $=selector=>document.querySelector(selector);
-const $$=selector=>[...document.querySelectorAll(selector)];
-const sections=$$('#stack .f[data-c]');
-const checkboxes=$$('#sheet input[type="checkbox"]');
-const stack=$('#stack');
-const label=$('#deck-label');
-const sheet=$('#sheet');
-const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
-const sectionNames={sport:'Sport',hot:'Hot',news:'News',music:'Music'};
-const dateText=new Intl.DateTimeFormat('ro-RO',{timeZone:'Europe/Bucharest',weekday:'long',day:'numeric',month:'long'}).format(new Date());
-$('#date').textContent=dateText;
-let enabled=[];
-try{enabled=JSON.parse(localStorage.getItem('acq.cats')||'[]')}catch(error){}
-if(!Array.isArray(enabled))enabled=[];
-enabled=enabled.filter(value=>sections.some(card=>card.dataset.c===value));
-if(!enabled.length)enabled=sections.map(card=>card.dataset.c);
-let active=sections[0]?.dataset.c||'sport';
-let suppressCardClickUntil=0;
-function visibleSections(){return sections.filter(card=>!card.hidden)}
-function setActive(step){const visible=visibleSections();if(!visible.length)return;let index=visible.findIndex(card=>card.dataset.c===active);if(index<0)index=0;active=visible[(index+step+visible.length)%visible.length].dataset.c;paint()}
-function paint(){
- const visible=visibleSections();
- if(!visible.some(card=>card.dataset.c===active))active=visible[0]?.dataset.c||'';
- const current=visible.findIndex(card=>card.dataset.c===active);
- const hasStories=visible.some(card=>card.dataset.empty!=='true');
- const height=parseFloat(getComputedStyle(document.documentElement).getPropertyValue(hasStories?'--card-height':'--empty-height'))||210;
- const gap=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--deck-gap'))||14;
- stack.style.setProperty('--card-height-active',height+'px');
- stack.style.setProperty('--deck-size',(height+Math.max(0,visible.length-1)*gap+8)+'px');
- visible.forEach((card,index)=>{
-  const depth=(index-current+visible.length)%visible.length;
-  const y=depth*gap;
-  const scale=(1-depth*.014).toFixed(3);
-  const angle=depth?((depth%2?-1:1)*Math.ceil(depth/2)*.12)+'deg':'0deg';
-  card.style.setProperty('--offset-y',y+'px');
-  card.style.setProperty('--stack-scale',scale);
-  card.style.setProperty('--stack-rotate',angle);
-  card.style.zIndex=String(visible.length-depth);
-  card.classList.toggle('active',depth===0);
-  card.tabIndex=depth===0?0:-1;
-  card.setAttribute('aria-current',depth===0?'true':'false');
+(() => {
+ const cards=[...document.querySelectorAll('#sections .f[data-c]')];
+ const checkboxes=[...document.querySelectorAll('#sheet input[type="checkbox"]')];
+ const sheet=document.querySelector('#sheet');
+ const edit=document.querySelector('#edit');
+ const status=document.querySelector('#prefs-status');
+ const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+ document.querySelector('#date').textContent=new Intl.DateTimeFormat('ro-RO',{timeZone:'Europe/Bucharest',weekday:'long',day:'numeric',month:'long'}).format(new Date());
+ const all=cards.map(card=>card.dataset.c);
+ let enabled=[];
+ try{enabled=JSON.parse(localStorage.getItem('acq.cats')||'[]')}catch(error){}
+ if(!Array.isArray(enabled))enabled=[];
+ enabled=enabled.filter(value=>all.includes(value));
+ if(!enabled.length)enabled=[...all];
+ function applyPreferences(){
+  cards.forEach(card=>{card.hidden=!enabled.includes(card.dataset.c)});
+  checkboxes.forEach(box=>{box.checked=enabled.includes(box.value)});
+ }
+ function savePreferences(){try{localStorage.setItem('acq.cats',JSON.stringify(enabled))}catch(error){}}
+ checkboxes.forEach(box=>box.addEventListener('change',()=>{
+  const selected=checkboxes.filter(input=>input.checked).map(input=>input.value);
+  if(!selected.length){box.checked=true;status.textContent='Păstrează cel puțin o secțiune.';return}
+  status.textContent='';enabled=selected;savePreferences();applyPreferences();
+ }));
+ edit.addEventListener('click',()=>{
+  status.textContent='';
+  if(typeof sheet.showModal==='function')sheet.showModal();else sheet.setAttribute('open','');
+  document.body.classList.add('modal-open');
  });
- label.textContent=current<0?'':sectionNames[active]+' · '+(current+1)+' / '+visible.length;
-}
-function applyPreferences(){sections.forEach(card=>{card.hidden=!enabled.includes(card.dataset.c)});checkboxes.forEach(box=>{box.checked=enabled.includes(box.value)});paint()}
-function savePreferences(){try{localStorage.setItem('acq.cats',JSON.stringify(enabled))}catch(error){}}
-checkboxes.forEach(box=>box.addEventListener('change',()=>{
- const selected=checkboxes.filter(item=>item.checked).map(item=>item.value);
- if(!selected.length){box.checked=true;return}
- enabled=selected;savePreferences();applyPreferences();
-}));
-$('#previous').addEventListener('click',()=>setActive(-1));
-$('#next').addEventListener('click',()=>setActive(1));
-$('#stack').addEventListener('pointerdown',event=>{if(event.pointerType==='touch')stack.dataset.startX=String(event.clientX)});
-$('#stack').addEventListener('pointerup',event=>{
- if(event.pointerType!=='touch'||stack.dataset.startX===undefined)return;
- const delta=event.clientX-Number(stack.dataset.startX);delete stack.dataset.startX;
- if(Math.abs(delta)>48){suppressCardClickUntil=Date.now()+400;setActive(delta<0?1:-1)}
-});
-$('#stack').addEventListener('click',event=>{if(Date.now()<suppressCardClickUntil&&event.target.closest('.f[data-c]')){event.preventDefault();event.stopPropagation()}} ,true);
-sections.forEach(card=>card.addEventListener('click',event=>{
- if(Date.now()<suppressCardClickUntil||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||reduceMotion.matches)return;
- event.preventDefault();card.classList.add('opening');window.setTimeout(()=>window.location.assign(card.href),220);
-}));
-document.addEventListener('keydown',event=>{if(event.key==='ArrowRight')setActive(1);if(event.key==='ArrowLeft')setActive(-1)});
-let previousFocus=null;
-function openSheet(){previousFocus=document.activeElement;sheet.hidden=false;requestAnimationFrame(()=>{sheet.classList.add('on');checkboxes[0]?.focus()})}
-function closeSheet(){sheet.classList.remove('on');window.setTimeout(()=>{sheet.hidden=true;previousFocus?.focus()},200)}
-$('#edit').addEventListener('click',openSheet);
-$('#done').addEventListener('click',closeSheet);
-sheet.addEventListener('click',event=>{if(event.target===sheet)closeSheet()});
-document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!sheet.hidden)closeSheet()});
-window.addEventListener('resize',paint,{passive:true});
-applyPreferences();
+ function closeSheet(){
+  if(typeof sheet.close==='function')sheet.close();else{sheet.removeAttribute('open');document.body.classList.remove('modal-open');edit.focus()}
+ }
+ sheet.addEventListener('close',()=>{document.body.classList.remove('modal-open');edit.focus()});
+ sheet.addEventListener('click',event=>{
+  if(event.target!==sheet)return;
+  const rect=sheet.getBoundingClientRect();
+  if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)closeSheet();
+ });
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&sheet.open&&typeof sheet.showModal!=='function')closeSheet()});
+ applyPreferences();
+ if('IntersectionObserver' in window&&!reducedMotion.matches){
+  const observer=new IntersectionObserver(entries=>{
+   entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in-view');observer.unobserve(entry.target);window.setTimeout(()=>entry.target.style.removeProperty('transition-delay'),750)}});
+  },{threshold:.08,rootMargin:'0px 0px -18px 0px'});
+  cards.forEach((card,index)=>{card.classList.add('reveal');card.style.transitionDelay=(index%2)*60+'ms';observer.observe(card)});
+ }
+})();
 </script>
 </body>
 </html>

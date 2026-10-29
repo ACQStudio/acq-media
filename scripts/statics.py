@@ -4,16 +4,17 @@ from pathlib import Path
 e = html.escape
 ORDER = ["sport", "hot", "news", "music"]
 BRAND = "ACQ Media"
-NAME = {"sport": "Sport", "hot": "Hot", "news": "News", "music": "Music"}
+NAME = {"sport": "Sport", "hot": "Hot", "news": "Știri", "music": "Muzică"}
 COL = {"sport": "#22c55e", "hot": "#ef4444", "news": "#e8e8ed", "music": "#3b82f6"}
-TITLE = {"sport": "Știri sportive de azi", "hot": "Cancan și showbiz de azi",
-         "news": "Politică, geopolitică și afaceri, știrile de azi", "music": "Muzică și industria entertainmentului, știrile de azi"}
+FOLDER = {"sport": "#172b20", "hot": "#301d22", "news": "#222428", "music": "#19263a"}
+TITLE = {"sport": "Știri sportive de azi", "hot": "CanCan și showbiz de azi",
+         "news": "Politică, geopolitică și afaceri, știrile de azi", "music": "Muzică și industria divertismentului, știrile de azi"}
 DESC = {"sport": "Cele mai importante știri sportive ale zilei: fotbal, tenis, Formula 1 și rezultate majore, pe scurt, cu sursa originală.",
         "hot": "Știri CanCan de azi despre vedete și showbiz, pe scurt și cu link către sursa originală.",
         "news": "Știri de politică, geopolitică și afaceri din România și din lume, pe scurt, cu sursa originală.",
-        "music": "Știri despre muzică și industria entertainmentului: artiști, lansări, turnee, concerte și business, cu sursa originală."}
+        "music": "Știri despre muzică și industria divertismentului: artiști, lansări, turnee, concerte și afaceri, cu sursa originală."}
 TOPIC = {"sport": "Fotbal · tenis · Formula 1", "hot": "CanCan · showbiz", "news": "Politică · geopolitică · afaceri",
-         "music": "Muzică · industria entertainmentului"}
+         "music": "Muzică · industria divertismentului"}
 LUNI = "ianuarie februarie martie aprilie mai iunie iulie august septembrie octombrie noiembrie decembrie".split()
 def ro(iso): y, m, d = map(int, iso.split("-")); return f"{d} {LUNI[m-1]} {y}"
 
@@ -64,10 +65,16 @@ def day_page(base, iso, data):
         f'</details><p class="src">Sursa: <a href="{e(it["link"])}" rel="noopener" target="_blank">{e(it["source"])}</a></p></article>' for it in data[c]) + "</section>" for c in cats)
     chips = "".join(f'<button aria-pressed="true" data-c="{c}" style="--c:{COL[c]}">{NAME[c]}</button>' for c in cats)
     allitems = [it for c in cats for it in data[c]]
-    title, desc = f"Știrile din {ro(iso)} | {BRAND}", f"Cele mai importante știri din {ro(iso)} la Sport, Hot, News și Music."
+    title, desc = f"Știrile din {ro(iso)} | {BRAND}", f"Cele mai importante știri din {ro(iso)} la Sport, Hot, Știri și Muzică."
     day_url = f"{base}/arhiva/{iso}.html" if base else ""
     return (DAY.replace("@@HEAD@@", head(day_url, title, desc, page_ld(base, day_url, title, desc, allitems, iso)))
                .replace("@@DATE@@", ro(iso)).replace("@@CHIPS@@", chips).replace("@@BODY@@", body))
+
+def home_card(category, entries):
+    label = NAME[category]
+    return (f'<a class="f" data-c="{category}" href="{category}.html" '
+            f'aria-label="Deschide secțiunea {e(label)}" style="--folder:{FOLDER[category]}">'
+            f'<span class="folder-label" aria-hidden="true">{e(label)}</span></a>\n')
 
 def run(site, cfg, iso, today):
     base = site_base(cfg)
@@ -80,19 +87,9 @@ def run(site, cfg, iso, today):
     for c in ORDER:   # SEO pe paginile de secțiune
         t = f"{BRAND} {NAME[c]} — {TITLE[c]}"; u = f"{base}/{c}.html" if base else ""
         sub(site / f"{c}.html", "<!--SEO-->", "<!--/SEO-->", head(u, t, DESC[c], page_ld(base, u, t, DESC[c], today.get(c, []), iso)))
-    cards = ""   # folderele din index; doar ediția de azi, fără titluri vechi prezentate ca noi
-    for c in ORDER:
-        its = today.get(c, [])
-        count = len(its)
-        count_text = "știre" if count == 1 else "știri"
-        hs = "".join(f'<span class="h">{e(x["hed"])}</span>' for x in its[:2]) or '<span class="h">Ediția de azi nu este încă disponibilă.</span>'
-        state = "empty" if not its else "ready"
-        empty = "true" if not its else "false"
-        card_class = "f no-news" if not its else "f"
-        cards += (f'<a class="{card_class}" data-c="{c}" data-empty="{empty}" data-state="{state}" href="{c}.html" style="--c:{COL[c]}"><span class="tab"></span><span class="bk"></span>'
-                  f'<span class="fr"><b class="n">{NAME[c]}</b><span class="k">{count} {count_text} azi</span><span class="topic">{TOPIC[c]}</span>{hs}</span></a>\n')
+    cards = "".join(home_card(category, today.get(category, [])) for category in ORDER)
     ix = site / "index.html"; sub(ix, "<!--CARDS-->", "<!--/CARDS-->", "\n" + cards)
-    t, d = f"{BRAND} — Știrile zilei, pe scurt", "Cele mai importante știri de azi, în Sport, Hot, News și Music. Pe scurt, cu sursa originală."
+    t, d = f"{BRAND} — Știrile zilei, pe scurt", "Cele mai importante știri de azi, în Sport, Hot, Știri și Muzică. Pe scurt, cu sursa originală."
     home_url = base + "/" if base else ""
     home_ld = {"@context": "https://schema.org", "@type": "WebSite", "name": BRAND, "inLanguage": "ro", "description": d}
     if home_url:
@@ -100,7 +97,7 @@ def run(site, cfg, iso, today):
         home_ld["publisher"] = {"@type": "Organization", "name": BRAND, "url": home_url}
     sub(ix, "<!--SEO-->", "<!--/SEO-->", head(home_url, t, d, home_ld))
     ar = site / "arhiva.html"; u = base + "/arhiva.html" if base else ""; t2 = f"Arhiva știrilor | {BRAND}"
-    d2 = "Alege o zi din calendar și vezi știrile publicate atunci: Sport, Hot, News și Music."
+    d2 = "Alege o zi din calendar și vezi știrile publicate atunci: Sport, Hot, Știri și Muzică."
     archive_ld = {"@context": "https://schema.org", "@type": "CollectionPage", "name": t2, "inLanguage": "ro", "description": d2}
     if u: archive_ld["url"] = u
     sub(ar, "<!--SEO-->", "<!--/SEO-->", head(u, t2, d2, archive_ld))
@@ -113,7 +110,7 @@ def run(site, cfg, iso, today):
     sitemap_line = f"Sitemap: {base}/sitemap.xml\n" if base else ""
     (site / "robots.txt").write_text("User-agent: *\nAllow: /\n\n" + "".join(f"User-agent: {b}\nAllow: /\n\n" for b in bots) + sitemap_line, "utf-8")
     (site / "llms.txt").write_text(f"""# {BRAND}
-> Site românesc de știri zilnice, minimalist: până la două știri pe zi în fiecare secțiune, rezumate în română din publicații românești și internaționale. Fiecare știre are link către articolul original.
+> Site românesc de știri zilnice, minimalist: până la cinci știri relevante pe zi în fiecare secțiune, rezumate în română din publicații românești și internaționale. Fiecare știre are link către articolul original.
 
 ## Secțiuni
 """ + "".join(f"- [{NAME[c]}]({base}/{c}.html): {DESC[c]}\n" for c in ORDER) + f"""

@@ -7,6 +7,8 @@ on:
       - index.html
       - home.css
       - scripts/statics.py
+      - scripts/generate.py
+      - .github/workflows/daily.yml
   schedule:
     - cron: "30 4 * * *"
       timezone: "Europe/Bucharest"
@@ -41,26 +43,29 @@ jobs:
           ref: main
           fetch-depth: 0
       - name: Configurează Python
-        if: ${{ github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.publish_existing) }}
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.publish_existing) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[testeaza-gemini]')) }}
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Instalează dependențele
-        if: ${{ github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.publish_existing) }}
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.publish_existing) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[testeaza-gemini]')) }}
         run: pip install -r scripts/requirements.txt
       - name: Generează ediția zilei cu AI și rezervă RSS
-        if: ${{ github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.publish_existing) }}
-        run: python -u scripts/generate.py
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.publish_existing) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[testeaza-gemini]')) }}
+        run: python -B -u scripts/generate.py
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_REPOSITORY: ${{ github.repository }}
       - name: Salvează ediția și sincronizează main
-        if: ${{ github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.publish_existing) }}
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.publish_existing) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[testeaza-gemini]')) }}
         run: bash scripts/save_edition.sh "Ediția"
       - name: Pregătește site-ul pentru GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
+          name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
           path: .
       - name: Publică site-ul
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}

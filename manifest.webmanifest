@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "ACQ Media",
+  "short_name": "ACQ Media",
+  "description": "Știrile zilei, pe scurt. Sport, CanCan, politică, afaceri și muzică, cu sursa originală.",
+  "lang": "ro",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101114",
+  "theme_color": "#101114",
+  "icons": [
+    { "src": "icons/acq-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/acq-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/acq-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

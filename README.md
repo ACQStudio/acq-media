@@ -1,33 +1,38 @@
 # ACQ Media — știri pe scurt
 
-Site static în română, cu secțiunile Sport, Hot, News și Music. GitHub Actions citește fluxurile RSS, Gemini selectează și rezumă știrile în română, apoi actualizează paginile și arhiva. Hot este dedicat știrilor CanCan, News politicii/geopoliticii și afacerilor, Sport sportului, iar Music muzicii și industriei entertainmentului. Fiecare știre trimite la publicația originală.
+Site static în limba română, cu patru secțiuni: **Sport**, **Hot** (CanCan și showbiz), **Știri** (politică, geopolitică și afaceri) și **Muzică** (muzică și industria divertismentului). Fiecare ediție poate include până la cinci știri relevante în fiecare secțiune; dacă nu sunt cinci știri potrivite și verificate, publică mai puține. Fiecare știre trimite la sursa originală.
+
+Prima pagină are patru foldere închise la culoare, cu textură discretă și numele secțiunii gravat. Site-ul se adaptează la telefon și desktop și poate fi instalat pe ecranul principal.
 
 ## Publicare și automatizare
 
-1. Creează un repository public numit `acq-media` și încarcă toate fișierele din arhivă, inclusiv `.github/workflows/daily.yml`.
-2. În `Settings → Actions → General → Workflow permissions`, activează **Read and write permissions**. Acțiunea zilnică salvează arhiva în repository.
-3. În `Settings → Pages → Build and deployment`, alege **GitHub Actions** ca sursă.
-4. Creează o cheie în [Google AI Studio](https://aistudio.google.com/) și adaug-o în `Settings → Secrets and variables → Actions` cu numele exact `GEMINI_API_KEY`.
-5. În fila `Actions`, workflow-ul **Știri zilnice** rulează automat zilnic. La o rulare manuală, lasă opțiunea **Publică fișierele existente, fără apel Gemini** debifată pentru a genera o ediție nouă; bifeaz-o când vrei doar să publici fișierele existente.
-6. Domeniul personalizat `media.acq.ro` este deja setat în `scripts/feeds.json` și în `Settings → Pages`.
-7. În CyberFolks cPanel, deschide `Zone Editor → Manage` pentru `acq.ro`. Șterge înregistrarea `A` (și orice `AAAA`) pentru `media`, apoi adaugă `CNAME`: nume `media`, destinație `acqstudio.github.io`. Nu schimba înregistrările pentru `acq.ro`.
-8. După ce GitHub afișează DNS check successful, activează `Enforce HTTPS` în `Settings → Pages`. cPanelul rămâne doar pentru DNS; fișierele site-ului sunt publicate de GitHub Pages.
+1. Repository-ul trebuie să fie public și să conțină fișierul `.github/workflows/daily.yml`.
+2. În **Settings → Actions → General → Workflow permissions**, activează **Read and write permissions**. Acțiunea zilnică salvează articolele și arhiva în repository.
+3. În **Settings → Pages → Build and deployment**, alege **GitHub Actions** ca sursă.
+4. În **Settings → Secrets and variables → Actions**, adaugă secretul `GEMINI_API_KEY`. Cheia rămâne numai în GitHub Actions Secrets.
+5. Pentru ediția nouă, deschide **Actions → Știri zilnice → Run workflow** și lasă debifată opțiunea „Doar republică fișierele existente, fără generare AI”. Pentru publicarea designului existent, bifeaz-o.
+6. Workflow-ul zilnic rulează la **04:30, ora Europei/București**. Poate porni cu întârziere când GitHub Actions este aglomerat.
+7. Domeniul configurat este `media.acq.ro`. DNS-ul trebuie să aibă `CNAME media → acqstudio.github.io`; înregistrările pentru `acq.ro` rămân neschimbate. După validarea DNS, activează **Enforce HTTPS** în **Settings → Pages**.
 
-> Dacă repository-ul are alt nume decât `acq-media`, workflow-ul folosește automat numele lui pentru adresa GitHub Pages.
+## Cum generează ediția
 
-Workflow-ul automat rulează zilnic la 05:00 UTC (07:00 în România iarna și 08:00 vara). O rulare încearcă un singur apel Gemini pentru toate secțiunile, cu gândirea setată la `LOW` și timeout de 180 de secunde. La o eroare temporară de server (`500`, `502`, `503` sau `504`) face cel mult o reîncercare; sunt maximum două apeluri. Nu reîncearcă la `429` sau timeout. Dacă Gemini este indisponibil, cheia lipsește sau modelul nu validează știri într-o secțiune, site-ul publică titlurile din RSS cu linkuri către surse și indică faptul că rezumatul AI nu e disponibil, în loc să oprească automatizarea ori să prezinte știri vechi ca noi. Modificările de design publică paginile existente; schimbarea `feeds.json` actualizează titlurile din RSS fără să apeleze Gemini. Rularea manuală a testului **Gemini API smoke test** consumă încă un apel Gemini. Limitele API depind de model și proiectul din AI Studio; abonamentul Gemini obișnuit nu schimbă automat cotele API.
+- Citește fluxurile RSS din `scripts/feeds.json`, elimină duplicatele și știrile nepotrivite secțiunii.
+- Pregătește cel mult cinci articole pe secțiune și face un singur apel Gemini pentru întregul lot.
+- Modelul implicit este `gemini-3.5-flash-lite`, configurabil prin `GEMINI_MODEL`. Un răspuns Gemini este verificat pentru câmpuri complete și text în română înainte de publicare.
+- La o eroare temporară de server (`500`, `502`, `503` sau `504`), poate încerca încă o dată; un singur lot înseamnă maximum două cereri API. Nu retrimite automat un timeout sau o eroare de cotă.
+- Dacă Gemini nu răspunde, publică cel mult cinci fragmente RSS numai când titlul și fragmentul sunt în română. Dacă nu există material românesc suficient, secțiunea spune că ediția nu este disponibilă; nu completează cu text inventat sau în engleză.
+- **Actualizează titlurile din RSS fără AI** publică fluxurile fără apeluri Gemini. Este declanșat de modificarea surselor RSS și se poate porni manual din Actions.
+- Schimbările de design publică site-ul existent, fără să consume apeluri Gemini. Un test Gemini separat nu este necesar: rularea manuală a ediției zilnice face cel mult un apel pe lot.
 
-## În proiect
+## Fișiere principale
 
-- `index.html` și `home.css`: teanc de carduri cu aceeași suprafață, accente de culoare discrete și mișcare tip Wallet; secțiunile pot fi ascunse din „Personalizează”. Arhiva rămâne separat, la final.
-- `arhiva.html`: calendarul zilelor publicate și filtre după secțiune.
-- `arhiva/AAAA-LL-ZZ.html`: paginile fiecărei ediții păstrate.
-- `scripts/generate.py`: RSS, selecție și rezumare cu Gemini într-un apel; reîncearcă o singură dată doar la o eroare temporară de server și are rezervă fără AI, din titlurile RSS.
-- `scripts/statics.py`: index, arhivă, metadate și sitemap.
+- `index.html`, `home.css`: pagina Home și folderele secțiunilor.
+- `site-ui.css`, `site-ui.js`, `manifest.webmanifest`, `sw.js`: aspectul comun, instalarea și funcțiile offline.
+- `scripts/feeds.json`: adrese RSS, model Gemini și `site_url`.
+- `scripts/generate.py`: colectarea RSS, filtrarea, redactarea în română și verificarea textului.
+- `scripts/statics.py`: calendarul, arhiva, metadatele și sitemap-ul.
+- `scripts/save_edition.sh`: salvează ediția și sincronizează în siguranță `main`.
+- `.github/workflows/daily.yml`: ediția zilnică și publicarea.
+- `.github/workflows/rss-only.yml`: publicarea RSS fără AI.
 
-## Setări
-
-- `scripts/feeds.json` conține sursele RSS, modelul Gemini și adresele imaginilor de rezervă.
-- Modelul implicit este `gemini-3.8-flash`; se poate schimba prin variabila `GEMINI_MODEL`.
-- `use_source_images: false` folosește doar imaginile de rezervă.
-- Secretul `GEMINI_API_KEY` se păstrează doar în GitHub Actions Secrets. Nu îl adăuga în fișiere sau commit-uri.
+Cheia Gemini se păstrează doar în GitHub Secrets. Abonamentul Gemini pentru aplicația Gemini nu include automat credit sau limite API în AI Studio.
