@@ -15,6 +15,7 @@ MODEL = os.getenv("GEMINI_MODEL", CFG["model"])
 N, MIN_OK, MAX_AGE_H = 2, 2, 40
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ACQMediaBot/1.0)"}
 FEED_TIMEOUT, ARTICLE_TIMEOUT, GEMINI_TIMEOUT = (5, 12), (5, 15), (10, 180)
+# Retry transient server responses once; never retry a timeout or a quota error.
 GEMINI_5XX_RETRIES = 1
 LUNI = "ianuarie februarie martie aprilie mai iunie iulie august septembrie octombrie noiembrie decembrie".split()
 HIST_F = ROOT / "data" / "history.json"

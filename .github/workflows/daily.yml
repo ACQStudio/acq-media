@@ -1,6 +1,10 @@
 name: Știri zilnice
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/generate.py
   schedule:
     - cron: "0 5 * * *" # 05:00 UTC = 07:00 în România iarna, 08:00 vara
   workflow_dispatch:
@@ -30,21 +34,21 @@ jobs:
       - name: Descarcă repository-ul
         uses: actions/checkout@v4
       - name: Configurează Python
-        if: ${{ !inputs.publish_existing }}
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.publish_existing }}
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Instalează dependențele
-        if: ${{ !inputs.publish_existing }}
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.publish_existing }}
         run: pip install -r scripts/requirements.txt
       - name: Generează ediția zilei
-        if: ${{ !inputs.publish_existing }}
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.publish_existing }}
         run: python -u scripts/generate.py
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_REPOSITORY: ${{ github.repository }}
       - name: Salvează arhiva în repository
-        if: ${{ !inputs.publish_existing }}
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.publish_existing }}
         run: |
           git config user.name "acq-bot"
           git config user.email "acq-bot@users.noreply.github.com"
