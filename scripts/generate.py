@@ -12,7 +12,7 @@ ROOT = Path(__file__).parent
 SITE = Path(os.getenv("SITE_DIR", ROOT.parent))
 CFG = json.loads((ROOT / "feeds.json").read_text("utf-8"))
 MODEL = os.getenv("GEMINI_MODEL", CFG["model"])
-N, MIN_OK, MAX_AGE_H = 2, 2, 40
+N, MIN_OK, MAX_AGE_H = 2, 1, 40
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ACQMediaBot/1.0)"}
 FEED_TIMEOUT, ARTICLE_TIMEOUT, GEMINI_TIMEOUT = (5, 12), (5, 15), (10, 180)
 # Retry transient server responses once; never retry a timeout or a quota error.
@@ -265,7 +265,7 @@ def main():
     print(f"\n{len(prepared)} texte disponibile; redactez maximum 8 texte într-un singur apel Gemini", flush=True)
     try:
         generated = write_batch(prepared)
-        print(f"Gemini: {1 if prepared else 0} cereri pentru toate secțiunile", flush=True)
+        print(f"Gemini: {1 if prepared else 0} cereri; {len(generated)} știri validate în total", flush=True)
     except GeminiQuotaError as ex:
         print(f"\n! {ex}\n! Oprire fără alte apeluri Gemini.", flush=True)
         raise SystemExit(1)
@@ -273,6 +273,7 @@ def main():
         raise SystemExit(f"Eroare la redactarea cu Gemini. Workflow-ul se oprește fără reîncercări: {ex}") from ex
     for name, cat in CFG["categories"].items():
         items = [item for item in generated if item["_section"] == name][:N]
+        print(f"  Gemini a validat {len(items)} știri pentru {name}", flush=True)
         for item in items:
             item.pop("_section", None)
         if len(items) < MIN_OK:
