@@ -1,4 +1,5 @@
 name: Știri zilnice
+# Testul AI se pornește o singură dată printr-un commit cu [testeaza-gemini].
 
 on:
   push:
