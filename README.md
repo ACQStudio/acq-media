@@ -22,15 +22,11 @@ Plafonul aparține acestui repository; alte aplicații care folosesc același pr
 
 Actions → Știri zilnice → Run workflow. Bifează „Doar republică fișierele existente” când vrei să publici designul fără generare. Un push obișnuit publică numai fișierele. Un commit marcat [testeaza-gemini] trece prin același plafon zilnic și aceleași rezervări.
 
-## Postări Instagram
+## Postări pentru rețele sociale
 
-După publicarea site-ului, workflow-ul pregătește automat câte o grafică ACQ de 1080 × 1350 și o descriere în română pentru fiecare știre completă din cea mai recentă ediție. Grafica include titlul integral, rezumatul, secțiunea, sursa și data ediției. Descrierea reutilizează cele trei paragrafe redactate pentru site, cu sursa și câteva hashtaguri ale secțiunii. Nu se fac apeluri AI suplimentare și nu este necesar acces la contul Instagram.
+Galeria ACQ Studio este publicată separat, cu acces privat prin contul proprietarului în ChatGPT. Preia cea mai recentă ediție salvată și pregătește imaginile și descrierile pentru descărcare și publicare manuală. Nu solicită acces la conturile sociale și nu face apeluri Gemini suplimentare. Data afișată este data reală a ediției, inclusiv atunci când site-ul a păstrat o ediție mai veche.
 
-Descarcă pachetul din **Actions → Știri zilnice → rularea terminată → Artifacts → acq-instagram-AAAA-LL-ZZ**. Fiecare PNG are alături un TXT cu același nume: încarci imaginea și copiezi descrierea în Instagram. Pachetele sunt păstrate 14 zile. Pentru a reface pachetul fără un nou apel Gemini, rulează workflow-ul cu **„Doar republică fișierele existente”** bifat.
-
-Data din pachet este data reală a ediției. Dacă generatorul a păstrat o ediție mai veche, exportul nu o prezintă drept știri noi. Fișierele sunt pregătite temporar pe runner și publicate doar ca artifact, nu în site sau în istoricul Git. Publicarea site-ului se termină înaintea jobului Instagram.
-
-Export local: `pip install -r scripts/requirements-social.txt`, apoi `python scripts/export_instagram.py --output /cale/noua/acq-instagram`. Python 3.12 și fonturi DejaVu Sans pe Linux sau Arial pe macOS; se pot indica alte fonturi cu `--font-regular` și `--font-bold`.
+Pachetele pentru rețele sociale nu se mai distribuie automat ca artifacts în repository-ul public al site-ului. Exportul tipografic local rămâne disponibil pentru lucru fără rețea: `pip install -r scripts/requirements-social.txt`, apoi `python scripts/export_instagram.py --output /cale/noua/acq-instagram`. Python 3.12 și fonturi DejaVu Sans pe Linux sau Arial pe macOS.
 
 ## Domeniu și instalare
 
