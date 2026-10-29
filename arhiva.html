@@ -48,10 +48,10 @@ details ul{margin-top:10px;columns:2;list-style:none}details li{padding:3px 0}
   <p class="hint">Fiecare pătrățel colorat arată o secțiune cu știri în ziua respectivă.</p>
   <div class="leg"><span style="--c:#22c55e"><i></i>Sport</span><span style="--c:#ef4444"><i></i>Hot</span><span style="--c:#e8e8ed"><i></i>News</span><span style="--c:#3b82f6"><i></i>Music</span></div>
   <p class="empty" id="empty" hidden>Arhiva începe cu prima ediție publicată. Revino după următoarea actualizare zilnică.</p>
-  <details><summary>Toate zilele</summary><ul><!--LINKS--><!--/LINKS--></ul></details>
+  <details><summary>Toate zilele</summary><ul><!--LINKS--><li><a href="arhiva/2026-10-29.html">29 octombrie 2026</a></li><!--/LINKS--></ul></details>
 </div>
 <script>
-const D=/*DATES*/{}/*/DATES*/,COL={sport:'#22c55e',hot:'#ef4444',news:'#e8e8ed',music:'#3b82f6'};
+const D=/*DATES*/{"2026-10-29": ["sport", "hot", "news", "music"]}/*/DATES*/,COL={sport:'#22c55e',hot:'#ef4444',news:'#e8e8ed',music:'#3b82f6'};
 const keys=Object.keys(D).sort(),$=s=>document.querySelector(s),p2=n=>String(n).padStart(2,'0');
 const nowParts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Bucharest',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(p=>[p.type,p.value]));
 const todayIso=`${nowParts.year}-${nowParts.month}-${nowParts.day}`;
