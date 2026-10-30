@@ -20,16 +20,21 @@
       "revision_requested": "Texte mai lungi și surse originale, cerute de utilizator; maximum o cerere rămasă azi."
     },
     "2026-10-30": {
-      "requests": 0,
-      "ai_completed": false,
+      "requests": 1,
+      "ai_completed": true,
       "reservations": {
         "40977402909-1": {
           "slots": 2,
-          "used": 0,
-          "state": "reserved",
-          "reserved_at": "2026-10-30T00:05:26.636215+00:00"
+          "used": 1,
+          "state": "finished",
+          "reserved_at": "2026-10-30T00:05:26.636215+00:00",
+          "finished_at": "2026-10-30T00:06:05.411107+00:00"
         }
-      }
+      },
+      "successful_run_id": "40977402909",
+      "ai_articles": 16,
+      "edition_articles": 16,
+      "evidence": "https://github.com/ACQStudio/acq-media/actions/runs/40977402909"
     }
   }
 }
