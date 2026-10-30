@@ -18,6 +18,18 @@
         }
       },
       "revision_requested": "Texte mai lungi și surse originale, cerute de utilizator; maximum o cerere rămasă azi."
+    },
+    "2026-10-30": {
+      "requests": 0,
+      "ai_completed": false,
+      "reservations": {
+        "40977402909-1": {
+          "slots": 2,
+          "used": 0,
+          "state": "reserved",
+          "reserved_at": "2026-10-30T00:05:26.636215+00:00"
+        }
+      }
     }
   }
 }
