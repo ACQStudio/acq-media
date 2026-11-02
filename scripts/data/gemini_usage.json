@@ -71,16 +71,21 @@
       "evidence": "https://github.com/ACQStudio/acq-media/actions/runs/41293866956"
     },
     "2026-11-02": {
-      "requests": 0,
-      "ai_completed": false,
+      "requests": 1,
+      "ai_completed": true,
       "reservations": {
         "41424148744-1": {
           "slots": 2,
-          "used": 0,
-          "state": "reserved",
-          "reserved_at": "2026-11-02T09:52:27.346451+00:00"
+          "used": 1,
+          "state": "finished",
+          "reserved_at": "2026-11-02T09:52:27.346451+00:00",
+          "finished_at": "2026-11-02T09:52:56.805985+00:00"
         }
-      }
+      },
+      "successful_run_id": "41424148744",
+      "ai_articles": 12,
+      "edition_articles": 12,
+      "evidence": "https://github.com/ACQStudio/acq-media/actions/runs/41424148744"
     }
   }
 }
