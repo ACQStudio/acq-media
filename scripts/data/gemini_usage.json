@@ -122,14 +122,15 @@
       "evidence": "https://github.com/ACQStudio/acq-media/actions/runs/41809568571"
     },
     "2026-11-05": {
-      "requests": 0,
+      "requests": 2,
       "ai_completed": false,
       "reservations": {
         "42005177851-1": {
           "slots": 2,
-          "used": 0,
-          "state": "reserved",
-          "reserved_at": "2026-11-05T09:46:57.613603+00:00"
+          "used": 2,
+          "state": "finished",
+          "reserved_at": "2026-11-05T09:46:57.613603+00:00",
+          "finished_at": "2026-11-05T09:47:35.271654+00:00"
         }
       }
     }
