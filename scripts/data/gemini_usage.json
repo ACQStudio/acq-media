@@ -184,6 +184,18 @@
       "ai_articles": 15,
       "edition_articles": 15,
       "evidence": "https://github.com/ACQStudio/acq-media/actions/runs/42467077643"
+    },
+    "2026-11-09": {
+      "requests": 0,
+      "ai_completed": false,
+      "reservations": {
+        "42598934391-1": {
+          "slots": 2,
+          "used": 0,
+          "state": "reserved",
+          "reserved_at": "2026-11-09T10:10:42.392386+00:00"
+        }
+      }
     }
   }
 }
