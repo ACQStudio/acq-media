@@ -6,7 +6,7 @@ Site de știri în română, publicat la https://media.acq.ro prin GitHub Pages.
 
 Workflow-ul „Știri zilnice” rulează la 04:30, Europe/Bucharest. GitHub poate întârzia pornirea programată.
 
-Generatorul citește fluxurile configurate în scripts/feeds.json, selectează până la cinci subiecte relevante pe secțiune și extrage textul articolelor. Pentru materialele descoperite prin Sold Out Media urmărește linkul explicit al publicației originale. Omite materialele fără sursă identificabilă sau fără suficient text.
+Generatorul citește fluxurile configurate în scripts/feeds.json, publică până la cinci subiecte relevante pe secțiune și caută înlocuitori dacă sursele selectate nu pot fi citite. Pentru materialele descoperite prin Sold Out Media urmărește linkul explicit al publicației originale. Omite materialele fără sursă identificabilă sau fără suficient text.
 
 Un singur lot Gemini redactează titlurile, rezumatele și articolele în română. Fiecare articol are trei paragrafe, aproximativ 100–160 de cuvinte, și mențiunea discretă a publicației de origine. Nu se completează ediția cu titluri ori fragmente RSS. Dacă serviciul AI nu răspunde, se păstrează ediția existentă.
 
@@ -30,12 +30,12 @@ Pachetele pentru rețele sociale nu se mai distribuie automat ca artifacts în r
 
 ## Domeniu și instalare
 
-DNS: media.acq.ro CNAME acqstudio.github.io. Domeniul acq.ro rămâne la furnizorul său. În GitHub Pages este activată opțiunea Enforce HTTPS.
+CyberFolks verifică versiunea din GitHub la fiecare cinci minute.
 
-Invitația de pe Home permite instalarea directă unde browserul oferă această funcție; pe iPhone explică Partajează → Adaugă pe ecranul principal, iar pe Mac pașii din Safari → Adaugă în Dock. Nu apare în modul aplicație și se poate amâna.
+Invitația de pe Home și din secțiuni permite instalarea directă unde browserul oferă această funcție; pe iPhone explică Partajează → Adaugă pe ecranul principal, iar pe Mac pașii din Safari → Adaugă în Dock. Nu apare în modul aplicație și se poate amâna.
 
 ## Publicitate
 
 Fiecare secțiune cu cel puțin două articole include un singur ecran de publicitate după al doilea articol, în aceeași derulare. Ecranul nu este numărat ca știre și nu schimbă articolul deschis prin link direct.
 
-Butonul deschide contact.html cu secțiunea preselectată. Formularul pregătește un mesaj către hello@acq.studio, adresa publică folosită și pe acq.ro. „Continuă în e-mail” deschide aplicația de e-mail; vizitatorul trimite mesajul de acolo. Site-ul nu afișează o confirmare falsă de livrare și nu stochează datele formularului.
+Butonul deschide contact.html cu secțiunea preselectată. Formularul pregătește un mesaj către media@acq.ro, adresa ACQ Media. „Continuă în e-mail” deschide aplicația de e-mail; vizitatorul trimite mesajul de acolo. Site-ul nu afișează o confirmare falsă de livrare și nu stochează datele formularului.

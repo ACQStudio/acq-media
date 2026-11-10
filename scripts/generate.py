@@ -15,6 +15,8 @@ SITE = Path(os.getenv("SITE_DIR", ROOT.parent))
 CFG = json.loads((ROOT / "feeds.json").read_text("utf-8"))
 MODEL = os.getenv("GEMINI_MODEL", CFG["model"])
 N, MIN_OK, MAX_AGE_H = 5, 1, 40
+PREPARED_PER_SECTION = N + 2
+MAX_ARTICLE_ATTEMPTS = 12
 MAX_OUTPUT_TOKENS = 12000
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ACQMediaBot/1.0)"}
 RSS_CACHE = {}
@@ -33,7 +35,7 @@ HIST = json.loads(HIST_F.read_text()) if HIST_F.exists() else {}
 HIST = {u: d for u, d in HIST.items() if d >= (now - dt.timedelta(days=14)).strftime("%Y-%m-%d")}
 
 SLIDE = """  <div class="slide {cls}" data-theme="{theme}" data-article-index="{k}" data-slide-label="Știrea {i}">
-    <div class="s-bg"><img src="{img}" alt="" onload="this.classList.add('loaded')"/></div><div class="s-mask"></div>
+    <div class="s-bg"><img src="{img}" alt="" decoding="async" {image_loading}/></div><div class="s-mask"></div>
     <div class="s-card">
       <div class="card-top"><span class="card-cat">{cat}</span><span class="card-prog">{i} / {n}</span></div>
       <h2 class="card-hed">{hed}</h2>
@@ -431,10 +433,31 @@ def prepare(c):
     return {**c, "img": img, "article_text": text[:3200]}
 
 def prepare_many(items):
-    if not items: return []
-    with ThreadPoolExecutor(max_workers=min(12, len(items))) as pool:
-        prepared = list(pool.map(prepare, items))
-    return [item for item in prepared if item]
+    """Replace unavailable or duplicate sources before requesting the daily AI batch."""
+    queues = {}
+    for item in items:
+        queues.setdefault(item["_section"], []).append(item)
+    prepared = {section: [] for section in queues}
+    seen = {section: set() for section in queues}
+    with ThreadPoolExecutor(max_workers=12) as pool:
+        while True:
+            pending = []
+            for section, queue in queues.items():
+                needed = PREPARED_PER_SECTION - len(prepared[section])
+                pending.extend(queue[:needed])
+                del queue[:needed]
+            if not pending:
+                break
+            for item in pool.map(prepare, pending):
+                if item is None:
+                    continue
+                section, link = item["_section"], item["link"]
+                # Two feed entries can resolve to the same original article.
+                if link in seen[section] or (link in HIST and HIST[link] != TODAY_ISO):
+                    continue
+                seen[section].add(link)
+                prepared[section].append(item)
+    return [item for section in prepared.values() for item in section]
 
 def write_batch(items):
     if not items: return []
@@ -446,16 +469,17 @@ def write_batch(items):
     category_labels = ["Sport", "Fotbal", "Tenis", "Formula 1", "Monden", "Vedete", "Politică", "Geopolitică", "Afaceri", "Economie", "Știri", "Muzică", "Artiști", "Concerte", "Industrie muzicală"]
     schema = {"type": "OBJECT", "properties": {"articles": {"type": "ARRAY", "maxItems": len(items), "items": {
         "type": "OBJECT", "properties": {"id": {"type": "INTEGER"}, "skip": {"type": "BOOLEAN"},
-        "cat": {"type": "STRING", "enum": category_labels}, "hed": {"type": "STRING"}, "sum": {"type": "STRING"},
+        "cat": {"type": "STRING", "enum": category_labels + [""]}, "hed": {"type": "STRING"}, "sum": {"type": "STRING"},
         "body": {"type": "ARRAY", "items": {"type": "STRING"}}},
         "required": ["id", "skip", "cat", "hed", "sum", "body"]}}},
         "required": ["articles"]}
     prompt = (
         "Ești redactor la un site de știri în limba română. Primești texte numerotate din mai multe secțiuni. "
-        f"Alege până la {N} știri distincte, relevante și susținute clar pentru fiecare secțiune. Nu trebuie să fie {N}: păstrează doar câte merită publicate, chiar zero. "
+        f"Selectează și redactează {N} știri distincte, relevante și susținute clar pentru fiecare secțiune dacă există suficiente texte. "
+        "Compară și textele de rezervă înainte să alegi. Dacă sursele nu susțin suficiente știri, păstrează doar câte sunt documentate. "
         "Nu completa lista cu subiecte marginale, duplicate sau care țin de altă secțiune. Hot înseamnă cancan/showbiz, iar Muzică înseamnă muzică și industria sa. "
         "Nu amesteca secțiunile și nu combina articole. "
-        "Returnează articolele în ordinea importanței din fiecare secțiune. Pentru fiecare ID întoarce id, skip, cat, hed, sum și body. "
+        "Returnează articolele selectate în ordinea importanței din fiecare secțiune. Poți omite ID-urile neselectate. "
         "Pentru o știre publicabilă, skip=false și completează toate câmpurile. Pentru una insuficient documentată, skip=true, cat/hed/sum goale și body gol. "
         "Scrie în română TOATE câmpurile publicate: eticheta, titlul, rezumatul și paragrafele. Nu lăsa text în engleză; păstrează nemodificate doar numele proprii și mărcile. "
         "Redă în română faptele din surse în alte limbi, cu formulări proprii; nu traduce mot-a-mot și nu copia fraze. "
@@ -470,7 +494,8 @@ def write_batch(items):
         + "\n".join(f"{section}: {brief}" for section, brief in briefs.items())
         + "\n\nTEXTE:\n" + "\n\n---\n\n".join(entries)
     )
-    output_limit = min(MAX_OUTPUT_TOKENS, max(2048, 512 + len(items) * 600))
+    selected_limit = sum(min(N, sum(item["_section"] == section for item in items)) for section in briefs)
+    output_limit = min(MAX_OUTPUT_TOKENS, max(2048, 512 + selected_limit * 600))
     result = gemini(prompt, schema, max_output_tokens=output_limit)
     if not isinstance(result, dict) or not isinstance(result.get("articles"), list):
         raise RuntimeError("Gemini nu a întors lista de articole cerută.")
@@ -512,7 +537,8 @@ def render(name, cat, items):
         img = it["img"] if CFG["use_source_images"] and it.get("img") else fb[k % len(fb)]
         visual_index = k + (1 if has_ad and k >= 2 else 0)
         next_label = "Continuă" if has_ad and k == 1 else ("Încheie ediția" if k == n - 1 else "Următoarea știre")
-        slides.append(SLIDE.format(cls="sdk" if dark else "slt", theme="dark" if dark else "light", img=e(img), cat=e(it["cat"]),
+        image_loading = 'fetchpriority="high"' if k == 0 else 'loading="lazy"'
+        slides.append(SLIDE.format(cls="sdk" if dark else "slt", theme="dark" if dark else "light", img=e(img), cat=e(it["cat"]), image_loading=image_loading,
             i=k + 1, n=n, hed=e(it["hed"]), sum=e(it["sum"]), meta=e(f"{TODAY} · {it['source']}"), k=k, nxt=visual_index + 1,
             btn=next_label))
         if has_ad and k == 1:
@@ -557,8 +583,8 @@ def main():
         try:
             available = candidates(cat)
             suitable = [item for item in available if relevant(item, name)]
-            selected = shortlist(suitable, N)
-            print(f"  {len(available)} candidați RSS; {len(suitable)} se potrivesc secțiunii; selectez maximum {len(selected)}", flush=True)
+            selected = shortlist(suitable, MAX_ARTICLE_ATTEMPTS)
+            print(f"  {len(available)} candidați RSS; {len(suitable)} se potrivesc secțiunii; maximum {len(selected)} descărcări pentru {N} știri", flush=True)
             for item in selected:
                 all_candidates.append({**item, "_section": name, "_brief": cat["brief"]})
         except Exception as ex:

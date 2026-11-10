@@ -1,22 +1,38 @@
 .acq-site-footer,.acq-install-card,.acq-install-dialog{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;box-sizing:border-box}
 .acq-site-footer *,.acq-install-card *,.acq-install-dialog *{box-sizing:border-box}
-.acq-site-footer{width:min(100%,1040px);margin:64px auto 0;padding:35px 0 18px;border-top:1px solid #292b30;color:#96999f;text-align:left}
+.acq-site-footer{width:min(100%,1040px);margin:72px auto 0;padding:38px 0 22px;border-top:1px solid #303238;color:#a7abb2;text-align:left;font-size:14px;line-height:1.65}
 .acq-site-footer--reading{width:min(calc(100% - 40px),680px)}
-.acq-site-footer__grid{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(120px,.8fr) minmax(150px,1fr);gap:40px}
+.acq-site-footer__grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(130px,.7fr) minmax(180px,.9fr);gap:48px}
 .acq-site-footer a{color:inherit;text-decoration:none;transition:color .18s ease}
-.acq-site-footer a:hover{color:#f6f6f7}
+.acq-site-footer a:hover{color:#fff}
 .acq-site-footer a:focus-visible,.acq-site-footer button:focus-visible,.acq-install-card button:focus-visible,.acq-install-dialog button:focus-visible,.acq-install-dialog a:focus-visible{outline:2px solid #f2f2f4;outline-offset:5px}
-.acq-site-footer__brand{display:inline-block;color:#f4f4f6!important;font-size:23px;font-weight:690;letter-spacing:-.055em;line-height:1.1}
-.acq-site-footer__powered{margin:12px 0 16px!important;color:#81858d!important;font-size:9px!important;font-weight:620;line-height:1.5!important;letter-spacing:.12em;text-transform:uppercase}
-.acq-site-footer__note{max-width:44ch;margin:0!important;color:#96999f!important;font-size:12px!important;font-weight:400;line-height:1.75!important;letter-spacing:0!important}
-.acq-site-footer__heading{margin:0 0 15px!important;color:#d3d5da!important;font-size:9px!important;font-weight:680;line-height:1.4!important;letter-spacing:.14em;text-transform:uppercase}
-.acq-site-footer ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}
-.acq-site-footer li{margin:0;padding:0;font-size:12px;line-height:1.5}
-.acq-site-footer__install{display:inline-block;margin:12px 0 0;padding:0;border:0;background:none;color:#c4c7ce;font:inherit;font-size:12px;line-height:1.5;text-align:left;cursor:pointer}
-.acq-site-footer__bottom{margin-top:28px;padding-top:15px;border-top:1px solid #22242a;color:#6f737c;font-size:10px;line-height:1.5}
-.acq-site-footer--compact{width:min(100%,720px);margin-top:26px;padding:20px 0 0}.acq-site-footer--compact .acq-site-footer__grid{grid-template-columns:minmax(0,2fr) minmax(110px,1fr);gap:24px}.acq-site-footer--compact .acq-site-footer__studio{display:none}.acq-site-footer--compact .acq-site-footer__brand{font-size:18px}.acq-site-footer--compact .acq-site-footer__powered{margin:7px 0 9px!important;font-size:8px!important}.acq-site-footer--compact .acq-site-footer__note{max-width:50ch;font-size:10px!important;line-height:1.6!important}.acq-site-footer--compact .acq-site-footer__heading{margin-bottom:9px!important;font-size:8px!important}.acq-site-footer--compact ul{gap:5px}.acq-site-footer--compact li{font-size:10px}.acq-site-footer--compact .acq-site-footer__bottom{margin-top:14px;padding-top:10px;font-size:9px}
-#ssub.acq-has-footer{padding-top:max(76px,env(safe-area-inset-top));padding-bottom:max(22px,env(safe-area-inset-bottom));justify-content:center}
-#ssub.acq-has-footer .sub-label{margin-bottom:12px}#ssub.acq-has-footer .sub-title{font-size:clamp(2rem,5.8vw,4rem);margin-bottom:12px}#ssub.acq-has-footer .sub-sub{margin-bottom:20px;font-size:15px;line-height:1.4}#ssub.acq-has-footer .end-links a{min-height:42px;font-size:12px;padding:0 17px}
+.acq-site-footer__brand{display:inline-block;color:#f5f5f7!important;font-size:27px;font-weight:650;letter-spacing:-.055em;line-height:1.15}
+.acq-site-footer__powered{margin:10px 0 18px!important;color:#92969e!important;font-size:12px!important;font-weight:400;line-height:1.5!important;letter-spacing:0!important;text-transform:none}
+.acq-site-footer__note{max-width:42ch;margin:0!important;color:#a7abb2!important;font-size:14px!important;font-weight:400;line-height:1.65!important;letter-spacing:0!important}
+.acq-site-footer__heading{margin:3px 0 13px!important;color:#f0f1f3!important;font-size:13px!important;font-weight:600;line-height:1.5!important;letter-spacing:0!important;text-transform:none}
+.acq-site-footer ul{display:grid;gap:2px;margin:0;padding:0;list-style:none}
+.acq-site-footer li{margin:0;padding:0;font-size:14px;line-height:1.5}
+.acq-site-footer li a{display:inline-flex;align-items:center;min-height:32px;padding:4px 0}
+.acq-site-footer__install{display:inline-flex;align-items:center;min-height:36px;margin:9px 0 0;padding:4px 0;border:0;background:none;color:#d2d5da;font:inherit;font-size:14px;line-height:1.5;text-align:left;cursor:pointer}
+.acq-site-footer__bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px 20px;margin-top:30px;padding-top:18px;border-top:1px solid #27292e;color:#8d929b;font-size:12px;line-height:1.5}
+.acq-site-footer--compact{width:min(100%,900px);margin-top:34px;padding:28px 0 0}
+.acq-site-footer--compact .acq-site-footer__grid{grid-template-columns:minmax(0,1.55fr) minmax(110px,.65fr) minmax(155px,.9fr);gap:32px}
+.acq-site-footer--compact .acq-site-footer__brand{font-size:25px}
+.acq-site-footer--compact .acq-site-footer__powered{margin:9px 0 14px!important}
+.acq-site-footer--compact .acq-site-footer__bottom{margin-top:23px;padding-top:16px}
+@media(max-width:760px){
+  .acq-site-footer{margin-top:48px;padding-top:30px}
+  .acq-site-footer__grid,.acq-site-footer--compact .acq-site-footer__grid{grid-template-columns:1fr 1fr;gap:27px 24px}
+  .acq-site-footer__identity{grid-column:1/-1}
+  .acq-site-footer__note{max-width:55ch}
+  .acq-site-footer__brand,.acq-site-footer--compact .acq-site-footer__brand{font-size:25px}
+  .acq-site-footer li a,.acq-site-footer__install{min-height:38px}
+  .acq-site-footer__bottom{margin-top:25px;padding-top:17px}
+  .acq-site-footer--compact{margin-top:28px;padding-top:25px}
+}
+@media(max-height:620px) and (min-width:761px){
+  .acq-site-footer--compact{margin-top:25px;padding-top:23px}
+}
 .acq-install-card[hidden],.acq-install-dialog[hidden]{display:none!important}
 .acq-install-card{position:fixed;right:max(22px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));z-index:420;width:min(360px,calc(100vw - 36px));padding:20px;border:1px solid #3a3d44;border-radius:23px;background:#1a1c21;color:#f5f5f6;text-align:left;animation:acq-install-in .3s cubic-bezier(.22,1,.36,1) both}
 .acq-install-card__top{display:flex;align-items:center;gap:12px;padding-right:20px}.acq-install-card__icon{flex:none;width:42px;height:42px;border:1px solid #363940;border-radius:12px}.acq-install-card__title{margin:0!important;color:#f4f4f6!important;font-size:15px!important;font-weight:650;line-height:1.25!important;letter-spacing:-.025em!important}.acq-install-card__text{margin:12px 0 16px!important;color:#a9adb6!important;font-size:12px!important;line-height:1.6!important}.acq-install-card__close{position:absolute;top:12px;right:12px;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:50%;background:#272a31;color:#b7bbc3;font-size:17px;line-height:1;cursor:pointer}.acq-install-card__action{width:100%;min-height:39px;padding:9px 14px;border:0;border-radius:12px;background:#f0f0f2;color:#14161a;font:inherit;font-size:12px;font-weight:680;cursor:pointer}
@@ -28,6 +44,54 @@
 .acq-install-card__actions{display:flex;align-items:center;gap:12px}
 .acq-install-card__action{width:auto;flex:1;border-radius:10px;min-height:40px;font-size:12px}
 .acq-install-card__later{padding:10px 3px;border:0;background:none;color:#a9abb1;font:inherit;font-size:12px;cursor:pointer}
-@media(max-width:640px){.acq-site-footer{margin-top:45px;padding-top:27px}.acq-site-footer__grid{grid-template-columns:1fr 1fr;gap:27px 24px}.acq-site-footer__identity{grid-column:1/-1}.acq-site-footer__note{max-width:52ch}.acq-site-footer__brand{font-size:22px}.acq-site-footer__powered{margin:9px 0 12px!important}.acq-site-footer__bottom{margin-top:23px}.acq-site-footer--compact{margin-top:21px;padding-top:17px}.acq-site-footer--compact .acq-site-footer__grid{grid-template-columns:1fr;gap:0}.acq-site-footer--compact .acq-site-footer__identity{grid-column:auto}.acq-site-footer--compact .acq-site-footer__sections{display:none}.acq-site-footer--compact .acq-site-footer__note{max-width:52ch;font-size:10px!important}.acq-site-footer--compact .acq-site-footer__bottom{margin-top:11px;padding-top:8px}.acq-install-card{right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));padding:18px}#ssub.acq-has-footer .sub-label{display:none}#ssub.acq-has-footer .sub-title{font-size:clamp(2rem,8vw,3rem)}#ssub.acq-has-footer .sub-sub{font-size:14px;max-width:30ch;margin-bottom:18px}}
-@media(max-height:620px){#ssub.acq-has-footer{padding-top:74px;padding-bottom:16px}#ssub.acq-has-footer .sub-title{font-size:2rem}#ssub.acq-has-footer .sub-sub{font-size:12px;margin-bottom:12px}.acq-site-footer--compact{margin-top:14px;padding-top:12px}.acq-site-footer--compact .acq-site-footer__powered{margin:5px 0 7px!important}.acq-site-footer--compact .acq-site-footer__note{font-size:9px!important;line-height:1.45!important}.acq-site-footer--compact .acq-site-footer__bottom{margin-top:8px;padding-top:6px}}
+@media(max-width:640px){.acq-install-card{right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));padding:18px}}
 @media(prefers-reduced-motion:reduce){.acq-site-footer *,.acq-install-card,.acq-install-dialog{animation:none!important;transition:none!important}}
+
+/* The news stream uses document scrolling and native dialogs. */
+.acq-section{margin:0;background:#101114;color:#f3f3f5;font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,sans-serif;--line:#2d2f35}
+.acq-section *{box-sizing:border-box}
+.acq-section [hidden]{display:none!important}
+.acq-section .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.reading-nav{position:sticky;top:0;z-index:10;background:#101114;border-bottom:1px solid var(--line);padding:env(safe-area-inset-top) max(18px,env(safe-area-inset-right)) 0 max(18px,env(safe-area-inset-left))}
+.reading-nav nav{width:min(100%,1040px);min-height:58px;margin:auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.reading-nav a{color:#d2d4db;text-decoration:none;min-height:44px;display:inline-flex;align-items:center;gap:7px;font-size:14px}
+.reading-back{justify-self:start}.reading-archive{justify-self:end}.reading-section{font-weight:680;color:var(--section-accent);letter-spacing:-.025em}
+.reading-stream{width:min(1040px,calc(100% - 40px));margin:0 auto;padding:clamp(20px,4vw,48px) 0 max(24px,env(safe-area-inset-bottom))}
+.reading-stream>.slide{position:relative;isolation:isolate;display:grid;align-items:end;min-height:clamp(470px,82svh,720px);overflow:hidden;margin:0 0 clamp(18px,4vw,44px);border:1px solid var(--line);border-radius:24px;background:#17191e;scroll-margin-top:calc(70px + env(safe-area-inset-top))}
+.reading-stream .s-bg,.reading-stream .s-mask{position:absolute;inset:0;z-index:-1}
+.reading-stream .s-bg img{width:100%;height:100%;object-fit:cover;color:transparent}
+.reading-stream .s-mask{background:linear-gradient(180deg,#10111405 16%,#101114b8 56%,#101114 98%)}
+.reading-stream .s-card{width:min(100%,760px);padding:clamp(20px,4vw,48px)}
+.reading-stream .card-top{display:flex;gap:13px;align-items:center;color:#c8cbd2;font-size:12px;font-weight:600}
+.reading-stream .card-cat,.reading-stream .ad-kicker,.reading-stream .sub-label{color:var(--section-accent);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.reading-stream .card-hed,.reading-stream .ad-title,.reading-stream .sub-title{margin:12px 0;font-size:clamp(1.85rem,4.4vw,3.65rem);font-weight:720;letter-spacing:-.052em;line-height:1.08;text-wrap:balance;overflow-wrap:anywhere}
+.reading-stream .card-sum,.reading-stream .ad-copy,.reading-stream .sub-sub{margin:0;max-width:62ch;color:#c8cbd2;line-height:1.6}
+.reading-stream .card-foot,.reading-stream .ad-actions,.reading-stream .end-links{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:20px}
+.reading-stream .card-meta{flex-basis:100%;font-size:12px;color:#aeb2bc}
+.reading-stream .card-read,.reading-stream .card-next,.reading-stream .ad-cta,.reading-stream .end-links a{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:8px 15px;border:1px solid #4b4e57;border-radius:10px;background:#212329;color:#f5f5f6;font:600 14px/1.3 system-ui;text-decoration:none;cursor:pointer}
+.reading-stream .card-read,.reading-stream .ad-cta{background:#f0f1f4;color:#16171a;border-color:transparent}
+.reading-stream>.ad-slide{align-items:center;min-height:clamp(400px,72svh,620px);padding:clamp(24px,6vw,70px);background:#191b20}
+.reading-stream .ad-title br{display:none}.reading-stream .ad-cta{margin-right:4px}
+.reading-end{padding:20px 0;scroll-margin-top:80px}
+.reading-end .acq-site-footer{margin-top:35px}
+#modal-ov{box-sizing:border-box;position:fixed;inset:0;margin:auto;width:min(680px,calc(100% - 30px));max-height:88dvh;padding:0;overflow:auto;overscroll-behavior:contain;border:1px solid #3a3d46;border-radius:20px;background:#17191e;color:#f3f3f5}
+#modal-ov::backdrop,.acq-install-dialog::backdrop{background:#000b;backdrop-filter:none}
+#modal-ov .m-head{display:flex;position:sticky;top:0;align-items:center;justify-content:space-between;padding:10px 22px;background:#17191e;border-bottom:1px solid #30323a}
+#modal-ov .m-tag{font-size:13px;font-weight:700;color:var(--section-accent)}
+#modal-ov .m-close{border:1px solid #4b4e57;border-radius:50%;width:44px;height:44px;background:#25272d;color:#f5f5f5;font-size:24px;cursor:pointer}
+#modal-ov .m-body{padding:20px clamp(20px,5vw,38px) 30px}
+#modal-ov .m-hed{margin:0 0 9px;font-size:clamp(1.65rem,5vw,2.7rem);letter-spacing:-.04em;line-height:1.14}
+#modal-ov .m-src{color:#aaafba;font-size:12px}#modal-ov .m-text{line-height:1.75;color:#d7d9df}
+html:has(#modal-ov[open]),html:has(.acq-install-dialog[open]){overflow:hidden}
+.acq-section :focus-visible{outline:2px solid var(--section-accent);outline-offset:3px}
+.acq-install-card__newsletter{display:block;margin-top:12px;padding:5px 0;color:#e1e2e8;font:600 13px/1.4 system-ui;text-underline-offset:4px}
+@media(max-width:620px){
+  .reading-stream{width:calc(100% - 24px);padding-top:14px}
+  .reading-stream>.slide{min-height:clamp(440px,79svh,680px);border-radius:17px}
+  .reading-stream>.ad-slide{min-height:400px}
+  .reading-stream .s-card{padding:20px}
+  .reading-stream .card-hed{font-size:clamp(1.7rem,7.2vw,2.5rem)}
+  .reading-end{padding:18px 8px}
+}
+
+[data-acq-newsletter][hidden], [data-acq-install][hidden]{display:none!important}

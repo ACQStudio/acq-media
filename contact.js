@@ -32,7 +32,7 @@
       'Despre campanie:',
       read('brief'),
     ].join('\n');
-    status.textContent = 'Confirmă trimiterea în aplicația ta de e-mail. Dacă nu s-a deschis, poți scrie direct la hello@acq.studio.';
-    location.href = `mailto:hello@acq.studio?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    status.textContent = 'Confirmă trimiterea în aplicația ta de e-mail. Dacă nu s-a deschis, poți scrie direct la media@acq.ro.';
+    location.href = `mailto:media@acq.ro?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   });
 })();

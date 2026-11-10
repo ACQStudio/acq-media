@@ -26,7 +26,7 @@
     "brief": "Știri de cancan și showbiz din România și din lume, cu accent pe vedete, relații și evenimente mondene. Folosește CanCan.ro și categoria Entertainment din SOM NEWS și prioritizează știrile relevante recente; nu include știri generale, economie, politică sau bârfe neverificate. Atribuie explicit sursei acuzațiile și confirmă doar informațiile susținute de articol.",
    "feeds": [
     {"url": "https://news.soldoutmedia.ro/rss.xml", "categories": ["Entertainment"]},
-      "https://www.cancan.ro/rss"
+      "https://www.cancan.ro/feed"
    ],
    "fallback_images": [
     "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1600&q=88&auto=format&fit=crop",
