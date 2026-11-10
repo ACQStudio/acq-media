@@ -12,19 +12,19 @@
 <meta name="twitter:card" content="summary"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "ACQ Media", "inLanguage": "ro", "description": "Cele mai importante știri de azi, în Sport, Hot, Știri și Muzică. Pe scurt, cu sursa originală.", "url": "https://media.acq.ro/", "publisher": {"@type": "Organization", "name": "ACQ Media", "url": "https://media.acq.ro/"}}</script>
 <!--/SEO-->
-<link rel="stylesheet" href="site-ui.css?v=20261110"/>
-<link rel="stylesheet" href="home.css?v=20261110"/>
+<link rel="stylesheet" href="site-ui.css?v=20261110-2"/>
+<link rel="stylesheet" href="home.css?v=20261110-2"/>
 <link rel="manifest" href="manifest.webmanifest?v=20261110"/>
 <link rel="icon" href="icons/acq.svg" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon-2026.png"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="ACQ Media"/>
-<script defer src="site-ui.js?v=20261110"></script>
+<script defer src="site-ui.js?v=20261110-2"></script>
 </head>
 <body>
 <div class="wrap">
-<header class="topbar"><a class="brand" href="./">ACQ Media</a><nav aria-label="Navigare principală"><a class="archive-nav" href="arhiva.html">Arhivă <span aria-hidden="true">↗</span></a></nav></header>
+<header class="topbar"><a class="brand" href="./"><img class="acq-wordmark" src="icons/acq-media-wordmark.svg" alt="ACQ Media" width="154" height="32"></a><nav aria-label="Navigare principală"><a class="archive-nav" href="arhiva.html">Arhivă <span aria-hidden="true">↗</span></a></nav></header>
 <main>
 <section class="intro" aria-labelledby="page-title"><h1 id="page-title">Ediția de azi</h1><!--EDITION_DATE--><time class="date" datetime="2026-11-10">10 noiembrie 2026</time><!--/EDITION_DATE--></section>
 <nav class="section-grid" id="sections" aria-label="Secțiunile de azi"><!--CARDS-->
@@ -37,27 +37,5 @@
 <a class="archive-end" href="arhiva.html">Toate edițiile <span aria-hidden="true">↗</span></a>
 </main>
 </div>
-<script>
-(() => {
- const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
- const cards=[...document.querySelectorAll('#sections .f')];
- document.body.classList.add('home-ready');
- if(!reduced.matches&&'IntersectionObserver' in window){
-  const revealItems=[...cards,...document.querySelectorAll('.lead-story,.edition-story')];
-  const observer=new IntersectionObserver(entries=>{
-   entries.forEach(entry=>{
-    if(!entry.isIntersecting)return;
-    entry.target.classList.add('in-view');
-    observer.unobserve(entry.target);
-   });
-  },{threshold:.08,rootMargin:'0px 0px -12px 0px'});
-  revealItems.forEach((item,index)=>{
-   item.classList.add('motion-reveal');
-   item.style.setProperty('--delay',(index<cards.length?index*55:0)+'ms');
-   observer.observe(item);
-  });
- }
-})();
-</script>
 </body>
 </html>

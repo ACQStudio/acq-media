@@ -1,10 +1,10 @@
 'use strict';
 
-const ACQ_OFFLINE_CACHE = 'acq-offline-v1';
+const ACQ_OFFLINE_CACHE = 'acq-offline-v2';
 const ACQ_OFFLINE_URL = new URL('offline.html', self.registration.scope).href;
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(ACQ_OFFLINE_CACHE).then(cache => cache.add(ACQ_OFFLINE_URL)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(ACQ_OFFLINE_CACHE).then(cache => cache.addAll([ACQ_OFFLINE_URL, new URL('icons/acq-media-wordmark.svg', self.registration.scope).href])).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', event => {

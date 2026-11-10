@@ -64,7 +64,7 @@
     footer.innerHTML = `
       <div class="acq-site-footer__grid">
         <div class="acq-site-footer__identity">
-          <a class="acq-site-footer__brand" href="${url('index.html')}">ACQ Media</a>
+          <a class="acq-site-footer__brand" href="${url('index.html')}"><img class="acq-wordmark" src="${url('icons/acq-media-wordmark.svg')}" alt="ACQ Media" width="165" height="37"></a>
           <p class="acq-site-footer__powered">Realizat de <a href="https://acq.ro/" target="_blank" rel="noopener">ACQ Studio</a></p>
           <p class="acq-site-footer__note">Știri selectate și rezumate automat din surse publice. Sursa originală este menționată în fiecare articol. Verifică informațiile importante în surse oficiale.</p>
         </div>
@@ -101,7 +101,7 @@
   }
 
   function maybeOfferInstallation() {
-    if (!ready || !invitationReady || (!isHome && !document.body.classList.contains('acq-section')) || isStandalone() || read(installedKey) === 'yes' || dismissedRecently() || !invitationAvailable() || document.querySelector('dialog[open]') || document.hidden) return;
+    if (!ready || !invitationReady || (!isHome && !document.body.classList.contains('acq-slides')) || isStandalone() || read(installedKey) === 'yes' || dismissedRecently() || !invitationAvailable() || document.querySelector('dialog[open]') || document.hidden) return;
     if (!toast) {
       toast = document.createElement('aside');
       toast.className = 'acq-install-card';
@@ -193,9 +193,9 @@
   });
 
   function initReading() {
-    const articleDialog = document.querySelector('.acq-section #modal-ov');
+    const articleDialog = document.querySelector('.acq-slides #modal-ov');
     if (!articleDialog || typeof ART === 'undefined') return;
-    const slides = [...document.querySelectorAll('#track > .slide'), document.querySelector('#ssub')].filter(Boolean);
+    const slides = [...document.querySelectorAll('#track > .slide')];
     const readingIndex = () => {
       const value = new URL(location.href).searchParams.get('articol');
       return value !== null && /^\d+$/.test(value) && ART[Number(value)] ? Number(value) : null;
@@ -214,7 +214,7 @@
         return;
       }
       const article = ART[index];
-      if (scrollToArticle) slides.find(slide => slide.dataset.articleIndex === String(index))?.scrollIntoView({ block: 'start' });
+      if (scrollToArticle) slides.find(slide => slide.dataset.articleIndex === String(index))?.scrollIntoView({ block: 'start', behavior: 'instant' });
       for (const [id, value] of [['m-tag', article.tag], ['m-src', article.src || article.meta || ''], ['m-hed', article.hed]]) {
         articleDialog.querySelector('#' + id).textContent = value;
       }
@@ -255,18 +255,76 @@
       slide.querySelector('button[data-next]')?.addEventListener('click', () => {
         const next = slides[index + 1];
         if (!next) return;
-        next.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+        next.scrollIntoView({ block: 'start', behavior: 'instant' });
         const heading = next.querySelector('h2');
         if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
       });
     });
+    const pips = document.querySelector('#nav-pips');
+    const buttons = slides.map((slide, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'pip' + (slide.dataset.slideKind === 'advertisement' ? ' ad-pip' : '');
+      button.setAttribute('aria-label', slide.dataset.slideLabel || 'Finalul ediției');
+      button.setAttribute('aria-controls', slide.id);
+      button.addEventListener('click', () => slide.scrollIntoView({ block: 'start', behavior: 'instant' }));
+      pips?.appendChild(button);
+      return button;
+    });
+    let active = -1, scheduled = false;
+    function updatePosition() {
+      scheduled = false;
+      const middle = window.innerHeight / 2;
+      let nearest = 0, distance = Infinity;
+      slides.forEach((slide, index) => {
+        const rect = slide.getBoundingClientRect();
+        const gap = rect.top > middle ? rect.top - middle : rect.bottom < middle ? middle - rect.bottom : 0;
+        if (gap < distance) { distance = gap; nearest = index; }
+      });
+      if (nearest === active) return;
+      active = nearest;
+      buttons.forEach((button, index) => {
+        button.classList.toggle('on', index === active);
+        if (index === active) button.setAttribute('aria-current', 'step');
+        else button.removeAttribute('aria-current');
+      });
+    }
+    function schedulePosition() {
+      if (!scheduled) { scheduled = true; requestAnimationFrame(updatePosition); }
+    }
+    window.addEventListener('scroll', schedulePosition, { passive: true });
+    window.addEventListener('resize', schedulePosition, { passive: true });
+    window.addEventListener('pageshow', schedulePosition);
     const initial = readingIndex();
     if (initial !== null) renderArticle(initial, true);
+    updatePosition();
+  }
+
+  function showBrandIntro() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const key = 'acq.brand.intro.v1';
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, 'yes');
+    } catch (_) {}
+    const intro = document.createElement('div');
+    intro.className = 'acq-brand-intro';
+    intro.setAttribute('aria-hidden', 'true');
+    const logo = document.createElement('img');
+    logo.src = url('icons/acq-media-wordmark.svg');
+    logo.alt = '';
+    logo.width = 330;
+    logo.height = 74;
+    intro.appendChild(logo);
+    intro.addEventListener('animationend', event => { if (event.target === intro) intro.remove(); });
+    window.addEventListener('pageshow', event => { if (event.persisted) intro.remove(); }, { once: true });
+    document.body.appendChild(intro);
   }
 
   function init() {
     addFooter();
     initReading();
+    showBrandIntro();
     if (location.hostname === 'media.acq.ro' || location.hostname === 'www.media.acq.ro') {
       fetch(url('newsletter/?status=1'), {cache: 'no-store'}).then(r => r.ok ? r.json() : null).then(status => {
         signupAvailable = status?.signup === true;
