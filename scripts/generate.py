@@ -474,7 +474,7 @@ def write_batch(items):
     selected_limit = sum(min(N, sum(item["_section"] == section for item in items)) for section in briefs)
     schema = {"type": "OBJECT", "properties": {"articles": {"type": "ARRAY", "maxItems": selected_limit, "items": {
         "type": "OBJECT", "properties": {"id": {"type": "INTEGER"}, "skip": {"type": "BOOLEAN"},
-        "cat": {"type": "STRING", "enum": category_labels + [""]}, "hed": {"type": "STRING"}, "sum": {"type": "STRING"},
+        "cat": {"type": "STRING", "enum": category_labels}, "hed": {"type": "STRING"}, "sum": {"type": "STRING"},
         "body": {"type": "ARRAY", "items": {"type": "STRING"}}},
         "required": ["id", "skip", "cat", "hed", "sum", "body"]}}},
         "required": ["articles"]}
@@ -485,7 +485,7 @@ def write_batch(items):
         "Nu completa lista cu subiecte marginale, duplicate sau care țin de altă secțiune. Hot înseamnă cancan/showbiz, iar Muzică înseamnă muzică și industria sa. "
         "Nu amesteca secțiunile și nu combina articole. "
         "Returnează articolele selectate în ordinea importanței din fiecare secțiune. Poți omite ID-urile neselectate. "
-        "Pentru o știre publicabilă, skip=false și completează toate câmpurile. Pentru una insuficient documentată, skip=true, cat/hed/sum goale și body gol. "
+        "Pentru o știre publicabilă, skip=false și completează toate câmpurile. Pentru una insuficient documentată, skip=true, cat="Știri", hed/sum goale și body gol. "
         "Scrie în română TOATE câmpurile publicate: eticheta, titlul, rezumatul și paragrafele. Nu lăsa text în engleză; păstrează nemodificate doar numele proprii și mărcile. "
         "Redă în română faptele din surse în alte limbi, cu formulări proprii; nu traduce mot-a-mot și nu copia fraze. "
         "Folosește EXCLUSIV faptele din text. Nu inventa nume, cifre, date sau citate. "
