@@ -26,7 +26,7 @@ GEMINI_5XX_RETRIES = 1
 LUNI = "ianuarie februarie martie aprilie mai iunie iulie august septembrie octombrie noiembrie decembrie".split()
 HIST_F = ROOT / "data" / "history.json"
 USAGE_F = ROOT / "data" / "gemini_usage.json"
-MAX_DAILY_GEMINI_REQUESTS = 2
+MAX_DAILY_GEMINI_REQUESTS = 4
 REQUESTS_THIS_RUN = 0
 now = dt.datetime.now(ZoneInfo("Europe/Bucharest"))
 TODAY_ISO = now.strftime("%Y-%m-%d")
@@ -471,20 +471,25 @@ def write_batch(items):
         topics = ", ".join(c.get("topics", []))
         entries.append(f"ID: {i}\nSECȚIUNE: {c['_section']}\nSURSĂ: {c['source']}\nCATEGORII RSS: {topics}\nTITLU ORIGINAL: {c['title']}\nTEXT: {c['article_text']}")
     category_labels = ["Sport", "Fotbal", "Tenis", "Formula 1", "Monden", "Vedete", "Politică", "Geopolitică", "Afaceri", "Economie", "Știri", "Muzică", "Artiști", "Concerte", "Industrie muzicală"]
-    selected_limit = sum(min(N, sum(item["_section"] == section for item in items)) for section in briefs)
-    schema = {"type": "OBJECT", "properties": {"articles": {"type": "ARRAY", "maxItems": selected_limit, "items": {
-        "type": "OBJECT", "properties": {"id": {"type": "INTEGER"}, "skip": {"type": "BOOLEAN"},
+    section_counts = {section: sum(item["_section"] == section for item in items) for section in briefs}
+    section_limits = {section: min(N, count) for section, count in section_counts.items()}
+    section_minima = {section: min(4, count) for section, count in section_counts.items()}
+    selected_limit = sum(section_limits.values())
+    article_schema = {"type": "OBJECT", "properties": {"id": {"type": "INTEGER"}, "skip": {"type": "BOOLEAN"},
         "cat": {"type": "STRING", "enum": category_labels}, "hed": {"type": "STRING"}, "sum": {"type": "STRING"},
         "body": {"type": "ARRAY", "items": {"type": "STRING"}}},
-        "required": ["id", "skip", "cat", "hed", "sum", "body"]}}},
-        "required": ["articles"]}
+        "required": ["id", "skip", "cat", "hed", "sum", "body"]}
+    schema = {"type": "OBJECT", "properties": {
+        section: {"type": "ARRAY", "minItems": section_minima[section], "maxItems": section_limits[section], "items": article_schema}
+        for section in briefs
+    }, "required": list(briefs)}
     prompt = (
         "Ești redactor la un site de știri în limba română. Primești texte numerotate din mai multe secțiuni. "
-        f"Selectează și redactează {N} știri distincte, relevante și susținute clar pentru fiecare secțiune dacă există suficiente texte. "
+        f"Selectează 4-5 știri distincte și relevante pentru FIECARE secțiune. Când sunt cel puțin 4 texte complete într-o secțiune, întoarce minimum 4 și maximum 5. Nu întoarce doar una dacă există patru materiale documentate. "
         "Compară și textele de rezervă înainte să alegi. Dacă sursele nu susțin suficiente știri, păstrează doar câte sunt documentate. "
         "Nu completa lista cu subiecte marginale, duplicate sau care țin de altă secțiune. Hot înseamnă cancan/showbiz, iar Muzică înseamnă muzică și industria sa. "
         "Nu amesteca secțiunile și nu combina articole. "
-        "Returnează articolele selectate în ordinea importanței din fiecare secțiune. Poți omite ID-urile neselectate. "
+        "Răspunsul este un obiect cu câte o listă separată pentru fiecare cheie de secțiune din input: sport, hot, news, music. Fiecare articol rămâne în lista secțiunii sale. Citește și candidații de rezervă până obții minimum 4 per secțiune, dacă există 4 texte complete și distincte. "
         "Pentru o știre publicabilă, skip=false și completează toate câmpurile. Pentru una insuficient documentată, skip=true, cat „Știri”, hed/sum goale și body gol. "
         "Scrie în română TOATE câmpurile publicate: eticheta, titlul, rezumatul și paragrafele. Nu lăsa text în engleză; păstrează nemodificate doar numele proprii și mărcile. "
         "Redă în română faptele din surse în alte limbi, cu formulări proprii; nu traduce mot-a-mot și nu copia fraze. "
@@ -501,11 +506,14 @@ def write_batch(items):
     )
     output_limit = min(MAX_OUTPUT_TOKENS, max(2048, 512 + selected_limit * 600))
     result = gemini(prompt, schema, max_output_tokens=output_limit)
-    if not isinstance(result, dict) or not isinstance(result.get("articles"), list):
-        raise RuntimeError("Gemini nu a întors lista de articole cerută.")
-    by_id, ordered_ids = {}, []
-    returned = result.get("articles", [])
-    skipped = sum(1 for article in returned if isinstance(article, dict) and article.get("skip") is True)
+    if not isinstance(result, dict) or any(not isinstance(result.get(section), list) for section in briefs):
+        raise RuntimeError("Gemini nu a întors listele separate pentru toate secțiunile.")
+    by_id, ordered_ids, returned = {}, [], []
+    for section in briefs:
+        for article in result[section]:
+            if isinstance(article, dict):
+                returned.append({**article, "_requested_section": section})
+    skipped = sum(1 for article in returned if article.get("skip") is True)
     for article in returned:
         if not isinstance(article, dict):
             continue
@@ -526,9 +534,17 @@ def write_batch(items):
             print(f"  ! resping rezultatul {i}: rezumatul sau conținutul nu este în română", flush=True)
             continue
         c = items[i]
-        by_id[i] = {**article, "source": c["source"], "link": c["link"], "img": c["img"], "_section": c["_section"]}
+        if c["_section"] != article["_requested_section"]:
+            print(f"  ! resping rezultatul {i}: apare în secțiunea greșită", flush=True)
+            continue
+        clean_article = {key: value for key, value in article.items() if key != "_requested_section"}
+        by_id[i] = {**clean_article, "source": c["source"], "link": c["link"], "img": c["img"], "_section": c["_section"]}
         ordered_ids.append(i)
-    print(f"Gemini: a analizat {len(items)} texte, a returnat {len(returned)} rezultate, a marcat {skipped} ca skip și a validat {len(by_id)}.", flush=True)
+    validated_counts = {section: sum(item["_section"] == section for item in by_id.values()) for section in briefs}
+    print(f"Gemini: a analizat {len(items)} texte, a returnat {len(returned)} rezultate, a marcat {skipped} ca skip și a validat {len(by_id)}: {validated_counts}.", flush=True)
+    for section, minimum in section_minima.items():
+        if validated_counts.get(section, 0) < minimum:
+            raise RuntimeError(f"Gemini a validat {validated_counts.get(section, 0)} știri pentru {section}; minimul disponibil era {minimum}.")
     return [by_id[i] for i in ordered_ids]
 
 def render(name, cat, items):
