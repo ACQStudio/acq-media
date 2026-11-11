@@ -247,7 +247,11 @@ def gemini(prompt, schema, max_output_tokens=MAX_OUTPUT_TOKENS):
     if response.status_code == 404:
         raise RuntimeError(f"Modelul Gemini {MODEL} nu a fost găsit (HTTP 404). Verifică modelul din scripts/feeds.json.")
     if response.status_code == 400:
-        raise RuntimeError("Gemini a respins formatul cererii (HTTP 400). Verifică schema JSON și configurarea modelului.")
+        try:
+            detail = response.json().get("error", {}).get("message", "")
+        except Exception:
+            detail = response.text[:1000]
+        raise RuntimeError(f"Gemini a respins formatul cererii (HTTP 400): {detail}")
     response.raise_for_status()
 
     try:
@@ -467,7 +471,8 @@ def write_batch(items):
         topics = ", ".join(c.get("topics", []))
         entries.append(f"ID: {i}\nSECȚIUNE: {c['_section']}\nSURSĂ: {c['source']}\nCATEGORII RSS: {topics}\nTITLU ORIGINAL: {c['title']}\nTEXT: {c['article_text']}")
     category_labels = ["Sport", "Fotbal", "Tenis", "Formula 1", "Monden", "Vedete", "Politică", "Geopolitică", "Afaceri", "Economie", "Știri", "Muzică", "Artiști", "Concerte", "Industrie muzicală"]
-    schema = {"type": "OBJECT", "properties": {"articles": {"type": "ARRAY", "maxItems": len(items), "items": {
+    selected_limit = sum(min(N, sum(item["_section"] == section for item in items)) for section in briefs)
+    schema = {"type": "OBJECT", "properties": {"articles": {"type": "ARRAY", "maxItems": selected_limit, "items": {
         "type": "OBJECT", "properties": {"id": {"type": "INTEGER"}, "skip": {"type": "BOOLEAN"},
         "cat": {"type": "STRING", "enum": category_labels + [""]}, "hed": {"type": "STRING"}, "sum": {"type": "STRING"},
         "body": {"type": "ARRAY", "items": {"type": "STRING"}}},
@@ -494,7 +499,6 @@ def write_batch(items):
         + "\n".join(f"{section}: {brief}" for section, brief in briefs.items())
         + "\n\nTEXTE:\n" + "\n\n---\n\n".join(entries)
     )
-    selected_limit = sum(min(N, sum(item["_section"] == section for item in items)) for section in briefs)
     output_limit = min(MAX_OUTPUT_TOKENS, max(2048, 512 + selected_limit * 600))
     result = gemini(prompt, schema, max_output_tokens=output_limit)
     if not isinstance(result, dict) or not isinstance(result.get("articles"), list):
