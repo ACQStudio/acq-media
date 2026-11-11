@@ -82,6 +82,28 @@ jobs:
       - name: Salvează ediția și sincronizează main
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.publish_existing) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[testeaza-gemini]')) }}
         run: bash scripts/save_edition.sh "Ediția"
+      - name: Verifică minimum patru știri pe fiecare secțiune
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.publish_existing) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[testeaza-gemini]')) }}
+        run: |
+          python - <<'PY'
+          import datetime as dt
+          import json
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+
+          today = dt.datetime.now(ZoneInfo("Europe/Bucharest")).strftime("%Y-%m-%d")
+          path = Path("scripts/data/archive") / f"{today}.json"
+          if not path.is_file():
+              raise SystemExit(f"Lipsește ediția nouă pentru {today}.")
+          edition = json.loads(path.read_text(encoding="utf-8"))
+          counts = {section: len(edition.get(section, [])) for section in ("sport", "hot", "news", "music")}
+          missing = {section: count for section, count in counts.items() if count < 4}
+          print(f"Știri validate pe secțiune: {counts}")
+          if missing:
+              details = ", ".join(f"{section}: {count}" for section, count in missing.items())
+              raise SystemExit(f"Ediția incompletă; nu o public. Sunt necesare minimum 4 știri pe secțiune: {details}.")
+          PY
+
       - name: Pregătește site-ul pentru GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
