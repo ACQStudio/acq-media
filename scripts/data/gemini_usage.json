@@ -221,7 +221,7 @@
     },
     "2026-11-11": {
       "requests": 3,
-      "ai_completed": true,
+      "ai_completed": false,
       "reservations": {
         "42997991404-1": {
           "slots": 2,
@@ -244,11 +244,7 @@
           "reserved_at": "2026-11-11T18:05:17.291265+00:00",
           "finished_at": "2026-11-11T18:05:42.890169+00:00"
         }
-      },
-      "successful_run_id": "43074324259",
-      "ai_articles": 4,
-      "edition_articles": 4,
-      "evidence": "https://github.com/ACQStudio/acq-media/actions/runs/43074324259"
+      }
     }
   }
 }
