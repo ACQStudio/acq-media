@@ -39,7 +39,7 @@
   "news": {
    "file": "news.html",
    "meta_key": "meta",
-    "brief": "Politică, geopolitică și afaceri din România și din lume: decizii guvernamentale, alegeri, relații internaționale, conflicte, economie, companii, bănci, energie și piețe. Prioritizează impactul concret și separă clar faptele de opinii.",
+   "brief": "Ediție de 10 subiecte documentate din România și din lume. Acoperă geopolitică, politică internă, finanțe și piețe, afaceri și inteligență artificială cu impact economic sau legislativ. Caută evenimente distincte din mai multe regiuni și precizează consecințele concrete, cu cifre și atribuiri din surse.",
    "feeds": [
     {"url": "https://news.soldoutmedia.ro/rss.xml", "categories": ["Internațional", "Trending", "Tech & AI"]},
     "https://feeds.bbci.co.uk/news/world/rss.xml",
@@ -48,7 +48,14 @@
     "https://www.theguardian.com/politics/rss",
     "https://www.theguardian.com/business/rss",
     "https://www.digi24.ro/rss",
-    "https://www.zf.ro/rss"
+    "https://www.zf.ro/rss",
+    "https://www.profit.ro/rss",
+    "https://www.euronews.com/rss?format=mrss&level=theme&name=news",
+    "https://www.euronews.com/rss?format=mrss&level=vertical&name=business",
+    "https://rss.dw.com/rdf/rss-en-world",
+    "https://www.france24.com/en/asia-pacific/rss",
+    "https://www.cnbc.com/id/10000664/device/rss/rss.html",
+    "https://techcrunch.com/feed/"
    ],
    "fallback_images": [
     "https://images.unsplash.com/photo-1571867424488-4565932edb41?w=1600&q=88&auto=format&fit=crop",

@@ -5,11 +5,13 @@ import os, re, sys, json, time, html, calendar, unicodedata, subprocess, datetim
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from difflib import SequenceMatcher
+from itertools import zip_longest
 from zoneinfo import ZoneInfo
 from urllib.parse import urlparse
 sys.path.insert(0, str(Path(__file__).parent))
 import statics
 from provenance import resolve_original_source
+from social_tags import hashtags_for
 
 ROOT = Path(__file__).parent
 SITE = Path(os.getenv("SITE_DIR", ROOT.parent))
@@ -17,8 +19,8 @@ CFG = json.loads((ROOT / "feeds.json").read_text("utf-8"))
 MODEL = os.getenv("GEMINI_MODEL", CFG["model"])
 MIN_OK, MAX_AGE_H = 1, 40
 SECTION_LIMITS = {"sport": 5, "hot": 5, "news": 10, "music": 5}
-SECTION_PREPARED = {"sport": 7, "hot": 8, "news": 13, "music": 8}
-SECTION_ATTEMPTS = {"sport": 10, "hot": 12, "news": 18, "music": 12}
+SECTION_PREPARED = {"sport": 7, "hot": 8, "news": 19, "music": 8}
+SECTION_ATTEMPTS = {"sport": 10, "hot": 12, "news": 34, "music": 12}
 MAX_OUTPUT_TOKENS = 12000
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ACQMediaBot/1.0)"}
 RSS_CACHE = {}
@@ -285,6 +287,8 @@ def source_name(feed_url, feed_title):
         ("nme.com", "NME"), ("pitchfork.com", "Pitchfork"), ("billboard.com", "Billboard"),
         ("skysports.com", "Sky Sports"), ("espn.com", "ESPN"), ("people.com", "People"),
         ("eonline.com", "E! News"), ("euronews.com", "Euronews"),
+        ("profit.ro", "Profit.ro"), ("dw.com", "Deutsche Welle"), ("france24.com", "France 24"),
+        ("cnbc.com", "CNBC"), ("techcrunch.com", "TechCrunch"),
     )
     for suffix, name in known:
         if host == suffix or host.endswith("." + suffix):
@@ -353,6 +357,12 @@ MUSIC_ACTIVITY = re.compile(r"\b(?:music\w*|muzic\w*|album\w*|single\w*|song\w*|
 NEWS_SUBJECT = re.compile(r"\b(?:politic\w*|geopolitic\w*|aleger\w*|electoral\w*|midterms|guvern\w*|parlament\w*|presedint\w*|ministr\w*|diplomat\w*|ambasad\w*|armistiti\w*|razboi\w*|conflict\w*|militar\w*|sabotaj\w*|sanctiun\w*|nato|pentagon\w*|kremlin\w*|trump|putin|zelensk\w*|netanyahu|bolsonaro|georgescu|iran\w*|israel\w*|ucrain\w*|rusia|rusesti|houth\w*|economie|economic\w*|afacer\w*|business|contract\w*|corporat\w*|startup\w*|invest\w*|profit\w*|venit\w*|pierder\w*|listare\w*|burs\w*|actiuni|actionar\w*|fuziun\w*|achiziti\w*|concedier\w*|angajati|banc[ai]\w*|bank\w*|credit\w*|inflati\w*|petrol\w*|gaze|gazelor|energie|energetic\w*|comert\w*|tarif\w*|antitrust|reglement\w*)\b")
 NEWS_FOCUSED = re.compile(r"\b(?:politic\w*|geopolitic\w*|aleger\w*|electoral\w*|midterms|guvern\w*|parlament\w*|presedint\w*|ministr\w*|curtea de apel|diplomat\w*|armistiti\w*|razboi\w*|militar\w*|sanctiun\w*|economic\w*|economie|afacer\w*|business|contract\w*|corporat\w*|startup\w*|invest\w*|profit\w*|venit\w*|pierder\w*|listare\w*|burs\w*|actionar\w*|fuziun\w*|achiziti\w*|concedier\w*|angajati|banc[ai]\w*|bank\w*|credit\w*|inflati\w*|petrol\w*|energie|energetic\w*|comert\w*|tarif\w*|antitrust|reglement\w*)\b")
 NEWS_ENGLISH = re.compile(r"\b(?:politic\w*|geopolitic\w*|election\w*|electoral\w*|government\w*|parliament\w*|president\w*|minister\w*|legislat\w*|foreign policy|diplomac\w*|diplomat\w*|ceasefire\w*|peace talks|war|warfare|military|conflict\w*|sanction\w*|human rights|united nations|econom\w*|financ\w*|market\w*|invest\w*|business\w*|trade|export\w*|import\w*|tariff\w*|inflation|interest rates?|central bank\w*|budget\w*|tax\w*|debt\w*|stock\w*|shares?|shareholder\w*|corporat\w*|merger\w*|acquisition\w*|earnings|revenue\w*|profit\w*|valuation\w*|ipo|layoffs?|job cuts?|antitrust|regulation\w*)\b")
+NEWS_DESKS = {
+    "geopolitica": re.compile(r"\b(?:geopolitic\w*|diplomat\w*|sanctiun\w*|sanctions|nato|razboi\w*|armistiti\w*|peace talks|foreign policy|ceasefire|tarif\w*|united nations|uniunea europeana)\b"),
+    "politica": re.compile(r"\b(?:politic\w*|aleger\w*|election\w*|electoral\w*|guvern\w*|government\w*|parlament\w*|parliament\w*|presedint\w*|president\w*|ministr\w*|minister\w*)\b"),
+    "finante": re.compile(r"\b(?:finant\w*|financ\w*|inflati\w*|doband\w*|central bank|interest rates?|burs\w*|stock\w*|shares?|bonds?|obligatiun\w*|buget\w*|budget\w*|pib|gdp|banc[ai]\w*|bank\w*|macroeconom\w*)\b"),
+    "tehnologie": re.compile(r"\b(?:inteligent\w* artificial\w*|artificial intelligence|generative ai|ai models?|openai|chatgpt|nvidia|baidu|semiconduct\w*|cipuri|data cent(?:er|re)\w*|centre de date)\b"),
+}
 
 def relevant(item, section):
     """Filtrează subiectele clar greșite înainte de AI sau de rezerva RSS."""
@@ -370,12 +380,15 @@ def relevant(item, section):
             return "muzica" in topic_set or ("entertainment" in topic_set and bool(MUSIC_ACTIVITY.search(text)))
         return bool(MUSIC_SUBJECT.search(text))
     if section == "news":
+        tech = NEWS_DESKS["tehnologie"].search(text) and re.search(
+            r"\b(?:regulat\w*|reglement\w*|lans\w*|launch\w*|compani\w*|invest\w*|business\w*|enterpris\w*|industry|industri\w*)\b", text
+        )
         if som and topic_set.intersection(("trending", "tech & ai")):
-            return bool(NEWS_FOCUSED.search(text) or NEWS_ENGLISH.search(text))
+            return bool(tech or NEWS_FOCUSED.search(text) or NEWS_ENGLISH.search(text))
         feed_path = urlparse(item.get("feed_url", "")).path.lower()
         if not som and any(part in feed_path for part in ("business", "politics")):
             return True
-        return bool(NEWS_SUBJECT.search(text) or NEWS_ENGLISH.search(text))
+        return bool(tech or NEWS_SUBJECT.search(text) or NEWS_ENGLISH.search(text) or NEWS_DESKS["finante"].search(text))
     return True
 
 def candidates(cat):
@@ -446,6 +459,19 @@ def shortlist(items, limit=5):
             break
     return selected
 
+def news_shortlist(items, limit):
+    """Give each desk a chance before using the remaining slots for any topic."""
+    groups = {name: [] for name in (*NEWS_DESKS, "afaceri")}
+    for item in items:
+        headline = normalized(item["title"])
+        description = normalized(" ".join([item.get("snippet", ""), *item.get("topics", [])]))
+        desk = next((name for name, pattern in NEWS_DESKS.items() if pattern.search(headline)), None)
+        if desk is None:
+            desk = next((name for name, pattern in NEWS_DESKS.items() if pattern.search(description)), "afaceri")
+        groups[desk].append(item)
+    ranked = [shortlist(group, limit) for group in groups.values()]
+    return [item for row in zip_longest(*ranked) for item in row if item is not None][:limit]
+
 def prepare(c):
     import requests, trafilatura
     text, img = "", c.get("rss_img")
@@ -506,17 +532,21 @@ def write_batch(items):
         briefs.setdefault(c["_section"], c["_brief"])
         topics = ", ".join(c.get("topics", []))
         entries.append(f"ID: {i}\nSECȚIUNE: {c['_section']}\nSURSĂ: {c['source']}\nCATEGORII RSS: {topics}\nTITLU ORIGINAL: {c['title']}\nTEXT: {c['article_text']}")
-    category_labels = ["Sport", "Fotbal", "Tenis", "Formula 1", "Monden", "Vedete", "Politică", "Geopolitică", "Afaceri", "Economie", "Știri", "Muzică", "Artiști", "Concerte", "Industrie muzicală"]
+    category_labels = ["Sport", "Fotbal", "Tenis", "Formula 1", "Monden", "Vedete", "Politică", "Geopolitică", "Afaceri", "Economie", "Finanțe", "Inteligență artificială", "Știri", "Muzică", "Artiști", "Concerte", "Industrie muzicală"]
     section_counts = {section: sum(item["_section"] == section for item in items) for section in briefs}
     section_limits = {section: min(SECTION_LIMITS.get(section, 5), count) for section, count in section_counts.items()}
     section_minima = {section: min(4, count) for section, count in section_counts.items()}
-    selected_limit = sum(section_limits.values())
+    result_limits = dict(section_limits)
+    if "news" in result_limits:
+        result_limits["news"] = min(section_counts["news"], section_limits["news"] + 2)
+    selected_limit = sum(result_limits.values())
     article_schema = {"type": "OBJECT", "properties": {"id": {"type": "INTEGER"}, "skip": {"type": "BOOLEAN"},
         "cat": {"type": "STRING", "enum": category_labels}, "hed": {"type": "STRING"}, "sum": {"type": "STRING"},
         "body": {"type": "ARRAY", "items": {"type": "STRING"}}},
         "required": ["id", "skip", "cat", "hed", "sum", "body"]}
     schema = {"type": "OBJECT", "properties": {
-        section: {"type": "ARRAY", "minItems": section_minima[section], "maxItems": section_limits[section], "items": article_schema}
+        section: {"type": "ARRAY", "minItems": section_limits[section] if section == "news" else section_minima[section],
+                  "maxItems": result_limits[section], "items": article_schema}
         for section in briefs
     }, "required": list(briefs)}
     past_titles = recent_headlines()
@@ -526,8 +556,11 @@ def write_batch(items):
     ) or "Nu există titluri arhivate recente."
     prompt = (
         "Ești redactor la un site de știri în limba română. Primești texte numerotate din mai multe secțiuni. "
-        "Pentru Sport, Hot și Music selectează între 4 și 5 știri distincte; pentru News selectează între 4 și 10, în funcție de câte materiale bune există. "
-        "News trebuie să conțină politică, geopolitică sau afaceri/economie, cu prioritate pentru subiectele cu impact. Nu umple lista până la 10 cu materiale slabe. "
+        "Pentru Sport, Hot și Music selectează între 4 și 5 știri distincte. "
+        f"Ținta News este de {section_limits.get('news', 0)} știri publicabile. Parcurge toți candidații News, inclusiv rezervele, înainte de a încheia selecția. "
+        "Caută circa două subiecte de geopolitică, două de politică, două de afaceri, două de finanțe/economie, unul de inteligență artificială și încă un subiect important. "
+        "Include atât România, cât și mai multe regiuni ale lumii. Când o temă nu are suficiente texte, completează cu altă temă News bine documentată. "
+        "Ordonează News după importanță, cu știrile publicabile înaintea celor marcate skip. Poți include cel mult două articole de rezervă după ținta News. "
         "Hot trebuie să conțină exclusiv cancan/showbiz și vedete; exclude știrile generale și bârfele neconfirmate. Alege subiecte diferite și, pe cât posibil, cel mult o știre despre aceeași persoană în ediție. "
         "Pentru fiecare secțiune citește titlurile publicate în ultimele 7 zile de mai jos. Nu repeta aceeași știre, întâmplare sau un titlu doar reformulat. Dacă o persoană apare din nou, acceptă numai o evoluție clar nouă și relevantă. "
         "Nu întoarce doar una dacă există patru texte complete și distincte. "
@@ -535,7 +568,7 @@ def write_batch(items):
         "Nu completa lista cu subiecte marginale, duplicate sau care țin de altă secțiune. Muzică înseamnă muzică și industria sa. "
         "Nu amesteca secțiunile și nu combina articole. "
         "Răspunsul este un obiect cu câte o listă separată pentru fiecare cheie de secțiune din input: sport, hot, news, music. Fiecare articol rămâne în lista secțiunii sale. Citește și candidații de rezervă până obții minimum 4 per secțiune, dacă există 4 texte complete și distincte. "
-        "Pentru o știre publicabilă, skip=false și completează toate câmpurile. Pentru una insuficient documentată, skip=true, cat „Știri”, hed/sum goale și body gol. "
+        "Pentru o știre publicabilă, skip=false și completează toate câmpurile. Folosește skip=true, cat „Știri”, hed/sum goale și body gol numai dacă nu mai există candidați publicabili. "
         "Scrie în română TOATE câmpurile publicate: eticheta, titlul, rezumatul și paragrafele. Nu lăsa text în engleză; păstrează nemodificate doar numele proprii și mărcile. "
         "Redă în română faptele din surse în alte limbi, cu formulări proprii; nu traduce mot-a-mot și nu copia fraze. "
         "Folosește EXCLUSIV faptele din text. Nu inventa nume, cifre, date sau citate. "
@@ -592,6 +625,7 @@ def write_batch(items):
             print(f"  ! resping rezultatul {i}: titlu sau subiect repetat în ediția de azi ({section})", flush=True)
             continue
         clean_article = {key: value for key, value in article.items() if key != "_requested_section"}
+        clean_article["hashtags"] = hashtags_for(section, clean_article)
         by_id[i] = {**clean_article, "source": c["source"], "link": c["link"], "img": c["img"], "_section": c["_section"]}
         ordered_ids.append(i)
         accepted_titles[section].append(article["hed"])
@@ -600,7 +634,14 @@ def write_batch(items):
     for section, minimum in section_minima.items():
         if validated_counts.get(section, 0) < minimum:
             raise RuntimeError(f"Gemini a validat {validated_counts.get(section, 0)} știri pentru {section}; minimul disponibil era {minimum}.")
-    return [by_id[i] for i in ordered_ids]
+    selected_counts = {section: 0 for section in briefs}
+    selected_articles = []
+    for i in ordered_ids:
+        section = by_id[i]["_section"]
+        if selected_counts[section] < section_limits[section]:
+            selected_articles.append(by_id[i])
+            selected_counts[section] += 1
+    return selected_articles
 
 def render(name, cat, items):
     e, n, slides, art = html.escape, len(items), [], []
@@ -659,7 +700,7 @@ def main():
             available = candidates(cat)
             suitable = [item for item in available if relevant(item, name)]
             attempts = SECTION_ATTEMPTS.get(name, 10)
-            selected = shortlist(suitable, attempts)
+            selected = news_shortlist(suitable, attempts) if name == "news" else shortlist(suitable, attempts)
             print(f"  {len(available)} candidați RSS; {len(suitable)} se potrivesc secțiunii; maximum {len(selected)} articole pregătite pentru până la {SECTION_LIMITS.get(name, 5)} știri", flush=True)
             for item in selected:
                 all_candidates.append({**item, "_section": name, "_brief": cat["brief"]})

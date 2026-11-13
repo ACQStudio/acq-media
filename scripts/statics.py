@@ -9,10 +9,10 @@ FOLDER_NAME = {"sport": "Sport", "hot": "Hot", "news": "News", "music": "Music"}
 COL = {"sport": "#22c55e", "hot": "#ef4444", "news": "#e8e8ed", "music": "#3b82f6"}
 FOLDER = {"sport": "#172b20", "hot": "#301d22", "news": "#222428", "music": "#19263a"}
 TITLE = {"sport": "Știri sportive de azi", "hot": "CanCan și showbiz de azi",
-         "news": "Politică, geopolitică și afaceri, știrile de azi", "music": "Muzică și industria divertismentului, știrile de azi"}
+         "news": "Politică, geopolitică, afaceri, finanțe și AI", "music": "Muzică și industria divertismentului, știrile de azi"}
 DESC = {"sport": "Cele mai importante știri sportive ale zilei: fotbal, tenis, Formula 1 și rezultate majore, pe scurt, cu sursa originală.",
         "hot": "Știri CanCan de azi despre vedete și showbiz, pe scurt și cu link către sursa originală.",
-        "news": "Știri de politică, geopolitică și afaceri din România și din lume, pe scurt, cu sursa originală.",
+        "news": "Știri de politică, geopolitică, afaceri, finanțe și inteligență artificială din România și din lume.",
         "music": "Știri despre muzică și industria divertismentului: artiști, lansări, turnee, concerte și afaceri, cu sursa originală."}
 TOPIC = {"sport": "Fotbal · tenis · Formula 1", "hot": "CanCan · showbiz", "news": "Politică · geopolitică · afaceri",
          "music": "Muzică · industria divertismentului"}
@@ -139,7 +139,7 @@ def run(site, cfg, iso, today):
     sitemap_line = f"Sitemap: {base}/sitemap.xml\n" if base else ""
     (site / "robots.txt").write_text("User-agent: *\nAllow: /\n\n" + "".join(f"User-agent: {b}\nAllow: /\n\n" for b in bots) + sitemap_line, "utf-8")
     (site / "llms.txt").write_text(f"""# {BRAND}
-> Site românesc de știri zilnice, minimalist: până la cinci știri relevante pe zi în fiecare secțiune, rezumate în română din publicații românești și internaționale. Fiecare știre are link către articolul original.
+> Site românesc de știri zilnice. News urmărește zece subiecte documentate din politică, geopolitică, afaceri, finanțe și inteligență artificială. Sport, Hot și Music au până la cinci știri fiecare, redactate în română din surse naționale și internaționale.
 
 ## Secțiuni
 """ + "".join(f"- [{NAME[c]}]({base}/{c}.html): {DESC[c]}\n" for c in ORDER) + f"""

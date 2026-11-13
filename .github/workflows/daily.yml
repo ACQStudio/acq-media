@@ -9,6 +9,7 @@ on:
       - scripts/statics.py
       - scripts/generate.py
       - scripts/export_instagram.py
+      - scripts/social_tags.py
       - scripts/requirements-social.txt
       - scripts/test_export_instagram.py
       - scripts/provenance.py
@@ -102,6 +103,8 @@ jobs:
           if missing:
               details = ", ".join(f"{section}: {count}" for section, count in missing.items())
               raise SystemExit(f"Ediția incompletă; nu o public. Sunt necesare minimum 4 știri pe secțiune: {details}.")
+          if counts["news"] < 10:
+              print(f'::warning::News are {counts["news"]} știri validate din ținta de 10.')
           PY
 
       - name: Pregătește site-ul pentru GitHub Pages

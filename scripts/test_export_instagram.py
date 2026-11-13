@@ -46,11 +46,12 @@ class ExportTests(unittest.TestCase):
         row = manifest["articles"][0]
         self.assertNotIn("ș", row["image"])
         with Image.open(out / row["image"]) as image:
-            self.assertEqual(image.size, (1080, 1350))
+            self.assertEqual(image.size, (1080, 1080))
             self.assertEqual(image.mode, "RGB")
         caption = (out / row["caption_file"]).read_text(encoding="utf-8")
         self.assertIn(ARTICLE["hed"], caption)
-        self.assertIn("Sursa: Publicația de test", caption)
+        self.assertNotIn("Sursa:", caption)
+        self.assertNotIn("#ACQ", caption)
         self.assertEqual(len(caption), row["caption_characters"])
         self.assertLessEqual(len(caption), 2200)
         self.assertIn("2025-02-03", (out / "README.txt").read_text(encoding="utf-8"))

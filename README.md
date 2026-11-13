@@ -6,7 +6,7 @@ Site de știri în română, publicat la https://media.acq.ro prin GitHub Pages.
 
 Workflow-ul „Știri zilnice” rulează la 04:30, Europe/Bucharest. GitHub poate întârzia pornirea programată.
 
-Generatorul citește fluxurile configurate în scripts/feeds.json, publică până la cinci subiecte relevante pe secțiune și caută înlocuitori dacă sursele selectate nu pot fi citite. Pentru materialele descoperite prin Sold Out Media urmărește linkul explicit al publicației originale. Omite materialele fără sursă identificabilă sau fără suficient text.
+Generatorul citește fluxurile configurate în scripts/feeds.json. News are ca țintă zece articole din politică, geopolitică, afaceri, finanțe și inteligență artificială. Sport, Hot și Music au câte patru sau cinci subiecte, în funcție de materialele documentate. Pentru materialele descoperite prin Sold Out Media urmărește linkul explicit al publicației originale.
 
 Un singur lot Gemini redactează titlurile, rezumatele și articolele în română. Fiecare articol are trei paragrafe, aproximativ 100–160 de cuvinte, și mențiunea discretă a publicației de origine. Nu se completează ediția cu titluri ori fragmente RSS. Dacă serviciul AI nu răspunde, se păstrează ediția existentă.
 
@@ -26,7 +26,7 @@ Actions → Știri zilnice → Run workflow. Bifează „Doar republică fișier
 
 Galeria ACQ Studio este publicată separat, cu acces privat prin contul proprietarului în ChatGPT. Preia cea mai recentă ediție salvată și pregătește imaginile și descrierile pentru descărcare și publicare manuală. Nu solicită acces la conturile sociale și nu face apeluri Gemini suplimentare. Data afișată este data reală a ediției, inclusiv atunci când site-ul a păstrat o ediție mai veche.
 
-Pachetele pentru rețele sociale nu se mai distribuie automat ca artifacts în repository-ul public al site-ului. Exportul tipografic local rămâne disponibil pentru lucru fără rețea: `pip install -r scripts/requirements-social.txt`, apoi `python scripts/export_instagram.py --output /cale/noua/acq-instagram`. Python 3.12 și fonturi DejaVu Sans pe Linux sau Arial pe macOS.
+Exportul Instagram pregătește imagini pătrate de 1080 × 1080, cu fotografia întreagă, și descrieri cu hashtaguri în funcție de subiect. Pentru export local, instalează `pip install -r scripts/requirements-social.txt` și rulează `python scripts/export_instagram.py --output /cale/noua/acq-instagram`. Folosește Python 3.12 și fonturi DejaVu Sans pe Linux sau Arial pe macOS.
 
 ## Domeniu și instalare
 

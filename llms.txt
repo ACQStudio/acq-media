@@ -1,10 +1,10 @@
 # ACQ Media
-> Site românesc de știri zilnice, minimalist: până la cinci știri relevante pe zi în fiecare secțiune, rezumate în română din publicații românești și internaționale. Fiecare știre are link către articolul original.
+> Site românesc de știri zilnice. News urmărește zece subiecte documentate din politică, geopolitică, afaceri, finanțe și inteligență artificială. Sport, Hot și Music au până la cinci știri fiecare, redactate în română din surse naționale și internaționale.
 
 ## Secțiuni
 - [Sport](https://media.acq.ro/sport.html): Cele mai importante știri sportive ale zilei: fotbal, tenis, Formula 1 și rezultate majore, pe scurt, cu sursa originală.
 - [Hot](https://media.acq.ro/hot.html): Știri CanCan de azi despre vedete și showbiz, pe scurt și cu link către sursa originală.
-- [Știri](https://media.acq.ro/news.html): Știri de politică, geopolitică și afaceri din România și din lume, pe scurt, cu sursa originală.
+- [Știri](https://media.acq.ro/news.html): Știri de politică, geopolitică, afaceri, finanțe și inteligență artificială din România și din lume.
 - [Muzică](https://media.acq.ro/music.html): Știri despre muzică și industria divertismentului: artiști, lansări, turnee, concerte și afaceri, cu sursa originală.
 
 ## Arhivă

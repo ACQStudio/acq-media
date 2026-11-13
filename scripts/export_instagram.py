@@ -17,30 +17,17 @@ from urllib.parse import urlparse
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
+from social_tags import hashtags_for
+
 
 ROOT = Path(__file__).resolve().parent
-SIZE = (1080, 1350)
+SIZE = (1080, 1080)
 GENERATOR = "acq-instagram"
 SECTIONS = {
-    "sport": {"name": "Sport", "color": "#307c53", "hashtags": ["#ACQMedia", "#ACQSport", "#Sport"]},
-    "hot": {"name": "Hot", "color": "#b44948", "hashtags": ["#ACQMedia", "#ACQHot", "#ShowbizRomanesc"]},
-    "news": {"name": "News", "color": "#5e6670", "hashtags": ["#ACQMedia", "#ACQNews", "#Actualitate"]},
-    "music": {"name": "Music", "color": "#4b6a9c", "hashtags": ["#ACQMedia", "#ACQMusic", "#Muzica"]},
-}
-TOPIC_TAGS = {
-    "sport": [("fcsb", "#FCSB"), ("jovo lukic", "#JovoLukic"), ("jessica pegula", "#JessicaPegula"),
-              ("cricket", "#Cricket"), ("morgan rogers", "#MorganRogers"), ("fotbal", "#Fotbal"),
-              ("tenis", "#Tenis"), ("formula 1", "#Formula1"), ("box", "#Box")],
-    "hot": [("valentina din olt", "#ValentinaDinOlt"), ("toto dumitrescu", "#TotoDumitrescu"),
-            ("mihai dedu", "#MihaiDedu"), ("dana roba", "#DanaRoba"), ("asia express", "#AsiaExpress"),
-            ("influencer", "#Influenceri"), ("vedeta", "#Vedete")],
-    "news": [("portul constanta", "#PortulConstanta"), ("neptun deep", "#NeptunDeep"),
-             ("nvidia", "#Nvidia"), ("aukus", "#AUKUS"), ("ovidiu vanghele", "#OvidiuVanghele"),
-             ("politic", "#Politica"), ("geopolit", "#Geopolitica"), ("economie", "#Economie"),
-             ("afaceri", "#Afaceri")],
-    "music": [("duran duran", "#DuranDuran"), ("rosalia", "#Rosalia"),
-              ("camila fernandez", "#CamilaFernandez"), ("k-pop", "#KPop"),
-              ("concert", "#Concerte"), ("festival", "#Festivaluri"), ("album", "#AlbumNou")],
+    "sport": {"name": "Sport", "color": "#307c53"},
+    "hot": {"name": "Hot", "color": "#b44948"},
+    "news": {"name": "News", "color": "#5e6670"},
+    "music": {"name": "Music", "color": "#4b6a9c"},
 }
 
 
@@ -80,21 +67,9 @@ def slugify(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", plain).strip("-")[:72].rstrip("-") or "stire"
 
 
-def hashtags_for(section: str, article: dict) -> str:
-    searchable = article["hed"] + " " + article["sum"]
-    folded = unicodedata.normalize("NFKD", searchable).encode("ascii", "ignore").decode("ascii").lower()
-    tags = list(SECTIONS[section]["hashtags"])
-    for phrase, tag in TOPIC_TAGS[section]:
-        if phrase in folded and tag not in tags:
-            tags.append(tag)
-        if len(tags) >= 5:
-            break
-    return " ".join(tags[:5])
-
-
 def caption_for(section: str, article: dict) -> str:
     caption = (article["hed"] + "\n\n" + "\n\n".join(article["body"])
-               + "\n\n" + hashtags_for(section, article))
+               + "\n\n" + " ".join(hashtags_for(section, article)))
     if len(caption) > 2200:
         raise ExportError(f"Descrierea pentru «{article['hed']}» are {len(caption)} caractere; limita exportului este 2.200. Textul nu a fost trunchiat.")
     return caption
@@ -122,6 +97,8 @@ def load_articles(path: Path) -> tuple[str, list[dict]]:
             article = {field: clean_text(item.get(field), f"{context} / {field}")
                        for field in ("hed", "sum", "source")}
             article["img"] = item.get("img") if isinstance(item.get("img"), str) else ""
+            article["cat"] = item.get("cat") if isinstance(item.get("cat"), str) else ""
+            article["hashtags"] = item.get("hashtags") if isinstance(item.get("hashtags"), list) else []
             body = item.get("body")
             if not isinstance(body, list) or not 3 <= len(body) <= 4:
                 raise ExportError(f"{context}: body trebuie să conțină 3 sau 4 paragrafe.")
@@ -217,24 +194,32 @@ def render_poster(section: str, article: dict, edition: str, output: Path,
     draw = ImageDraw.Draw(image)
     ink, muted = "#161719", "#6d6c68"
     section_data = SECTIONS[section]
-    brand_font = ImageFont.truetype(str(bold), 32)
-    small_font = ImageFont.truetype(str(regular), 23)
-    draw.text((72, 73), f"ACQ {section_data['name']}", fill=ink, font=brand_font, anchor="lt")
+    # These margins also keep content inside the center of a 3:4 profile tile.
+    left, right = 148, 932
+    width = right - left
+    brand_font = ImageFont.truetype(str(bold), 36)
+    small_font = ImageFont.truetype(str(regular), 24)
+    draw.text((left, 72), f"ACQ {section_data['name']}", fill=ink, font=brand_font, anchor="lt")
     date_label = dt.date.fromisoformat(edition).strftime("%d.%m.%Y")
-    draw.text((1008, 79), date_label, fill=muted, font=small_font, anchor="rt")
-    draw.line((72, 145, 1008, 145), fill=section_data["color"], width=3)
+    draw.text((right, 78), date_label, fill=muted, font=small_font, anchor="rt")
+    draw.line((left, 132, right, 132), fill=section_data["color"], width=3)
     photo = source_photo(article.get("img", ""))
     if photo is not None:
-        photo = ImageOps.fit(photo, (936, 490), method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
-        image.paste(photo, (72, 190))
+        frame_top, frame_height = 168, 456
+        draw.rectangle((left, frame_top, right - 1, frame_top + frame_height - 1), fill="#ebe8e1")
+        photo = ImageOps.contain(photo, (width, frame_height), method=Image.Resampling.LANCZOS)
+        image.paste(photo, (left + (width - photo.width) // 2, frame_top + (frame_height - photo.height) // 2))
+        title_y = 664
     else:
-        draw.rounded_rectangle((72, 190, 1008, 680), radius=22, fill=section_data["color"])
-        label_font = ImageFont.truetype(str(bold), 48)
-        draw.text((120, 385), f"ACQ {section_data['name'].upper()}", fill="#f5f3ee", font=label_font, anchor="lm")
-    font, lines, step = fit_text(draw, article["hed"], bold, 936, 392, 76, 45, 1.12)
-    draw_lines(draw, (72, 730), lines, font, step, ink)
-    draw.line((72, 1211, 1008, 1211), fill="#d7d5cf", width=1)
-    draw.text((72, 1295), "media.acq.ro", fill=muted, font=ImageFont.truetype(str(regular), 20), anchor="lt")
+        title_y = 206
+    font, lines, step = fit_text(draw, article["hed"], bold, width, 286 if photo else 445, 66 if photo else 88, 42, 1.13)
+    draw_lines(draw, (left, title_y), lines, font, step, ink)
+    if photo is None:
+        summary_y = title_y + len(lines) * step + 34
+        font, lines, step = fit_text(draw, article["sum"], regular, width, 936 - summary_y, 34, 23, 1.24)
+        draw_lines(draw, (left, summary_y), lines, font, step, muted)
+    draw.line((left, 977, right, 977), fill="#d7d5cf", width=1)
+    draw.text((left, 1002), "media.acq.ro", fill=muted, font=small_font, anchor="lt")
     image.save(output, format="PNG", optimize=True)
 
 
@@ -279,11 +264,11 @@ def export(archive: Path, output: Path, font_regular: Path | None = None,
                 "caption_file": record["caption_file"], "caption_characters": len(record["caption"])})
         (stage / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         readme = (f"ACQ Media — pachet Instagram\nEdiția: {edition}\nȘtiri: {len(records)}\n\n"
-                  "Fiecare știre are o imagine PNG de 1080 × 1350 și un fișier TXT cu descrierea în română.\n"
+                  "Fiecare știre are o imagine PNG pătrată de 1080 × 1080 și un fișier TXT cu descrierea în română.\n"
                   "1. Verifică știrea și data ediției înainte de publicare.\n"
-                  "2. Încarcă imaginea în Instagram.\n"
+                  "2. Încarcă imaginea în Instagram și păstrează încadrarea originală (1:1).\n"
                   "3. Copiază descrierea din fișierul TXT cu același nume și publică manual.\n\n"
-                  "Fiecare imagine folosește fotografia articolului, dacă este disponibilă, cu un design ACQ și titlul știrii.\n"
+                  "Fotografia articolului, când este disponibilă, apare întreagă în afișul ACQ.\n"
                   "Descrierile includ textul știrii și hashtaguri tematice. Exportul nu apelează AI și nu publică în contul Instagram.\n"
                   "Data este cea a arhivei, chiar dacă pachetul este refăcut într-o altă zi.\n")
         (stage / "README.txt").write_text(readme, encoding="utf-8")
