@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exportă ediția ACQ în imagini și descrieri Instagram, fără rețea sau AI."""
+"""Exportă ediția ACQ în imagini și descrieri Instagram, fără apeluri AI."""
 from __future__ import annotations
 
 import argparse
@@ -9,19 +9,37 @@ import re
 import shutil
 import tempfile
 import unicodedata
+import urllib.error
+import urllib.request
+from io import BytesIO
 from pathlib import Path
+from urllib.parse import urlparse
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 
 ROOT = Path(__file__).resolve().parent
 SIZE = (1080, 1350)
 GENERATOR = "acq-instagram"
 SECTIONS = {
-    "sport": {"name": "Sport", "color": "#307c53", "hashtags": "#ACQMedia #ACQSport #Sport"},
-    "hot": {"name": "Hot", "color": "#b44948", "hashtags": "#ACQMedia #ACQHot #Monden"},
-    "news": {"name": "News", "color": "#5e6670", "hashtags": "#ACQMedia #ACQNews #Stiri"},
-    "music": {"name": "Music", "color": "#4b6a9c", "hashtags": "#ACQMedia #ACQMusic #Muzica"},
+    "sport": {"name": "Sport", "color": "#307c53", "hashtags": ["#ACQMedia", "#ACQSport", "#Sport", "#SportRomanesc"]},
+    "hot": {"name": "Hot", "color": "#b44948", "hashtags": ["#ACQMedia", "#ACQHot", "#Showbiz", "#Monden"]},
+    "news": {"name": "News", "color": "#5e6670", "hashtags": ["#ACQMedia", "#ACQNews", "#Stiri", "#Romania"]},
+    "music": {"name": "Music", "color": "#4b6a9c", "hashtags": ["#ACQMedia", "#ACQMusic", "#Muzica", "#IndustriaMuzicala"]},
+}
+TOPIC_TAGS = {
+    "sport": [("fotbal", "#Fotbal"), ("tenis", "#Tenis"), ("formula 1", "#Formula1"),
+              ("box", "#Box"), ("baschet", "#Baschet"), ("rugby", "#Rugby"),
+              ("olimp", "#JocurileOlimpice"), ("campion", "#Campionat")],
+    "hot": [("asia express", "#AsiaExpress"), ("divort", "#Vedete"), ("cantaret", "#Vedete"),
+            ("actor", "#Vedete"), ("influencer", "#Influenceri"), ("nunta", "#NuntaVedetelor"),
+            ("relatie", "#ShowbizRomanesc"), ("vedeta", "#VedeteRomania")],
+    "news": [("politic", "#Politica"), ("geopolit", "#Geopolitica"), ("aleger", "#Alegeri"),
+             ("economie", "#Economie"), ("economic", "#Economie"), ("afaceri", "#Afaceri"),
+             ("energie", "#Energie"), ("razboi", "#Actualitate"), ("ucrain", "#Ucraina")],
+    "music": [("concert", "#Concerte"), ("festival", "#Festivaluri"), ("album", "#AlbumNou"),
+              ("turneu", "#Turneu"), ("muzic", "#StiriMuzicale"), ("grammy", "#Grammy"),
+              ("spotify", "#Spotify"), ("artist", "#Artist")],
 }
 
 
@@ -61,9 +79,21 @@ def slugify(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", plain).strip("-")[:72].rstrip("-") or "stire"
 
 
+def hashtags_for(section: str, article: dict) -> str:
+    searchable = article["hed"] + " " + article["sum"] + " " + " ".join(article["body"])
+    folded = unicodedata.normalize("NFKD", searchable).encode("ascii", "ignore").decode("ascii").lower()
+    tags = list(SECTIONS[section]["hashtags"])
+    for phrase, tag in TOPIC_TAGS[section]:
+        if phrase in folded and tag not in tags:
+            tags.append(tag)
+        if len(tags) >= 5:
+            break
+    return " ".join(tags[:5])
+
+
 def caption_for(section: str, article: dict) -> str:
     caption = (article["hed"] + "\n\n" + "\n\n".join(article["body"])
-               + "\n\nSursa: " + article["source"] + "\n\n" + SECTIONS[section]["hashtags"])
+               + "\n\n" + hashtags_for(section, article))
     if len(caption) > 2200:
         raise ExportError(f"Descrierea pentru «{article['hed']}» are {len(caption)} caractere; limita exportului este 2.200. Textul nu a fost trunchiat.")
     return caption
@@ -90,6 +120,7 @@ def load_articles(path: Path) -> tuple[str, list[dict]]:
                 continue
             article = {field: clean_text(item.get(field), f"{context} / {field}")
                        for field in ("hed", "sum", "source")}
+            article["img"] = item.get("img") if isinstance(item.get("img"), str) else ""
             body = item.get("body")
             if not isinstance(body, list) or not 3 <= len(body) <= 4:
                 raise ExportError(f"{context}: body trebuie să conțină 3 sau 4 paragrafe.")
@@ -159,6 +190,26 @@ def draw_lines(draw, xy, lines, font, step, fill):
         y += step
 
 
+def source_photo(url: str) -> Image.Image | None:
+    parsed = urlparse(url)
+    if parsed.scheme != "https" or not parsed.hostname:
+        return None
+    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; ACQMediaPost/1.0)"})
+    try:
+        with urllib.request.urlopen(request, timeout=15) as response:
+            if not response.headers.get_content_type().startswith("image/"):
+                return None
+            data = response.read(12 * 1024 * 1024 + 1)
+        if len(data) > 12 * 1024 * 1024:
+            return None
+        photo = Image.open(BytesIO(data))
+        photo.verify()
+        photo = Image.open(BytesIO(data))
+        return ImageOps.exif_transpose(photo).convert("RGB")
+    except (OSError, ValueError, urllib.error.URLError):
+        return None
+
+
 def render_poster(section: str, article: dict, edition: str, output: Path,
                   regular: Path, bold: Path) -> None:
     image = Image.new("RGB", SIZE, "#f5f3ee")
@@ -171,13 +222,17 @@ def render_poster(section: str, article: dict, edition: str, output: Path,
     date_label = dt.date.fromisoformat(edition).strftime("%d.%m.%Y")
     draw.text((1008, 79), date_label, fill=muted, font=small_font, anchor="rt")
     draw.line((72, 145, 1008, 145), fill=section_data["color"], width=3)
-    font, lines, step = fit_text(draw, article["hed"], bold, 936, 660, 96, 52)
-    draw_lines(draw, (72, 224), lines, font, step, ink)
-    font, lines, step = fit_text(draw, article["sum"], regular, 936, 198, 32, 24, 1.28)
-    draw_lines(draw, (72, 958), lines, font, step, "#555650")
+    photo = source_photo(article.get("img", ""))
+    if photo is not None:
+        photo = ImageOps.fit(photo, (936, 490), method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
+        image.paste(photo, (72, 190))
+    else:
+        draw.rounded_rectangle((72, 190, 1008, 680), radius=22, fill=section_data["color"])
+        label_font = ImageFont.truetype(str(bold), 48)
+        draw.text((120, 385), f"ACQ {section_data['name'].upper()}", fill="#f5f3ee", font=label_font, anchor="lm")
+    font, lines, step = fit_text(draw, article["hed"], bold, 936, 392, 76, 45, 1.12)
+    draw_lines(draw, (72, 730), lines, font, step, ink)
     draw.line((72, 1211, 1008, 1211), fill="#d7d5cf", width=1)
-    font, lines, step = fit_text(draw, "Sursa: " + article["source"], regular, 936, 48, 21, 17)
-    draw_lines(draw, (72, 1240), lines, font, step, muted)
     draw.text((72, 1295), "media.acq.ro", fill=muted, font=ImageFont.truetype(str(regular), 20), anchor="lt")
     image.save(output, format="PNG", optimize=True)
 
@@ -227,8 +282,8 @@ def export(archive: Path, output: Path, font_regular: Path | None = None,
                   "1. Verifică știrea și data ediției înainte de publicare.\n"
                   "2. Încarcă imaginea în Instagram.\n"
                   "3. Copiază descrierea din fișierul TXT cu același nume și publică manual.\n\n"
-                  "Imaginile sunt grafică editorială ACQ; nu folosesc fotografii preluate sau generate.\n"
-                  "Descrierile reutilizează articolele ediției. Exportul nu apelează AI și nu publică în contul Instagram.\n"
+                  "Fiecare imagine folosește fotografia articolului, dacă este disponibilă, cu un design ACQ și titlul știrii.\n"
+                  "Descrierile includ textul știrii și hashtaguri tematice. Exportul nu apelează AI și nu publică în contul Instagram.\n"
                   "Data este cea a arhivei, chiar dacă pachetul este refăcut într-o altă zi.\n")
         (stage / "README.txt").write_text(readme, encoding="utf-8")
         if output.exists():

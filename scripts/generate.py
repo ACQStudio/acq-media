@@ -4,6 +4,7 @@ Rulare:  GEMINI_API_KEY=... python scripts/generate.py (opțiunea --dry-run nu s
 import os, re, sys, json, time, html, calendar, unicodedata, subprocess, datetime as dt
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
+from difflib import SequenceMatcher
 from zoneinfo import ZoneInfo
 from urllib.parse import urlparse
 sys.path.insert(0, str(Path(__file__).parent))
@@ -14,9 +15,10 @@ ROOT = Path(__file__).parent
 SITE = Path(os.getenv("SITE_DIR", ROOT.parent))
 CFG = json.loads((ROOT / "feeds.json").read_text("utf-8"))
 MODEL = os.getenv("GEMINI_MODEL", CFG["model"])
-N, MIN_OK, MAX_AGE_H = 5, 1, 40
-PREPARED_PER_SECTION = N + 2
-MAX_ARTICLE_ATTEMPTS = 12
+MIN_OK, MAX_AGE_H = 1, 40
+SECTION_LIMITS = {"sport": 5, "hot": 5, "news": 10, "music": 5}
+SECTION_PREPARED = {"sport": 7, "hot": 8, "news": 13, "music": 8}
+SECTION_ATTEMPTS = {"sport": 10, "hot": 12, "news": 18, "music": 12}
 MAX_OUTPUT_TOKENS = 12000
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ACQMediaBot/1.0)"}
 RSS_CACHE = {}
@@ -293,6 +295,40 @@ def normalized(value):
     text = unicodedata.normalize("NFKD", html.unescape(str(value))).lower()
     return re.sub(r"\s+", " ", "".join(c for c in text if not unicodedata.combining(c))).strip()
 
+TITLE_STOP_WORDS = set("despre dupa dintre catre care cum cand unde este sunt fost avea au va vor sa se nu si sau ii il le lor aceste acest aceasta acestia fiecare multe multi mai prin fata potrivit anunta spune arata ajunge primeste ramane publicat zilei zile de din la cu pe un o a in si iar dar pentru dupa fara intre sub peste".split())
+
+def title_words(value):
+    return {word for word in re.findall(r"[a-z0-9]+", normalized(value))
+            if len(word) > 3 and word not in TITLE_STOP_WORDS}
+
+def same_story_title(left, right, threshold=0.84):
+    a, b = normalized(left), normalized(right)
+    if not a or not b:
+        return False
+    if a == b or SequenceMatcher(None, a, b).ratio() >= threshold:
+        return True
+    wa, wb = title_words(a), title_words(b)
+    return bool(wa and wb and len(wa & wb) >= 4 and len(wa & wb) / len(wa | wb) >= 0.72)
+
+def recent_headlines(days=7):
+    grouped = {section: [] for section in SECTION_LIMITS}
+    archive = ROOT / "data" / "archive"
+    cutoff = now.date() - dt.timedelta(days=days)
+    for path in sorted(archive.glob("????-??-??.json"), reverse=True):
+        try:
+            published = dt.date.fromisoformat(path.stem)
+            if not cutoff <= published < now.date():
+                continue
+            edition = json.loads(path.read_text("utf-8"))
+        except (OSError, ValueError):
+            continue
+        for section in grouped:
+            for article in edition.get(section, []):
+                title = article.get("hed") if isinstance(article, dict) else None
+                if isinstance(title, str) and title.strip():
+                    grouped[section].append(title.strip())
+    return grouped
+
 RO_MARKERS = set("despre dupa dintre catre care cum cand unde este sunt fost avea au va vor sa se nu si sau ii il le lor aceste acest aceasta acestia fiecare multe multi mai prin fata potrivit anunta spune arata ajunge primeste ramane publicat publicata publicate zilei zile de din la cu pe anii anul azi ieri acum".split())
 EN_MARKERS = set("the and or of to for on as after with from at by is are was were has have had their its his her who what when where why how that which but than into over under against between about says said according following new more most rises fall falls surged declined reports shows showed becomes became years year today yesterday".split())
 
@@ -392,7 +428,7 @@ def candidates(cat):
         print(f"  {count:2d} articole noi  <- {url}", flush=True)
     return out
 
-def shortlist(items, limit=N):
+def shortlist(items, limit=5):
     """Păstrează surse diverse fără un apel Gemini separat de selecție."""
     by_source = {}
     for item in items:
@@ -447,7 +483,7 @@ def prepare_many(items):
         while True:
             pending = []
             for section, queue in queues.items():
-                needed = PREPARED_PER_SECTION - len(prepared[section])
+                needed = SECTION_PREPARED.get(section, 7) - len(prepared[section])
                 pending.extend(queue[:needed])
                 del queue[:needed]
             if not pending:
@@ -472,7 +508,7 @@ def write_batch(items):
         entries.append(f"ID: {i}\nSECȚIUNE: {c['_section']}\nSURSĂ: {c['source']}\nCATEGORII RSS: {topics}\nTITLU ORIGINAL: {c['title']}\nTEXT: {c['article_text']}")
     category_labels = ["Sport", "Fotbal", "Tenis", "Formula 1", "Monden", "Vedete", "Politică", "Geopolitică", "Afaceri", "Economie", "Știri", "Muzică", "Artiști", "Concerte", "Industrie muzicală"]
     section_counts = {section: sum(item["_section"] == section for item in items) for section in briefs}
-    section_limits = {section: min(N, count) for section, count in section_counts.items()}
+    section_limits = {section: min(SECTION_LIMITS.get(section, 5), count) for section, count in section_counts.items()}
     section_minima = {section: min(4, count) for section, count in section_counts.items()}
     selected_limit = sum(section_limits.values())
     article_schema = {"type": "OBJECT", "properties": {"id": {"type": "INTEGER"}, "skip": {"type": "BOOLEAN"},
@@ -483,11 +519,20 @@ def write_batch(items):
         section: {"type": "ARRAY", "minItems": section_minima[section], "maxItems": section_limits[section], "items": article_schema}
         for section in briefs
     }, "required": list(briefs)}
+    past_titles = recent_headlines()
+    history_context = "\n".join(
+        f"{section}: " + " | ".join(titles[:24])
+        for section, titles in past_titles.items() if titles
+    ) or "Nu există titluri arhivate recente."
     prompt = (
         "Ești redactor la un site de știri în limba română. Primești texte numerotate din mai multe secțiuni. "
-        f"Selectează 4-5 știri distincte și relevante pentru FIECARE secțiune. Când sunt cel puțin 4 texte complete într-o secțiune, întoarce minimum 4 și maximum 5. Nu întoarce doar una dacă există patru materiale documentate. "
+        "Pentru Sport, Hot și Music selectează între 4 și 5 știri distincte; pentru News selectează între 4 și 10, în funcție de câte materiale bune există. "
+        "News trebuie să conțină politică, geopolitică sau afaceri/economie, cu prioritate pentru subiectele cu impact. Nu umple lista până la 10 cu materiale slabe. "
+        "Hot trebuie să conțină exclusiv cancan/showbiz și vedete; exclude știrile generale și bârfele neconfirmate. Alege subiecte diferite și, pe cât posibil, cel mult o știre despre aceeași persoană în ediție. "
+        "Pentru fiecare secțiune citește titlurile publicate în ultimele 7 zile de mai jos. Nu repeta aceeași știre, întâmplare sau un titlu doar reformulat. Dacă o persoană apare din nou, acceptă numai o evoluție clar nouă și relevantă. "
+        "Nu întoarce doar una dacă există patru texte complete și distincte. "
         "Compară și textele de rezervă înainte să alegi. Dacă sursele nu susțin suficiente știri, păstrează doar câte sunt documentate. "
-        "Nu completa lista cu subiecte marginale, duplicate sau care țin de altă secțiune. Hot înseamnă cancan/showbiz, iar Muzică înseamnă muzică și industria sa. "
+        "Nu completa lista cu subiecte marginale, duplicate sau care țin de altă secțiune. Muzică înseamnă muzică și industria sa. "
         "Nu amesteca secțiunile și nu combina articole. "
         "Răspunsul este un obiect cu câte o listă separată pentru fiecare cheie de secțiune din input: sport, hot, news, music. Fiecare articol rămâne în lista secțiunii sale. Citește și candidații de rezervă până obții minimum 4 per secțiune, dacă există 4 texte complete și distincte. "
         "Pentru o știre publicabilă, skip=false și completează toate câmpurile. Pentru una insuficient documentată, skip=true, cat „Știri”, hed/sum goale și body gol. "
@@ -502,6 +547,7 @@ def write_batch(items):
         "Dacă textul-sursă nu susține cel puțin 3 paragrafe informative, marchează skip=true. "
         "Păstrează ID-ul fiecărui text și nu combina informații din articole diferite.\n\nSECȚIUNI:\n"
         + "\n".join(f"{section}: {brief}" for section, brief in briefs.items())
+        + "\n\nTITLURI DIN EDIȚIILE RECENTE — NU LE REPETA:\n" + history_context
         + "\n\nTEXTE:\n" + "\n\n---\n\n".join(entries)
     )
     output_limit = min(MAX_OUTPUT_TOKENS, max(2048, 512 + selected_limit * 600))
@@ -509,6 +555,7 @@ def write_batch(items):
     if not isinstance(result, dict) or any(not isinstance(result.get(section), list) for section in briefs):
         raise RuntimeError("Gemini nu a întors listele separate pentru toate secțiunile.")
     by_id, ordered_ids, returned = {}, [], []
+    accepted_titles = {section: [] for section in briefs}
     for section in briefs:
         for article in result[section]:
             if isinstance(article, dict):
@@ -537,9 +584,17 @@ def write_batch(items):
         if c["_section"] != article["_requested_section"]:
             print(f"  ! resping rezultatul {i}: apare în secțiunea greșită", flush=True)
             continue
+        section = c["_section"]
+        if any(same_story_title(article["hed"], old) for old in past_titles.get(section, [])):
+            print(f"  ! resping rezultatul {i}: titlul reia un subiect recent din {section}", flush=True)
+            continue
+        if any(same_story_title(article["hed"], old, threshold=0.78) for old in accepted_titles[section]):
+            print(f"  ! resping rezultatul {i}: titlu sau subiect repetat în ediția de azi ({section})", flush=True)
+            continue
         clean_article = {key: value for key, value in article.items() if key != "_requested_section"}
         by_id[i] = {**clean_article, "source": c["source"], "link": c["link"], "img": c["img"], "_section": c["_section"]}
         ordered_ids.append(i)
+        accepted_titles[section].append(article["hed"])
     validated_counts = {section: sum(item["_section"] == section for item in by_id.values()) for section in briefs}
     print(f"Gemini: a analizat {len(items)} texte, a returnat {len(returned)} rezultate, a marcat {skipped} ca skip și a validat {len(by_id)}: {validated_counts}.", flush=True)
     for section, minimum in section_minima.items():
@@ -603,8 +658,9 @@ def main():
         try:
             available = candidates(cat)
             suitable = [item for item in available if relevant(item, name)]
-            selected = shortlist(suitable, MAX_ARTICLE_ATTEMPTS)
-            print(f"  {len(available)} candidați RSS; {len(suitable)} se potrivesc secțiunii; maximum {len(selected)} descărcări pentru {N} știri", flush=True)
+            attempts = SECTION_ATTEMPTS.get(name, 10)
+            selected = shortlist(suitable, attempts)
+            print(f"  {len(available)} candidați RSS; {len(suitable)} se potrivesc secțiunii; maximum {len(selected)} articole pregătite pentru până la {SECTION_LIMITS.get(name, 5)} știri", flush=True)
             for item in selected:
                 all_candidates.append({**item, "_section": name, "_brief": cat["brief"]})
         except Exception as ex:
@@ -616,7 +672,7 @@ def main():
     if rss_only:
         print(f"\n{len(prepared)} titluri RSS disponibile; nu trimit cereri Gemini.", flush=True)
     else:
-        print(f"\n{len(prepared)} texte disponibile; redactez până la {N} știri relevante pe secțiune într-un singur apel Gemini", flush=True)
+        print(f"\n{len(prepared)} texte disponibile; redactez ediția într-un singur apel Gemini (până la 10 News, 5 pentru celelalte secțiuni)", flush=True)
     generated, ai_completed, budget_blocked, quota_exhausted = [], False, False, False
     api_key = os.getenv("GEMINI_API_KEY")
     if prepared and rss_only:
@@ -648,7 +704,7 @@ def main():
         return
 
     for name, cat in CFG["categories"].items():
-        items = [dict(item) for item in generated if item.get("_section") == name][:N]
+        items = [dict(item) for item in generated if item.get("_section") == name][:SECTION_LIMITS.get(name, 5)]
         if not rss_only:
             print(f"  Gemini a validat {len(items)} știri pentru {name}", flush=True)
         for item in items:
