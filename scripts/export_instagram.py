@@ -22,24 +22,25 @@ ROOT = Path(__file__).resolve().parent
 SIZE = (1080, 1350)
 GENERATOR = "acq-instagram"
 SECTIONS = {
-    "sport": {"name": "Sport", "color": "#307c53", "hashtags": ["#ACQMedia", "#ACQSport", "#Sport", "#SportRomanesc"]},
-    "hot": {"name": "Hot", "color": "#b44948", "hashtags": ["#ACQMedia", "#ACQHot", "#Showbiz", "#Monden"]},
-    "news": {"name": "News", "color": "#5e6670", "hashtags": ["#ACQMedia", "#ACQNews", "#Stiri", "#Romania"]},
-    "music": {"name": "Music", "color": "#4b6a9c", "hashtags": ["#ACQMedia", "#ACQMusic", "#Muzica", "#IndustriaMuzicala"]},
+    "sport": {"name": "Sport", "color": "#307c53", "hashtags": ["#ACQMedia", "#ACQSport", "#Sport"]},
+    "hot": {"name": "Hot", "color": "#b44948", "hashtags": ["#ACQMedia", "#ACQHot", "#ShowbizRomanesc"]},
+    "news": {"name": "News", "color": "#5e6670", "hashtags": ["#ACQMedia", "#ACQNews", "#Actualitate"]},
+    "music": {"name": "Music", "color": "#4b6a9c", "hashtags": ["#ACQMedia", "#ACQMusic", "#Muzica"]},
 }
 TOPIC_TAGS = {
-    "sport": [("fotbal", "#Fotbal"), ("tenis", "#Tenis"), ("formula 1", "#Formula1"),
-              ("box", "#Box"), ("baschet", "#Baschet"), ("rugby", "#Rugby"),
-              ("olimp", "#JocurileOlimpice"), ("campion", "#Campionat")],
-    "hot": [("asia express", "#AsiaExpress"), ("divort", "#Vedete"), ("cantaret", "#Vedete"),
-            ("actor", "#Vedete"), ("influencer", "#Influenceri"), ("nunta", "#NuntaVedetelor"),
-            ("relatie", "#ShowbizRomanesc"), ("vedeta", "#VedeteRomania")],
-    "news": [("politic", "#Politica"), ("geopolit", "#Geopolitica"), ("aleger", "#Alegeri"),
-             ("economie", "#Economie"), ("economic", "#Economie"), ("afaceri", "#Afaceri"),
-             ("energie", "#Energie"), ("razboi", "#Actualitate"), ("ucrain", "#Ucraina")],
-    "music": [("concert", "#Concerte"), ("festival", "#Festivaluri"), ("album", "#AlbumNou"),
-              ("turneu", "#Turneu"), ("muzic", "#StiriMuzicale"), ("grammy", "#Grammy"),
-              ("spotify", "#Spotify"), ("artist", "#Artist")],
+    "sport": [("fcsb", "#FCSB"), ("jovo lukic", "#JovoLukic"), ("jessica pegula", "#JessicaPegula"),
+              ("cricket", "#Cricket"), ("morgan rogers", "#MorganRogers"), ("fotbal", "#Fotbal"),
+              ("tenis", "#Tenis"), ("formula 1", "#Formula1"), ("box", "#Box")],
+    "hot": [("valentina din olt", "#ValentinaDinOlt"), ("toto dumitrescu", "#TotoDumitrescu"),
+            ("mihai dedu", "#MihaiDedu"), ("dana roba", "#DanaRoba"), ("asia express", "#AsiaExpress"),
+            ("influencer", "#Influenceri"), ("vedeta", "#Vedete")],
+    "news": [("portul constanta", "#PortulConstanta"), ("neptun deep", "#NeptunDeep"),
+             ("nvidia", "#Nvidia"), ("aukus", "#AUKUS"), ("ovidiu vanghele", "#OvidiuVanghele"),
+             ("politic", "#Politica"), ("geopolit", "#Geopolitica"), ("economie", "#Economie"),
+             ("afaceri", "#Afaceri")],
+    "music": [("duran duran", "#DuranDuran"), ("rosalia", "#Rosalia"),
+              ("camila fernandez", "#CamilaFernandez"), ("k-pop", "#KPop"),
+              ("concert", "#Concerte"), ("festival", "#Festivaluri"), ("album", "#AlbumNou")],
 }
 
 
@@ -80,7 +81,7 @@ def slugify(text: str) -> str:
 
 
 def hashtags_for(section: str, article: dict) -> str:
-    searchable = article["hed"] + " " + article["sum"] + " " + " ".join(article["body"])
+    searchable = article["hed"] + " " + article["sum"]
     folded = unicodedata.normalize("NFKD", searchable).encode("ascii", "ignore").decode("ascii").lower()
     tags = list(SECTIONS[section]["hashtags"])
     for phrase, tag in TOPIC_TAGS[section]:
