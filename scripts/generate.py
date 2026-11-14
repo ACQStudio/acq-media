@@ -17,7 +17,7 @@ ROOT = Path(__file__).parent
 SITE = Path(os.getenv("SITE_DIR", ROOT.parent))
 CFG = json.loads((ROOT / "feeds.json").read_text("utf-8"))
 MODEL = os.getenv("GEMINI_MODEL", CFG["model"])
-MIN_OK, MAX_AGE_H = 1, 40
+MIN_OK, MAX_AGE_H = 4, 40
 SECTION_LIMITS = {"sport": 5, "hot": 5, "news": 10, "music": 5}
 SECTION_PREPARED = {"sport": 7, "hot": 8, "news": 19, "music": 8}
 SECTION_ATTEMPTS = {"sport": 10, "hot": 12, "news": 34, "music": 12}
@@ -197,10 +197,44 @@ def reuse_edition(data):
         render(name, cat, data.get(name, []))
     statics.run(SITE, CFG, TODAY_ISO, data)
 
+def gemini_error_fields(response):
+    """Read only structured status codes and request field names for public logs."""
+    try:
+        error = response.json().get("error", {})
+    except (ValueError, AttributeError):
+        return {}, ""
+    if not isinstance(error, dict):
+        return {}, ""
+    fields = {}
+    status = error.get("status")
+    if isinstance(status, str) and re.fullmatch(r"[A-Z][A-Z0-9_]{0,60}", status):
+        fields["status"] = status
+    reasons, invalid_fields = [], []
+    details = error.get("details", [])
+    for detail in details if isinstance(details, list) else []:
+        if not isinstance(detail, dict):
+            continue
+        reason = detail.get("reason")
+        if isinstance(reason, str) and re.fullmatch(r"[A-Z][A-Z0-9_]{0,60}", reason):
+            if reason not in reasons and len(reasons) < 5:
+                reasons.append(reason)
+        violations = detail.get("fieldViolations", [])
+        for violation in violations if isinstance(violations, list) else []:
+            field = violation.get("field") if isinstance(violation, dict) else None
+            if isinstance(field, str) and re.fullmatch(r"(?:generation[_]?[cC]onfig|contents|model)(?:[.\[][a-zA-Z0-9_.\[\]]{0,130})?", field):
+                if field not in invalid_fields and len(invalid_fields) < 5:
+                    invalid_fields.append(field)
+    if reasons:
+        fields["motive"] = reasons
+    if invalid_fields:
+        fields["câmpuri"] = invalid_fields
+    message = error.get("message", "")
+    return fields, message if isinstance(message, str) else ""
+
 def gemini(prompt, schema, max_output_tokens=MAX_OUTPUT_TOKENS):
     import requests
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
-    print(f"Gemini API: folosesc modelul {MODEL} pentru un singur lot.", flush=True)
+    print(f"Gemini API: model={MODEL}, cerere={len(prompt.encode('utf-8'))} octeți de text, maxOutputTokens={max_output_tokens}.", flush=True)
     body = {"contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"maxOutputTokens": max_output_tokens, "thinkingConfig": {"thinkingLevel": "LOW"},
                                  "responseMimeType": "application/json", "responseSchema": schema}}
@@ -234,14 +268,11 @@ def gemini(prompt, schema, max_output_tokens=MAX_OUTPUT_TOKENS):
         break
 
     if response.status_code == 429:
-        try:
-            detail = response.json().get("error", {}).get("message", "")
-        except Exception:
-            detail = response.text
-        low = detail.lower()
+        fields, message = gemini_error_fields(response)
+        low = message.lower()
         if any(term in low for term in ("perday", "per day", "requests per day", "quota exceeded")):
-            raise GeminiQuotaError(f"Limita zilnică Gemini a fost atinsă: {detail}")
-        raise RuntimeError(f"Gemini a impus o limită temporară (HTTP 429); cererea nu a fost retrimisă: {detail}")
+            raise GeminiQuotaError(f"Limita zilnică Gemini a fost atinsă (HTTP 429). Detalii: {fields}.")
+        raise RuntimeError(f"Gemini a impus o limită temporară (HTTP 429); cererea nu a fost retrimisă. Detalii: {fields}.")
     if response.status_code >= 500:
         raise RuntimeError(f"Gemini este temporar indisponibil (HTTP {response.status_code}); cererea nu a fost retrimisă.")
     if response.status_code == 401:
@@ -251,19 +282,26 @@ def gemini(prompt, schema, max_output_tokens=MAX_OUTPUT_TOKENS):
     if response.status_code == 404:
         raise RuntimeError(f"Modelul Gemini {MODEL} nu a fost găsit (HTTP 404). Verifică modelul din scripts/feeds.json.")
     if response.status_code == 400:
-        try:
-            detail = response.json().get("error", {}).get("message", "")
-        except Exception:
-            detail = response.text[:1000]
-        raise RuntimeError(f"Gemini a respins formatul cererii (HTTP 400): {detail}")
+        fields, _ = gemini_error_fields(response)
+        raise RuntimeError(f"Gemini a respins formatul cererii (HTTP 400). Detalii: {fields}.")
     response.raise_for_status()
 
     try:
         payload = response.json()
     except ValueError as ex:
         raise RuntimeError("Gemini a răspuns cu un JSON invalid.") from ex
-    parts = payload.get("candidates", [{}])[0].get("content", {}).get("parts", [])
-    text = "".join(part.get("text", "") for part in parts if part.get("text"))
+    candidates = payload.get("candidates") or []
+    candidate = candidates[0] if candidates else {}
+    reason = candidate.get("finishReason") or payload.get("promptFeedback", {}).get("blockReason") or "UNKNOWN"
+    reason = reason if isinstance(reason, str) and re.fullmatch(r"[A-Z][A-Z0-9_]{0,60}", reason) else "UNKNOWN"
+    usage = payload.get("usageMetadata", {})
+    usage = {field: usage[field] for field in ("promptTokenCount", "candidatesTokenCount", "thoughtsTokenCount", "totalTokenCount")
+             if type(usage.get(field)) is int}
+    print(f"Gemini API: motiv de încheiere={reason}, tokenuri={usage}.", flush=True)
+    if reason == "MAX_TOKENS":
+        raise RuntimeError(f"Gemini a atins limita de {max_output_tokens} tokenuri; răspunsul incomplet nu a fost folosit.")
+    parts = candidate.get("content", {}).get("parts", [])
+    text = "".join(part.get("text", "") for part in parts if part.get("text") and not part.get("thought"))
     if not text:
         raise RuntimeError("Gemini a răspuns fără text; verifică Usage și Rate limits în AI Studio.")
     try:
@@ -535,18 +573,19 @@ def write_batch(items):
     category_labels = ["Sport", "Fotbal", "Tenis", "Formula 1", "Monden", "Vedete", "Politică", "Geopolitică", "Afaceri", "Economie", "Finanțe", "Inteligență artificială", "Știri", "Muzică", "Artiști", "Concerte", "Industrie muzicală"]
     section_counts = {section: sum(item["_section"] == section for item in items) for section in briefs}
     section_limits = {section: min(SECTION_LIMITS.get(section, 5), count) for section, count in section_counts.items()}
-    section_minima = {section: min(4, count) for section, count in section_counts.items()}
+    section_minima = {section: min(MIN_OK, count) for section, count in section_counts.items()}
     result_limits = dict(section_limits)
     if "news" in result_limits:
         result_limits["news"] = min(section_counts["news"], section_limits["news"] + 2)
     selected_limit = sum(result_limits.values())
+    # Keep the Gemini decoding schema small. Array bounds and a repeated enum
+    # can exceed its grammar limits. The prompt and Python validation enforce them.
     article_schema = {"type": "OBJECT", "properties": {"id": {"type": "INTEGER"}, "skip": {"type": "BOOLEAN"},
-        "cat": {"type": "STRING", "enum": category_labels}, "hed": {"type": "STRING"}, "sum": {"type": "STRING"},
+        "cat": {"type": "STRING"}, "hed": {"type": "STRING"}, "sum": {"type": "STRING"},
         "body": {"type": "ARRAY", "items": {"type": "STRING"}}},
         "required": ["id", "skip", "cat", "hed", "sum", "body"]}
     schema = {"type": "OBJECT", "properties": {
-        section: {"type": "ARRAY", "minItems": section_limits[section] if section == "news" else section_minima[section],
-                  "maxItems": result_limits[section], "items": article_schema}
+        section: {"type": "ARRAY", "items": article_schema}
         for section in briefs
     }, "required": list(briefs)}
     past_titles = recent_headlines()
@@ -573,13 +612,18 @@ def write_batch(items):
         "Redă în română faptele din surse în alte limbi, cu formulări proprii; nu traduce mot-a-mot și nu copia fraze. "
         "Folosește EXCLUSIV faptele din text. Nu inventa nume, cifre, date sau citate. "
         "Atribuie explicit sursei acuzațiile și declarațiile controversate. Ton neutru. "
-        "Pentru cat alege strict una dintre etichetele românești din schemă; hed = titlu de maximum 95 de caractere; "
+        f"Pentru cat alege strict una dintre aceste etichete: {', '.join(category_labels)}. "
+        "hed = titlu de maximum 95 de caractere; "
         "sum = rezumat de 1-2 propoziții, 25-35 de cuvinte; body = 3 paragrafe, aproximativ 100-160 de cuvinte în total. "
         "Corpul trebuie să dezvolte știrea: ce s-a întâmplat, detaliile concrete disponibile și contextul relevant din sursă. "
         "Nu repeta doar rezumatul și nu adăuga formule despre fluxul RSS, accesarea sursei sau lipsa informațiilor. "
         "Dacă textul-sursă nu susține cel puțin 3 paragrafe informative, marchează skip=true. "
         "Păstrează ID-ul fiecărui text și nu combina informații din articole diferite.\n\nSECȚIUNI:\n"
-        + "\n".join(f"{section}: {brief}" for section, brief in briefs.items())
+        + "\n".join(
+            f"{section}: țintă {section_limits[section]}, minimum {section_minima[section]} dacă există surse suficiente, "
+            f"maximum {result_limits[section]} rezultate. {brief}"
+            for section, brief in briefs.items()
+        )
         + "\n\nTITLURI DIN EDIȚIILE RECENTE — NU LE REPETA:\n" + history_context
         + "\n\nTEXTE:\n" + "\n\n---\n\n".join(entries)
     )
@@ -590,7 +634,7 @@ def write_batch(items):
     by_id, ordered_ids, returned = {}, [], []
     accepted_titles = {section: [] for section in briefs}
     for section in briefs:
-        for article in result[section]:
+        for article in result[section][:result_limits[section]]:
             if isinstance(article, dict):
                 returned.append({**article, "_requested_section": section})
     skipped = sum(1 for article in returned if article.get("skip") is True)
@@ -689,11 +733,11 @@ def main():
     if entry.get("ai_completed") and existing_edition:
         reuse_edition(existing_edition)
         return
-    api_allowed = has_gemini_reservation() if not rss_only else False
-    if not rss_only and not api_allowed and existing_edition:
+    api_allowed = has_gemini_reservation()
+    if not api_allowed and existing_edition:
         reuse_edition(existing_edition)
         return
-    ok_any, done, all_candidates = False, {}, []
+    done, all_candidates = {}, []
     for name, cat in CFG["categories"].items():
         print(f"\n== {name}", flush=True)
         try:
@@ -706,37 +750,37 @@ def main():
                 all_candidates.append({**item, "_section": name, "_brief": cat["brief"]})
         except Exception as ex:
             print(f"  ! eroare la colectarea știrilor: {ex}", flush=True)
-    if rss_only:
-        prepared = [{**item, "img": item.get("rss_img"), "article_text": item.get("snippet", "")} for item in all_candidates]
-    else:
-        prepared = prepare_many(all_candidates)
-    if rss_only:
-        print(f"\n{len(prepared)} titluri RSS disponibile; nu trimit cereri Gemini.", flush=True)
-    else:
-        print(f"\n{len(prepared)} texte disponibile; redactez ediția într-un singur apel Gemini (până la 10 News, 5 pentru celelalte secțiuni)", flush=True)
-    generated, ai_completed, budget_blocked, quota_exhausted = [], False, False, False
+    prepared = prepare_many(all_candidates)
+    prepared_counts = {name: sum(item["_section"] == name for item in prepared) for name in CFG["categories"]}
+    print(f"\nTexte disponibile pentru redactare: {prepared_counts}.", flush=True)
+    generated, quota_exhausted = [], False
     api_key = os.getenv("GEMINI_API_KEY")
-    if prepared and rss_only:
-        print("Rulare RSS-only: nu apelez Gemini; public titlurile și linkurile surselor.", flush=True)
-    elif prepared and api_key and api_allowed:
+    if any(count < MIN_OK for count in prepared_counts.values()):
+        print(f"Ediția are nevoie de minimum {MIN_OK} texte documentate pe fiecare secțiune. Păstrez ediția publicată.", flush=True)
+    elif api_key and api_allowed:
         try:
             generated = write_batch(prepared)
-            ai_completed = True
             print(f"Gemini: {REQUESTS_THIS_RUN} cereri în această rulare; {len(generated)} știri validate în total", flush=True)
         except GeminiQuotaError as ex:
             quota_exhausted = True
             print(f"\n! {ex}\n! Păstrez ediția publicată fără alte apeluri Gemini.", flush=True)
         except GeminiBudgetError as ex:
-            budget_blocked = True
             print(f"\n! {ex}\n! Păstrez ediția existentă dacă este disponibilă.", flush=True)
         except Exception as ex:
             print(f"\n! Gemini nu a putut redacta ediția: {ex}\n! Păstrez ediția publicată, fără alte apeluri Gemini.", flush=True)
-    elif prepared and api_key:
+    elif api_key:
         print("! Nu există o rezervare Gemini disponibilă; păstrez ediția publicată fără API.", flush=True)
-    elif prepared:
+    else:
         print("! GEMINI_API_KEY lipsește; păstrez ediția publicată fără apel Gemini.", flush=True)
 
-    if not generated:
+    for name in CFG["categories"]:
+        done[name] = [
+            {key: value for key, value in item.items() if key != "_section"}
+            for item in generated if item.get("_section") == name
+        ][:SECTION_LIMITS[name]]
+    counts = {name: len(items) for name, items in done.items()}
+    if any(count < MIN_OK for count in counts.values()):
+        print(f"Ediție incompletă după validare: {counts}. Păstrez ediția publicată.", flush=True)
         finish_gemini_reservation(quota_exhausted=quota_exhausted)
         if existing_edition:
             reuse_edition(existing_edition)
@@ -745,22 +789,13 @@ def main():
         return
 
     for name, cat in CFG["categories"].items():
-        items = [dict(item) for item in generated if item.get("_section") == name][:SECTION_LIMITS.get(name, 5)]
-        if not rss_only:
-            print(f"  Gemini a validat {len(items)} știri pentru {name}", flush=True)
-        for item in items:
-            item.pop("_section", None)
-        if len(items) < MIN_OK:
-            print(f"  ! {name}: doar {len(items)} știri bune -> afișez mesajul de ediție indisponibilă", flush=True)
-            render(name, cat, []); continue
+        items = done[name]
         for it in items: print(f"  + {it['hed'][:80]}", flush=True)
-        render(name, cat, items); ok_any = True; done[name] = items
+        render(name, cat, items)
         for it in items: HIST[it["link"]] = TODAY_ISO
     HIST_F.parent.mkdir(exist_ok=True); HIST_F.write_text(json.dumps(HIST, indent=0))
     statics.run(SITE, CFG, TODAY_ISO, done)
-    finish_gemini_reservation(ai_completed=ai_completed and bool(generated), article_count=len(generated), quota_exhausted=quota_exhausted)
-    if not ok_any:
-        print("\nNu s-au găsit suficiente știri verificate într-o secțiune; site-ul a fost actualizat cu starea ediției.", flush=True)
+    finish_gemini_reservation(ai_completed=True, article_count=sum(counts.values()))
     sys.exit(0)
 
 if __name__ == "__main__":
