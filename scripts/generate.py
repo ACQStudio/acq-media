@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from difflib import SequenceMatcher
 from itertools import zip_longest
 from zoneinfo import ZoneInfo
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlparse
 sys.path.insert(0, str(Path(__file__).parent))
 import statics
 from provenance import resolve_original_source
@@ -429,6 +429,35 @@ def relevant(item, section):
         return bool(tech or NEWS_SUBJECT.search(text) or NEWS_ENGLISH.search(text) or NEWS_DESKS["finante"].search(text))
     return True
 
+BBC_ARTICLE_HOSTS = {"bbc.com", "www.bbc.com", "bbc.co.uk", "www.bbc.co.uk"}
+BBC_TRACKING_PARAMS = {"at_medium", "at_campaign", "at_link_type", "at_link_id", "at_link_origin"}
+TRACKING_PARAMS = {"fbclid", "gclid"}
+
+def article_url_key(link):
+    """Identify the same source URL without changing the link we fetch or publish."""
+    try:
+        parsed = urlparse(link)
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            return link
+        host, port, path = parsed.hostname, parsed.port, parsed.path or "/"
+    except ValueError:
+        return link
+    ignored_params = TRACKING_PARAMS
+    if host in BBC_ARTICLE_HOSTS:
+        host = "bbc.co.uk"
+        path = path.rstrip("/") or "/"
+        ignored_params = TRACKING_PARAMS | BBC_TRACKING_PARAMS
+    if port == (443 if parsed.scheme == "https" else 80):
+        port = None
+    query = tuple(sorted(
+        (name, value) for name, value in parse_qsl(parsed.query, keep_blank_values=True)
+        if not name.lower().startswith("utm_") and name.lower() not in ignored_params
+    ))
+    return host, port, path, parsed.params, query
+
+def previous_article_keys():
+    return {article_url_key(link) for link, date in HIST.items() if date != TODAY_ISO}
+
 def candidates(cat):
     import requests, feedparser
     cut = time.time() - MAX_AGE_H * 3600
@@ -464,16 +493,20 @@ def candidates(cat):
     feeds = cat["feeds"]
     with ThreadPoolExecutor(max_workers=min(6, len(feeds) or 1)) as pool:
         feed_results = list(pool.map(read_feed, feeds))
-    out, seen = [], set()
+    out, seen_titles, seen_links = [], set(), set()
+    previous_links = previous_article_keys()
     for url, found, error in feed_results:
         if error:
             print(f"  ! feed indisponibil {url}: {error}", flush=True)
             continue
         count = 0
         for item in found:
-            key = re.sub(r"\W+", "", item["title"].lower())[:60]
-            if key in seen or (item["link"] in HIST and HIST[item["link"]] != TODAY_ISO): continue
-            seen.add(key)
+            title_key = re.sub(r"\W+", "", item["title"].lower())[:60]
+            link_key = article_url_key(item["link"])
+            if title_key in seen_titles or link_key in seen_links or link_key in previous_links:
+                continue
+            seen_titles.add(title_key)
+            seen_links.add(link_key)
             out.append(item)
             count += 1
         print(f"  {count:2d} articole noi  <- {url}", flush=True)
@@ -543,6 +576,7 @@ def prepare_many(items):
         queues.setdefault(item["_section"], []).append(item)
     prepared = {section: [] for section in queues}
     seen = {section: set() for section in queues}
+    previous_links = previous_article_keys()
     with ThreadPoolExecutor(max_workers=12) as pool:
         while True:
             pending = []
@@ -555,9 +589,9 @@ def prepare_many(items):
             for item in pool.map(prepare, pending):
                 if item is None:
                     continue
-                section, link = item["_section"], item["link"]
+                section, link = item["_section"], article_url_key(item["link"])
                 # Two feed entries can resolve to the same original article.
-                if link in seen[section] or (link in HIST and HIST[link] != TODAY_ISO):
+                if link in seen[section] or link in previous_links:
                     continue
                 seen[section].add(link)
                 prepared[section].append(item)
@@ -610,7 +644,8 @@ def write_batch(items):
         "Pentru o știre publicabilă, skip=false și completează toate câmpurile. Folosește skip=true, cat „Știri”, hed/sum goale și body gol numai dacă nu mai există candidați publicabili. "
         "Scrie în română TOATE câmpurile publicate: eticheta, titlul, rezumatul și paragrafele. Nu lăsa text în engleză; păstrează nemodificate doar numele proprii și mărcile. "
         "Redă în română faptele din surse în alte limbi, cu formulări proprii; nu traduce mot-a-mot și nu copia fraze. "
-        "Folosește EXCLUSIV faptele din text. Nu inventa nume, cifre, date sau citate. "
+        "Relatează doar ce confirmă textul sursă. Verifică numele, data și scorul în text și omite orice detaliu nesusținut. "
+        "Separă deciziile oficiale și rezultatele confirmate de comentarii, estimări, propuneri și declarații. Atribuie aceste afirmații exact persoanei sau publicației care le-a făcut. "
         "Atribuie explicit sursei acuzațiile și declarațiile controversate. Ton neutru. "
         f"Pentru cat alege strict una dintre aceste etichete: {', '.join(category_labels)}. "
         "hed = titlu de maximum 95 de caractere; "
