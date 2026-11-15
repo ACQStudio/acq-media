@@ -4,7 +4,7 @@ Site de știri în română, publicat la https://media.acq.ro prin GitHub Pages.
 
 ## Ediția zilnică
 
-Workflow-ul „Știri zilnice” rulează la 04:30, Europe/Bucharest. GitHub poate întârzia pornirea programată.
+Workflow-ul „Știri zilnice” este programat la 04:30, ora României. O a doua rulare, la 06:17, poate relua generarea dacă încă lipsește o ediție completă. GitHub poate întârzia pornirea programată.
 
 Generatorul citește fluxurile configurate în scripts/feeds.json. News are ca țintă zece articole din politică, geopolitică, afaceri, finanțe și inteligență artificială. Sport, Hot și Music au câte patru sau cinci subiecte, în funcție de materialele documentate. Pentru materialele descoperite prin Sold Out Media urmărește linkul explicit al publicației originale.
 
@@ -12,9 +12,9 @@ Un singur lot Gemini redactează titlurile, rezumatele și articolele în român
 
 ## Plafonul API
 
-Model: gemini-3.5-flash-lite. Maximum două cereri Gemini pe zi, pentru întregul site. În mod normal este suficientă una. Se poate retrimite o singură dată numai la răspunsuri 5xx și numai dacă mai există un slot zilnic. Nu se repetă timeout-urile sau erorile 429.
+Model: gemini-3.5-flash-lite. Maximum două cereri Gemini pe zi pentru întregul site, câte una pe rulare. La o eroare temporară, următoarea rulare poate folosi cererea rămasă. Dacă ediția a fost deja salvată complet sau cota zilnică este epuizată, rularea nu apelează API-ul.
 
-Înainte de API, workflow-ul rezervă sloturile în scripts/data/gemini_usage.json și le salvează în main. Generatorul verifică rezervarea salvată înainte de HTTP. O rulare anulată păstrează conservator sloturile rezervate până a doua zi. După o ediție AI reușită, reluarea workflow-ului refolosește ediția fără alte apeluri.
+Înainte de API, workflow-ul rezervă o cerere în scripts/data/gemini_usage.json și salvează rezervarea în main. Generatorul verifică rezervarea salvată înainte de HTTP. O rulare anulată păstrează conservator cererea rezervată până a doua zi. Reluarea workflow-ului refolosește o ediție completă fără alte apeluri.
 
 Plafonul aparține acestui repository; alte aplicații care folosesc același proiect Google au consum separat. Cota gratuită și facturarea se verifică în Google AI Studio pentru proiectul cheii. Cheia rămâne numai în secretul GitHub GEMINI_API_KEY.
 

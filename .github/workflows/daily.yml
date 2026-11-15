@@ -30,6 +30,9 @@ on:
   schedule:
     - cron: "30 4 * * *"
       timezone: "Europe/Bucharest"
+    # Retry later if the first run could not save a complete edition.
+    - cron: "17 6 * * *"
+      timezone: "Europe/Bucharest"
   workflow_dispatch:
     inputs:
       publish_existing:

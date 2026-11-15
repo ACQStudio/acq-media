@@ -25,12 +25,11 @@ MAX_OUTPUT_TOKENS = 12000
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ACQMediaBot/1.0)"}
 RSS_CACHE = {}
 FEED_TIMEOUT, ARTICLE_TIMEOUT, GEMINI_TIMEOUT = (5, 12), (5, 15), (10, 120)
-# Retry transient server responses once; never retry a timeout or a quota error.
-GEMINI_5XX_RETRIES = 1
 LUNI = "ianuarie februarie martie aprilie mai iunie iulie august septembrie octombrie noiembrie decembrie".split()
 HIST_F = ROOT / "data" / "history.json"
 USAGE_F = ROOT / "data" / "gemini_usage.json"
 MAX_DAILY_GEMINI_REQUESTS = 2
+MAX_GEMINI_REQUESTS_PER_RUN = 1
 REQUESTS_THIS_RUN = 0
 now = dt.datetime.now(ZoneInfo("Europe/Bucharest"))
 TODAY_ISO = now.strftime("%Y-%m-%d")
@@ -116,7 +115,10 @@ def saved_edition():
     path = ROOT / "data" / "archive" / f"{TODAY_ISO}.json"
     try:
         data = json.loads(path.read_text("utf-8"))
-        if isinstance(data, dict) and any(isinstance(data.get(name), list) and data[name] for name in CFG["categories"]):
+        if isinstance(data, dict) and all(
+            isinstance(data.get(name), list) and len(data[name]) >= MIN_OK
+            for name in CFG["categories"]
+        ):
             return data
     except (OSError, ValueError):
         pass
@@ -124,11 +126,11 @@ def saved_edition():
 
 def reserve_gemini():
     """Reserve before HTTP; Actions must commit/push this file before generation."""
+    if saved_edition():
+        print(f"Ediția completă din {TODAY_ISO} este deja salvată. Nu e nevoie de o cerere Gemini.", flush=True)
+        return
     ledger = usage_ledger()
     entry = usage_entry(ledger)
-    if entry.get("ai_completed") and saved_edition():
-        print(f"Ediția AI din {TODAY_ISO} este deja salvată; o refolosesc fără alte cereri Gemini.", flush=True)
-        return
     run_id = reservation_id()
     if not run_id:
         raise GeminiBudgetError("Rezervarea Gemini necesită GITHUB_RUN_ID și GITHUB_RUN_ATTEMPT.")
@@ -137,18 +139,27 @@ def reserve_gemini():
         print(f"Rezervarea acestei rulări există deja ({reservations[run_id]['state']}); nu o redeschid.", flush=True)
         return
     held = sum(max(0, r["slots"] - r["used"]) for r in reservations.values() if r.get("state") == "reserved")
-    slots = max(0, MAX_DAILY_GEMINI_REQUESTS - entry["requests"] - held)
-    if entry.get("daily_quota_exhausted") or not slots:
+    available = MAX_DAILY_GEMINI_REQUESTS - entry["requests"] - held
+    if entry.get("daily_quota_exhausted") or available <= 0:
         print(f"Bugetul Gemini din {TODAY_ISO} este folosit sau rezervat; continui fără cereri API.", flush=True)
         return
+    slots = min(MAX_GEMINI_REQUESTS_PER_RUN, available)
     reservations[run_id] = {"slots": slots, "used": 0, "state": "reserved", "reserved_at": dt.datetime.now(dt.timezone.utc).isoformat()}
     save_usage(ledger)
-    print(f"Am rezervat {slots} cereri Gemini pentru rularea {run_id}. Rezervarea trebuie salvată în main înainte de API.", flush=True)
+    print(f"Am rezervat o cerere Gemini pentru rularea {run_id}. Rezervarea trebuie salvată în main înainte de API.", flush=True)
+
+def reservation_available(entry, reservation):
+    return (
+        not entry.get("daily_quota_exhausted")
+        and entry["requests"] < MAX_DAILY_GEMINI_REQUESTS
+        and reservation.get("state") == "reserved"
+        and reservation["used"] < min(reservation["slots"], MAX_GEMINI_REQUESTS_PER_RUN)
+    )
 
 def has_gemini_reservation():
     entry = usage_entry(usage_ledger())
     reservation = entry.get("reservations", {}).get(reservation_id(), {})
-    return not entry.get("daily_quota_exhausted") and reservation.get("state") == "reserved" and reservation.get("used", 0) < reservation.get("slots", 0)
+    return reservation_available(entry, reservation)
 
 def consume_gemini_request():
     global REQUESTS_THIS_RUN
@@ -157,7 +168,7 @@ def consume_gemini_request():
     ledger = usage_ledger()
     entry = usage_entry(ledger)
     reservation = entry.get("reservations", {}).get(reservation_id(), {})
-    if entry.get("daily_quota_exhausted") or reservation.get("state") != "reserved" or reservation.get("used", 0) >= reservation.get("slots", 0) or entry["requests"] >= MAX_DAILY_GEMINI_REQUESTS:
+    if not reservation_available(entry, reservation):
         raise GeminiBudgetError("Nu mai există un slot Gemini rezervat pentru această rulare; nu trimit alte cereri.")
     if os.getenv("GITHUB_ACTIONS") == "true":
         # A failed commit/push must not leave an unprotected API call possible.
@@ -238,34 +249,18 @@ def gemini(prompt, schema, max_output_tokens=MAX_OUTPUT_TOKENS):
     body = {"contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"maxOutputTokens": max_output_tokens, "thinkingConfig": {"thinkingLevel": "LOW"},
                                  "responseMimeType": "application/json", "responseSchema": schema}}
-    for attempt in range(GEMINI_5XX_RETRIES + 1):
-        consume_gemini_request()
-        try:
-            response = requests.post(
-                url,
-                json=body,
-                headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]},
-                timeout=GEMINI_TIMEOUT,
-            )
-        except requests.Timeout as ex:
-            raise RuntimeError(
-                "Gemini nu a trimis răspunsul în 120 de secunde. Cererea poate să fi fost procesată; "
-                f"nu o retrimit automat ca să evit un al doilea consum: {ex}"
-            ) from ex
-        except requests.RequestException as ex:
-            raise RuntimeError(f"Gemini nu a răspuns; cererea nu a fost retrimisă: {ex}") from ex
-
-        if response.status_code in (500, 502, 503, 504) and attempt < GEMINI_5XX_RETRIES:
-            if not has_gemini_reservation():
-                raise GeminiBudgetError("Gemini a răspuns cu o eroare temporară; bugetul zilnic nu permite o nouă cerere.")
-            try:
-                delay = min(60, max(1, int(response.headers.get("Retry-After", "15"))))
-            except ValueError:
-                delay = 15
-            print(f"Gemini a răspuns HTTP {response.status_code}; reîncerc o singură dată după {delay}s.", flush=True)
-            time.sleep(delay)
-            continue
-        break
+    consume_gemini_request()
+    try:
+        response = requests.post(
+            url,
+            json=body,
+            headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]},
+            timeout=GEMINI_TIMEOUT,
+        )
+    except requests.Timeout as ex:
+        raise RuntimeError("Gemini nu a trimis răspunsul în 120 de secunde. Cererea rămâne contabilizată pentru această rulare.") from ex
+    except requests.RequestException as ex:
+        raise RuntimeError("Conexiunea la Gemini a eșuat. Cererea rămâne contabilizată pentru această rulare.") from ex
 
     if response.status_code == 429:
         fields, message = gemini_error_fields(response)
@@ -274,7 +269,10 @@ def gemini(prompt, schema, max_output_tokens=MAX_OUTPUT_TOKENS):
             raise GeminiQuotaError(f"Limita zilnică Gemini a fost atinsă (HTTP 429). Detalii: {fields}.")
         raise RuntimeError(f"Gemini a impus o limită temporară (HTTP 429); cererea nu a fost retrimisă. Detalii: {fields}.")
     if response.status_code >= 500:
-        raise RuntimeError(f"Gemini este temporar indisponibil (HTTP {response.status_code}); cererea nu a fost retrimisă.")
+        fields, _ = gemini_error_fields(response)
+        status = fields.get("status")
+        detail = f" {status}" if status else ""
+        raise RuntimeError(f"Gemini este temporar indisponibil (HTTP {response.status_code}{detail}). Plafonul este de o cerere pe rulare.")
     if response.status_code == 401:
         raise RuntimeError("Gemini a respins cheia API (HTTP 401). Verifică secretul GEMINI_API_KEY în repository.")
     if response.status_code == 403:
@@ -764,13 +762,15 @@ def main():
         else:
             print("Fără API: păstrez ediția publicată; nu o înlocuiesc cu titluri sau fragmente RSS.", flush=True)
         return
-    entry = usage_entry(usage_ledger())
-    if entry.get("ai_completed") and existing_edition:
-        reuse_edition(existing_edition)
+    if existing_edition:
+        print(f"Ediția completă din {TODAY_ISO} este deja salvată. Folosesc fișierele existente.", flush=True)
         return
-    api_allowed = has_gemini_reservation()
-    if not api_allowed and existing_edition:
-        reuse_edition(existing_edition)
+    if not has_gemini_reservation():
+        print("Nu există o rezervare Gemini disponibilă. Folosesc fișierele existente.", flush=True)
+        return
+    if not os.getenv("GEMINI_API_KEY"):
+        finish_gemini_reservation()
+        print("GEMINI_API_KEY lipsește. Folosesc fișierele existente.", flush=True)
         return
     done, all_candidates = {}, []
     for name, cat in CFG["categories"].items():
@@ -789,10 +789,9 @@ def main():
     prepared_counts = {name: sum(item["_section"] == name for item in prepared) for name in CFG["categories"]}
     print(f"\nTexte disponibile pentru redactare: {prepared_counts}.", flush=True)
     generated, quota_exhausted = [], False
-    api_key = os.getenv("GEMINI_API_KEY")
     if any(count < MIN_OK for count in prepared_counts.values()):
         print(f"Ediția are nevoie de minimum {MIN_OK} texte documentate pe fiecare secțiune. Păstrez ediția publicată.", flush=True)
-    elif api_key and api_allowed:
+    else:
         try:
             generated = write_batch(prepared)
             print(f"Gemini: {REQUESTS_THIS_RUN} cereri în această rulare; {len(generated)} știri validate în total", flush=True)
@@ -803,10 +802,6 @@ def main():
             print(f"\n! {ex}\n! Păstrez ediția existentă dacă este disponibilă.", flush=True)
         except Exception as ex:
             print(f"\n! Gemini nu a putut redacta ediția: {ex}\n! Păstrez ediția publicată, fără alte apeluri Gemini.", flush=True)
-    elif api_key:
-        print("! Nu există o rezervare Gemini disponibilă; păstrez ediția publicată fără API.", flush=True)
-    else:
-        print("! GEMINI_API_KEY lipsește; păstrez ediția publicată fără apel Gemini.", flush=True)
 
     for name in CFG["categories"]:
         done[name] = [
@@ -817,10 +812,6 @@ def main():
     if any(count < MIN_OK for count in counts.values()):
         print(f"Ediție incompletă după validare: {counts}. Păstrez ediția publicată.", flush=True)
         finish_gemini_reservation(quota_exhausted=quota_exhausted)
-        if existing_edition:
-            reuse_edition(existing_edition)
-        else:
-            print("Nu există o ediție nouă completă; paginile publicate rămân disponibile.", flush=True)
         return
 
     for name, cat in CFG["categories"].items():
