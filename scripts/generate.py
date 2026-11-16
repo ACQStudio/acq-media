@@ -388,6 +388,7 @@ def is_romanian_text(value, min_markers=1):
 
 HOT_ENTERTAINMENT = re.compile(r"\b(?:monden\w*|showbiz|entertainment|vedet\w*|celebrit\w*|cantaret\w*|solist\w*|actor\w*|actrit\w*|artist\w*|influencer\w*|divort\w*|nunt\w*|iubit\w*|despart\w*|cupl\w*|casatori\w*)\b")
 HOT_GENERAL_NEWS = re.compile(r"\b(?:politic\w*|aleger\w*|parlament\w*|guvern\w*|economie|economic\w*|geopolitic\w*|gaze|gazelor|pret(?:ul|uri|urilor)?|factur\w*|pensi[ei]\w*|tax[ae]\w*|inflati\w*|banc[ai]\w*|energie|energetic\w*|razboi\w*|cutremur\w*|meteo|vremea|horoscop|accident\w*|trafic\w*|actualitate)\b")
+HOT_ARMED_INCIDENT = re.compile(r"\b(?:atac(?:uri|ul|urile)? armat(?:e)?|impuscatur\w+|schimb(?:uri|ul)? de focuri)\b")
 MUSIC_SUBJECT = re.compile(r"\b(?:music\w*|muzic\w*|album\w*|single\w*|song\w*|singer\w*|cantaret\w*|solist\w*|rapper\w*|rap|hip.?hop|band\w*|trup[ae]\w*|concert\w*|tour\w*|turne\w*|festival\w*|soundtrack\w*|coloana sonora|grammy\w*|brit awards|spotify|billboard charts|chart\w*|record label\w*|label\w*|casa de discuri|case de discuri|royalt\w*|streaming|songwrit\w*|compozitor\w*|dj|ticketmaster|live nation|licentiere|publishing|melodi\w*|pies[ae]\w*|chitar\w*|tob[ae]\w*|drummer\w*)\b")
 MUSIC_ACTIVITY = re.compile(r"\b(?:music\w*|muzic\w*|album\w*|single\w*|song\w*|concert\w*|tour\w*|turne\w*|festival\w*|soundtrack\w*|coloana sonora|grammy\w*|spotify|chart\w*|record label\w*|casa de discuri|case de discuri|royalt\w*|drept\w* de autor|streaming|songwrit\w*|compozitor\w*|ticketmaster|live nation|melodi\w*|pies[ae]\w*)\b")
 NEWS_SUBJECT = re.compile(r"\b(?:politic\w*|geopolitic\w*|aleger\w*|electoral\w*|midterms|guvern\w*|parlament\w*|presedint\w*|ministr\w*|diplomat\w*|ambasad\w*|armistiti\w*|razboi\w*|conflict\w*|militar\w*|sabotaj\w*|sanctiun\w*|nato|pentagon\w*|kremlin\w*|trump|putin|zelensk\w*|netanyahu|bolsonaro|georgescu|iran\w*|israel\w*|ucrain\w*|rusia|rusesti|houth\w*|economie|economic\w*|afacer\w*|business|contract\w*|corporat\w*|startup\w*|invest\w*|profit\w*|venit\w*|pierder\w*|listare\w*|burs\w*|actiuni|actionar\w*|fuziun\w*|achiziti\w*|concedier\w*|angajati|banc[ai]\w*|bank\w*|credit\w*|inflati\w*|petrol\w*|gaze|gazelor|energie|energetic\w*|comert\w*|tarif\w*|antitrust|reglement\w*)\b")
@@ -408,7 +409,12 @@ def relevant(item, section):
     som = host == "news.soldoutmedia.ro"
     topic_set = {normalized(topic) for topic in item.get("topics", [])}
     if section == "hot":
-        if host != "cancan.ro" and not host.endswith(".cancan.ro") and not (som and "entertainment" in topic_set):
+        cancan = host == "cancan.ro" or host.endswith(".cancan.ro")
+        if not cancan and not (som and "entertainment" in topic_set):
+            return False
+        headline = normalized(item.get("title", ""))
+        if (cancan and "stiri" in topic_set and HOT_ARMED_INCIDENT.search(headline)
+                and not HOT_ENTERTAINMENT.search(f"{headline} {normalized(topics)}")):
             return False
         return not HOT_GENERAL_NEWS.search(text) or bool(HOT_ENTERTAINMENT.search(text))
     if section == "music":
@@ -607,8 +613,15 @@ def write_batch(items):
     section_limits = {section: min(SECTION_LIMITS.get(section, 5), count) for section, count in section_counts.items()}
     section_minima = {section: min(MIN_OK, count) for section, count in section_counts.items()}
     result_limits = dict(section_limits)
-    if "news" in result_limits:
-        result_limits["news"] = min(section_counts["news"], section_limits["news"] + 2)
+    for section in ("news", "music"):
+        if section in result_limits:
+            result_limits[section] = min(section_counts[section], section_limits[section] + 2)
+    music_reserves = result_limits.get("music", 0) - section_limits.get("music", 0)
+    music_reserve_note = (
+        f"La Music, prioritizează cel puțin 4 știri complete, apoi adaugă până la {music_reserves} știri de rezervă "
+        "complet redactate după țintă, dacă ai subiecte distincte și bine documentate. "
+        if music_reserves else ""
+    )
     selected_limit = sum(result_limits.values())
     # Keep the Gemini decoding schema small. Array bounds and a repeated enum
     # can exceed its grammar limits. The prompt and Python validation enforce them.
@@ -628,12 +641,14 @@ def write_batch(items):
     prompt = (
         "Ești redactor la un site de știri în limba română. Primești texte numerotate din mai multe secțiuni. "
         "Pentru Sport, Hot și Music selectează între 4 și 5 știri distincte. "
+        f"{music_reserve_note}"
         f"Ținta News este de {section_limits.get('news', 0)} știri publicabile. Parcurge toți candidații News, inclusiv rezervele, înainte de a încheia selecția. "
         "Caută circa două subiecte de geopolitică, două de politică, două de afaceri, două de finanțe/economie, unul de inteligență artificială și încă un subiect important. "
         "Include atât România, cât și mai multe regiuni ale lumii. Când o temă nu are suficiente texte, completează cu altă temă News bine documentată. "
         "Ordonează News după importanță, cu știrile publicabile înaintea celor marcate skip. Poți include cel mult două articole de rezervă după ținta News. "
         "Hot trebuie să conțină exclusiv cancan/showbiz și vedete; exclude știrile generale și bârfele neconfirmate. Alege subiecte diferite și, pe cât posibil, cel mult o știre despre aceeași persoană în ediție. "
         "Pentru fiecare secțiune citește titlurile publicate în ultimele 7 zile de mai jos. Nu repeta aceeași știre, întâmplare sau un titlu doar reformulat. Dacă o persoană apare din nou, acceptă numai o evoluție clar nouă și relevantă. "
+        "Un articol despre același meci, turneu sau interviu trebuie să aducă un rezultat ori un fapt nou, relevant și documentat. O altă sursă sau o reacție fără informație nouă nu schimbă subiectul. "
         "Nu întoarce doar una dacă există patru texte complete și distincte. "
         "Compară și textele de rezervă înainte să alegi. Dacă sursele nu susțin suficiente știri, păstrează doar câte sunt documentate. "
         "Nu completa lista cu subiecte marginale, duplicate sau care țin de altă secțiune. Muzică înseamnă muzică și industria sa. "
@@ -679,8 +694,11 @@ def write_batch(items):
             continue
         if not all(isinstance(article.get(key), str) and article[key].strip() for key in ("cat", "hed", "sum")):
             continue
-        if article["cat"] not in category_labels or not is_romanian_text(article["hed"] + " " + article["sum"], min_markers=3):
-            print(f"  ! resping rezultatul {i}: eticheta sau titlul nu este în română", flush=True)
+        if article["cat"] not in category_labels:
+            print(f"  ! resping rezultatul {i}: etichetă de categorie neacceptată", flush=True)
+            continue
+        if not is_romanian_text(article["hed"] + " " + article["sum"], min_markers=3):
+            print(f"  ! resping rezultatul {i}: titlul și rezumatul nu au trecut verificarea limbii române", flush=True)
             continue
         if not isinstance(article.get("body"), list) or not 3 <= len(article["body"]) <= 4 or not all(isinstance(p, str) and p.strip() for p in article["body"]):
             continue

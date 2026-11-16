@@ -58,6 +58,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Înregistrează programarea și ora pornirii
+        if: ${{ github.event_name == 'schedule' }}
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+        run: printf 'Cron GitHub %s; pornit la %s\n' "$SCHEDULE" "$(TZ=Europe/Bucharest date -Iseconds)"
       - name: Descarcă ultima versiune main
         uses: actions/checkout@v4
         with:
