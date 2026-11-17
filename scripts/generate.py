@@ -19,6 +19,7 @@ CFG = json.loads((ROOT / "feeds.json").read_text("utf-8"))
 MODEL = os.getenv("GEMINI_MODEL", CFG["model"])
 MIN_OK, MAX_AGE_H = 4, 40
 SECTION_LIMITS = {"sport": 5, "hot": 5, "news": 10, "music": 5}
+SECTION_DRAFT_LIMITS = {"sport": 6, "hot": 6, "news": 11, "music": 6}
 SECTION_PREPARED = {"sport": 7, "hot": 8, "news": 19, "music": 8}
 SECTION_ATTEMPTS = {"sport": 10, "hot": 12, "news": 34, "music": 12}
 MAX_OUTPUT_TOKENS = 12000
@@ -612,16 +613,8 @@ def write_batch(items):
     section_counts = {section: sum(item["_section"] == section for item in items) for section in briefs}
     section_limits = {section: min(SECTION_LIMITS.get(section, 5), count) for section, count in section_counts.items()}
     section_minima = {section: min(MIN_OK, count) for section, count in section_counts.items()}
-    result_limits = dict(section_limits)
-    for section in ("news", "music"):
-        if section in result_limits:
-            result_limits[section] = min(section_counts[section], section_limits[section] + 2)
-    music_reserves = result_limits.get("music", 0) - section_limits.get("music", 0)
-    music_reserve_note = (
-        f"La Music, prioritizează cel puțin 4 știri complete, apoi adaugă până la {music_reserves} știri de rezervă "
-        "complet redactate după țintă, dacă ai subiecte distincte și bine documentate. "
-        if music_reserves else ""
-    )
+    result_limits = {section: min(count, SECTION_DRAFT_LIMITS[section])
+                     for section, count in section_counts.items()}
     selected_limit = sum(result_limits.values())
     # Keep the Gemini decoding schema small. Array bounds and a repeated enum
     # can exceed its grammar limits. The prompt and Python validation enforce them.
@@ -640,16 +633,16 @@ def write_batch(items):
     ) or "Nu există titluri arhivate recente."
     prompt = (
         "Ești redactor la un site de știri în limba română. Primești texte numerotate din mai multe secțiuni. "
-        "Pentru Sport, Hot și Music selectează între 4 și 5 știri distincte. "
-        f"{music_reserve_note}"
+        "Pentru Sport, Hot și Music caută șase subiecte distincte și bine documentate pe secțiune. "
+        "Redactează integral și știrile de rezervă, în aceeași listă după primele cinci. "
         f"Ținta News este de {section_limits.get('news', 0)} știri publicabile. Parcurge toți candidații News, inclusiv rezervele, înainte de a încheia selecția. "
         "Caută circa două subiecte de geopolitică, două de politică, două de afaceri, două de finanțe/economie, unul de inteligență artificială și încă un subiect important. "
         "Include atât România, cât și mai multe regiuni ale lumii. Când o temă nu are suficiente texte, completează cu altă temă News bine documentată. "
-        "Ordonează News după importanță, cu știrile publicabile înaintea celor marcate skip. Poți include cel mult două articole de rezervă după ținta News. "
+        "Ordonează News după importanță. Include o știre de rezervă complet redactată după ținta News, dacă există. "
         "Hot trebuie să conțină exclusiv cancan/showbiz și vedete; exclude știrile generale și bârfele neconfirmate. Alege subiecte diferite și, pe cât posibil, cel mult o știre despre aceeași persoană în ediție. "
         "Pentru fiecare secțiune citește titlurile publicate în ultimele 7 zile de mai jos. Nu repeta aceeași știre, întâmplare sau un titlu doar reformulat. Dacă o persoană apare din nou, acceptă numai o evoluție clar nouă și relevantă. "
         "Un articol despre același meci, turneu sau interviu trebuie să aducă un rezultat ori un fapt nou, relevant și documentat. O altă sursă sau o reacție fără informație nouă nu schimbă subiectul. "
-        "Nu întoarce doar una dacă există patru texte complete și distincte. "
+        "Începe fiecare listă cu cel puțin patru texte complete și distincte, dacă există material suficient. "
         "Compară și textele de rezervă înainte să alegi. Dacă sursele nu susțin suficiente știri, păstrează doar câte sunt documentate. "
         "Nu completa lista cu subiecte marginale, duplicate sau care țin de altă secțiune. Muzică înseamnă muzică și industria sa. "
         "Nu amesteca secțiunile și nu combina articole. "
@@ -662,7 +655,7 @@ def write_batch(items):
         "Atribuie explicit sursei acuzațiile și declarațiile controversate. Ton neutru. "
         f"Pentru cat alege strict una dintre aceste etichete: {', '.join(category_labels)}. "
         "hed = titlu de maximum 95 de caractere; "
-        "sum = rezumat de 1-2 propoziții, 25-35 de cuvinte; body = 3 paragrafe, aproximativ 100-160 de cuvinte în total. "
+        "sum = rezumat de 1-2 propoziții, 25-35 de cuvinte; body = 3 paragrafe, aproximativ 100-130 de cuvinte în total. "
         "Corpul trebuie să dezvolte știrea: ce s-a întâmplat, detaliile concrete disponibile și contextul relevant din sursă. "
         "Nu repeta doar rezumatul și nu adăuga formule despre fluxul RSS, accesarea sursei sau lipsa informațiilor. "
         "Dacă textul-sursă nu susține cel puțin 3 paragrafe informative, marchează skip=true. "
