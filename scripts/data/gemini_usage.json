@@ -425,6 +425,12 @@
         }
       },
       "edition_articles": 22
+    },
+    "2026-11-21": {
+      "requests": 0,
+      "ai_completed": false,
+      "reservations": {},
+      "edition_articles": 22
     }
   }
 }
