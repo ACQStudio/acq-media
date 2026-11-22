@@ -433,14 +433,15 @@
       "edition_articles": 22
     },
     "2026-11-22": {
-      "requests": 0,
+      "requests": 1,
       "ai_completed": false,
       "reservations": {
         "45011023638-1": {
           "slots": 1,
-          "used": 0,
-          "state": "reserved",
-          "reserved_at": "2026-11-22T10:09:34.832692+00:00"
+          "used": 1,
+          "state": "finished",
+          "reserved_at": "2026-11-22T10:09:34.832692+00:00",
+          "finished_at": "2026-11-22T10:10:08.249756+00:00"
         }
       }
     }
