@@ -453,16 +453,21 @@
       }
     },
     "2026-11-23": {
-      "requests": 0,
-      "ai_completed": false,
+      "requests": 1,
+      "ai_completed": true,
       "reservations": {
         "45162158719-1": {
           "slots": 1,
-          "used": 0,
-          "state": "reserved",
-          "reserved_at": "2026-11-23T11:07:07.505433+00:00"
+          "used": 1,
+          "state": "finished",
+          "reserved_at": "2026-11-23T11:07:07.505433+00:00",
+          "finished_at": "2026-11-23T11:07:52.362909+00:00"
         }
-      }
+      },
+      "successful_run_id": "45162158719",
+      "ai_articles": 25,
+      "edition_articles": 25,
+      "evidence": "https://github.com/ACQStudio/acq-media/actions/runs/45162158719"
     }
   }
 }
