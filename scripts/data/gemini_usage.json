@@ -501,6 +501,18 @@
           "finished_at": "2026-11-25T14:32:26.345483+00:00"
         }
       }
+    },
+    "2026-11-26": {
+      "requests": 0,
+      "ai_completed": false,
+      "reservations": {
+        "45810200469-1": {
+          "slots": 1,
+          "used": 0,
+          "state": "reserved",
+          "reserved_at": "2026-11-26T11:24:00.479754+00:00"
+        }
+      }
     }
   }
 }
